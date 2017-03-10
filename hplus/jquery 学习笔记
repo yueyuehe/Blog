@@ -1,0 +1,160 @@
+jquery 学习笔记
+jq对象转化为dom对象
+	$.get(index);
+	$("#XX")[index];
+dom->JQ对象
+	$(dom);
+id选择器	$("#id") 
+类选择器	$(".class")
+标签选择	$("input")
+
+浏览器兼容问题
+	IE会将注释节点实现为元素，所以在IE中调用getElementsByTagName里面会包含注释节点，这个通常是不应该的
+	getElementById的参数在IE8及较低的版本不区分大小写
+	IE7及较低的版本中，表单元素中，如果表单A的name属性名用了另一个元素B的ID名并且A在B之前，那么getElementById会选中A
+	IE8及较低的版本，浏览器不支持getElementsByClassName
+
+$(*) = *{padding:0,margin:0};
+
+$("parent > child") 
+	子选择器，选择指定parent 元素中指定的"child"的直接子元素
+$("元素1 元素2") 
+	后代选择器，选择元素1的所有后代元素2 包括子元素，孙子元素。。。
+$("prev + next")	
+	相邻兄弟选择器 选择紧接在"prev"元素后的 "next"元素
+$("prev ~ siblings")
+
+
+层级选择器都有一个参考节点
+后代选择器包含子选择器的选择的内容
+一般兄弟选择器包含相邻兄弟选择的内容
+相邻兄弟选择器和一般兄弟选择器所选择到的元素，
+必须在同一个父元素下
+
+小结
+> （大于号）紧跟父子关系 如$("div > p")表示选择div下的直接层是p的节点。
+
++ （加号）  紧跟兄弟关系 如$("div + p")表示选择div同层的左右相邻的p节点。
+
+~ （波浪线）任意距离兄弟关系 如$("div + p")表示选择div同层的p节点。
+
+(空格)    任意层父子关系 如$("div p")表示选择div下的p节点（不管中间隔多少层）。
+
+,(逗号)   表示选择器组合，如$("div p, span p")表示div下p节点和span下p节点。
+还有很多的选择器
+
+
+this，表示当前的上下文对象是一个html对象，可以调用html对象所拥有的属性和方法。
+$(this),代表的上下文对象是一个jquery的上下文对象，可以调用jQuery的方法和属性值。
+
+常用方法
+attr()有4个表达式
+
+	attr(传入属性名)：获取属性的值
+	attr(属性名, 属性值)：设置属性的值
+	attr(属性名,函数值)：设置属性的函数值
+	attr(attributes)：给指定元素设置多个属性值，即：{属性名一: “属性值一” , 属性名二: “属性值二” , … … }
+
+	removeAttr( attributeName ) : 为匹配的元素集合中的每个元素中移除一个属性（attribute）
+
+	.html()方法 
+
+	获取集合中第一个匹配元素的HTML内容 或 设置每一个匹配元素的html内容，具体有3种用法：
+
+	.html() 不传入值，就是获取集合中第一个匹配元素的HTML内容
+	.html( htmlString )  设置每一个匹配元素的html内容
+	.html( function(index, oldhtml) ) 用来返回设置HTML内容的一个函数
+
+	.text() 得到匹配元素集合中每个元素的合并文本，包括他们的后代
+	.text( textString ) 用于设置匹配元素内容的文本
+	.text( function(index, text) ) 用来返回设置文本内容的一个函数
+
+	.html与.text的方法操作是一样，只是在具体针对处理对象不同
+	.html处理的是元素内容，.text处理的是文本内容
+	.html只能使用在HTML文档中，.text 在XML 和 HTML 文档中都能使用
+	如果处理的对象只有一个子文本节点，那么html处理的结果与text是一样的
+	火狐不支持innerText属性，用了类似的textContent属性，.text()方法综合了2个属性的支持，所以可以兼容所有浏览器
+
+.val()方法
+
+.val()无参数，获取匹配的元素集合中第一个元素的当前值
+.val( value )，设置匹配的元素集合中每个元素的值
+.val( function ) ，一个用来返回设置值的函数
+ 注意事项：
+
+通过.val()处理select元素， 当没有选择项被选中，它返回null
+.val()方法多用来设置表单的字段的值
+如果select元素有multiple（多选）属性，并且至少一个选择项被选中， .val()方法返回一个数组，这个数组包含每个选中选择项的值
+ 
+
+.html(),.text()和.val()的差异总结：  
+
+.html(),.text(),.val()三种方法都是用来读取选定元素的内容；只不过.html()是用来读取元素的html内容（包括html标签），.text()用来读取元素的纯文本内容，包括其后代元素，.val()是用来读取表单元素的"value"值。其中.html()和.text()方法不能使用在表单元素上,而.val()只能使用在表单元素上；另外.html()方法使用在多个元素上时，只读取第一个元素；.val()方法和.html()相同，如果其应用在多个元素上时，只能读取第一个表单元素的"value"值，但是.text()和他们不一样，如果.text()应用在多个元素上时，将会读取所有选中元素的文本内容。
+.html(htmlString),.text(textString)和.val(value)三种方法都是用来替换选中元素的内容，如果三个方法同时运用在多个元素上时，那么将会替换所有选中元素的内容。
+.html(),.text(),.val()都可以使用回调函数的返回值来动态的改变多个元素的内容。
+
+.addClass( className )方法
+
+.addClass( className ) : 为每个匹配元素所要增加的一个或多个样式名
+.addClass( function(index, currentClass) ) : 这个函数返回一个或更多用空格隔开的要增加的样式名
+注意事项：
+
+.addClass()方法不会替换一个样式类名。它只是简单的添加一个样式类名到元素上
+
+.removeClass( )方法
+
+.removeClass( [className ] )：每个匹配元素移除的一个或多个用空格隔开的样式名
+.removeClass( function(index, class) ) ： 一个函数，返回一个或多个将要被移除的样式名
+注意事项
+
+如果一个样式类名作为一个参数,只有这样式类会被从匹配的元素集合中删除 。 如果没有样式名作为参数，那么所有的样式类将被移除
+
+在做某些效果的时候，可能会针对同一节点的某一个样式不断的切换，也就是addClass与removeClass的互斥切换，比如隔行换色效果
+
+jQuery提供一个toggleClass方法用于简化这种互斥的逻辑，通过toggleClass方法动态添加删除Class，一次执行相当于addClass，再次执行相当于removeClass
+
+.toggleClass( )方法：在匹配的元素集合中的每个元素上添加或删除一个或多个样式类,取决于这个样式类是否存在或值切换属性。即：如果存在（不存在）就删除（添加）一个类
+
+.toggleClass( className )：在匹配的元素集合中的每个元素上用来切换的一个或多个（用空格隔开）样式类名
+.toggleClass( className, switch )：一个布尔值，用于判断样式是否应该被添加或移除
+.toggleClass( [switch ] )：一个用来判断样式类添加还是移除的 布尔值
+.toggleClass( function(index, class, switch) [, switch ] )：用来返回在匹配的元素集合中的每个元素上用来切换的样式类名的一个函数。接收元素的索引位置和元素旧的样式类作为参数
+注意事项：
+
+toggleClass是一个互斥的逻辑，也就是通过判断对应的元素上是否存在指定的Class名，如果有就删除，如果没有就增加
+toggleClass会保留原有的Class名后新增，通过空格隔开
+
+.css() 方法：获取元素样式属性的计算值或者设置元素的CSS属性
+
+获取：
+
+.css( propertyName ) ：获取匹配元素集合中的第一个元素的样式属性的计算值
+.css( propertyNames )：传递一组数组，返回一个对象结果
+设置：
+
+ .css(propertyName, value )：设置CSS
+.css( propertyName, function )：可以传入一个回调函数，返回取到对应的值进行处理
+.css( properties )：可以传一个对象，同时设置多个样式
+注意事项：
+
+浏览器属性获取方式不同，在获取某些值的时候都jQuery采用统一的处理，比如颜色采用RBG，尺寸采用px
+.css()方法支持驼峰写法与大小写混搭的写法，内部做了容错的处理
+当一个数只被作为值（value）的时候， jQuery会将其转换为一个字符串，并添在字符串的结尾处添加px，例如 .css("width",50}) 与 .css("width","50px"})一样
+
+.append()和.appendTo()两种方法功能相同，主要的不同是语法——内容和目标的位置不同
+
+append()前面是被插入的对象，后面是要在对象内插入的元素内容
+appendTo()前面是要插入的元素内容，而后面是被插入的对象
+
+empty方法
+
+严格地讲，empty()方法并不是删除节点，而是清空节点，它能清空元素中的所有后代节点
+empty不能删除自己本身这个节点
+remove方法
+
+该节点与该节点所包含的所有后代节点将同时被删除
+提供传递一个筛选的表达式，删除指定合集中的元素
+
+这个方法不会把匹配的元素从jQuery对象中删除，因而可以在将来再使用这些匹配的元素。与remove()不同的是，所有绑定的事件、附加的数据等都会保留下来。
+$("div").detach()这一句会移除对象，仅仅是显示效果没有了。但是内存中还是存在的。当你append之后，又重新回到了文档流中。就又显示出来了。
+当然这里要特别注意，detach方法是JQuery特有的，所以它只能处理通过JQuery的方法绑定的事件或者数据
