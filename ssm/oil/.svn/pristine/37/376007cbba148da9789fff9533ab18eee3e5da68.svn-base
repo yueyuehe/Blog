@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>管道保护电位测量记录审核：</li>
+	    </ul>
+    </div>
+    <form id="searchForm" method="post" class="formbody">
+    <div class="rightinfo">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<table class="tablelistModi" th:if="${pmList!=null and not #lists.isEmpty(pmList)}">
+				<thead>
+					<tr>
+						<th width="50">序号</th>
+						<th width="90">所属管线</th>
+						<th width="130">起止段落</th>
+						<th width="80">管线规格</th>
+						<th width="100">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="pm,status:${pmList}">
+						<td th:text="${status.count}">序号</td>
+						<td th:text="${pm.pl_name}">名称</td>
+						<td th:text="${pm.pl_section_name}"></td>
+						<td th:text="${pm.pl_spec_name}"></td>
+						<td>
+							<a th:href="@{/admin/base/new/pl_measure/show_verify(pl_id=${pm.pl_id},pl_section_id=${pm.pl_section_id},pl_spec_id=${pm.pl_spec_id},f=1)}" >审核</a>
+						</td>
+					</tr>
+				</tbody>
+		</table>
+		<div th:if="${pmList==null or #lists.isEmpty(pmList)}">
+			无待审核数据
+		</div>
+	</div>
+	</form>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+   
+
+/*]]>*/
+</script>
+</html>

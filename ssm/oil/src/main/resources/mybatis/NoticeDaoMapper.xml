@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.NoticeDao">
+	
+	<select id="queryNoticeAuthors" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT su.id, su.`name` FROM notice n, sys_users su WHERE n.`user_id` = su.`id` AND n.`type`=#{type} GROUP BY n.user_id;
+	</select>
+	
+	<update id="updateNoticeStatus">
+		UPDATE notice SET status=#{status} WHERE id=#{id}
+	</update>
+	
+	<update id="updateNoticeFuze">
+		UPDATE notice SET fuze=#{fuze_id},fuze_name=(SELECT `name` FROM sys_users su WHERE su.id=#{fuze_id}) WHERE id=#{id}
+	</update>
+	
+	<update id="TempNoticeTimerTask">
+		UPDATE notice SET is_delay=1 WHERE `status`=1 AND close=0 AND over_time IS NOT null AND over_time &lt; now()
+	</update>
+	
+	<update id="updateTmpNoticeDelayVerify">
+		UPDATE notice_delay SET verify_delay=#{verify_delay},verify_reason=#{verify_reason} WHERE id=#{id}
+	</update>
+	
+	<update id="updateNoticeAsk">
+		UPDATE notice SET ask=#{ask} WHERE id=#{id}
+	</update>
+	
+	<update id="updateNoticeOverTime">
+		UPDATE notice SET over_time=#{over_time} WHERE id=#{id}
+	</update>
+	
+	<update id="updateNoticeIsDelay">
+		UPDATE notice SET is_delay=0 WHERE id=#{id} AND now() &lt; #{over_time}
+	</update>
+	
+	<insert id="insertPublicNotice" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice(title, content, user_id, path, create_time, type) VALUES(#{title}, #{content}, #{user_id}, #{path}, now(), 1)
+	</insert>
+	
+	<insert id="insertTmpNoticeDelay" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice_delay(n_id, delay_reason, delay_time) VALUES(#{n_id}, #{delay_reason}, #{delay_time})
+	</insert>
+	
+	
+	<insert id="insertNoticeAttachement">
+		INSERT INTO notice_attachement(n_id, path) VALUES(#{n_id}, #{path})
+	</insert>
+	
+	<select id="queryAllTmpNoticeDelay" resultType="cn.hm.oil.domain.NoticeDelay">
+		SELECT * FROM notice_delay WHERE n_id=#{n_id}
+	</select>
+	
+	<select id="queryPublicNoticeDetailById" resultType="cn.hm.oil.domain.Notice">
+		SELECT n.user_id, n.title, n.content, n.path, n.create_time,n.status,n.type, su.name AS author FROM notice n, sys_users su 
+		WHERE n.user_id = su.id AND n.id=#{id} AND n.close!=1
+	</select>
+	
+	<insert id="insertTempNotice" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice(title, content, user_id, path, jibie, create_time, type, send,fuze,fuze_name,over_time,last_reply_time) VALUES(#{title}, #{content}, #{user_id}, #{path}, #{jibie}, now(), 2, #{send},#{fuze},#{fuze_name},#{over_time},now())
+	</insert>
+	
+	<insert id="saveRecord" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice_record(content, user_id,n_id,create_time) VALUES(#{content}, #{user_id},#{n_id},now())
+	</insert>
+	
+	<insert id="insertAskNotice" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice(title, content, user_id, path, postil, create_time, type, send, ask_type, ask_ca) VALUES(#{title}, #{content}, #{user_id}, #{path}, #{postil}, now(), 3, #{send}, #{ask_type}, #{ask_ca})
+	</insert>
+	
+	<insert id="insertNoticeReceiver">
+		INSERT INTO notice_receiver(notice_id, user_id,publish_id) VALUES(#{notice_id}, #{user_id},#{publish_id})
+	</insert>
+	
+	<select id="queryTempNoticeDetailById" resultType="cn.hm.oil.domain.Notice">
+		SELECT n.*, el.level AS jibie_name,su.name AS author FROM  sys_users su ,notice n LEFT JOIN event_level el ON n.jibie=el.id
+		WHERE n.user_id = su.id AND n.id=#{id} AND close!=1
+	</select>
+	
+	<select id="queryNoticeReceiver" resultType="cn.hm.oil.domain.NoticeReceiver">
+		SELECT nr.*, su.name AS receiver,su.mail_address AS mail FROM notice_receiver nr, sys_users su
+		WHERE nr.user_id = su.id AND nr.notice_id=#{notice_id}
+	</select>
+	
+	<delete id="deleteReservers" >
+		DELETE FROM notice_receiver WHERE notice_id=#{id}
+	</delete>
+	
+	<delete id="deleteCancelReservers" >
+		DELETE FROM notice_receiver WHERE notice_id=#{notice_id} AND user_id=#{user_id}
+	</delete>
+	
+	<select id="queryWorkerList" resultType="cn.hm.oil.domain.NoticeReceiver">
+		SELECT DISTINCT br.admin as user_id, su.name AS receiver FROM base_resource br, sys_users su 
+		WHERE br.admin = su.id 
+		<if test="pl_id != null">
+		AND pl_id=#{pl_id} 
+		</if>
+		<if test="pl_section_id != null">
+		AND pl_section_id=#{pl_section_id}
+		</if>
+	</select>
+	
+	<select id="queryLeaderList" resultType="cn.hm.oil.domain.NoticeReceiver">
+		SELECT DISTINCT su.id as user_id, su.name AS receiver FROM sys_roles_users sru, sys_users su 
+		WHERE su.id = sru.user_id AND sru.role_id = 2 ORDER BY su.level
+	</select>
+	
+	<select id="queryNoticeReplyByNoticeId" resultType="cn.hm.oil.domain.NoticeReply">
+		SELECT nr.*, su.name AS replier FROM notice_reply nr, sys_users su 
+		WHERE nr.user_id = su.id AND nr.notice_id=#{notice_id}
+		ORDER BY nr.create_time DESC
+	</select>
+	
+	<!-- <delete id="deleteNoticeReplyById">
+		DELETE FROM notice_reply WHERE id=#{id}
+	</delete> -->
+	
+	<select id="queryNoticeReplyById" resultType="cn.hm.oil.domain.NoticeReply">
+		SELECT nr.*, su.name AS replier FROM notice_reply nr, sys_users su 
+		WHERE nr.user_id = su.id AND nr.id=#{id}
+	</select>
+	
+	<insert id="insertNoticeReply">
+		INSERT INTO notice_reply(notice_id, user_id, content, create_time, path) VALUES(#{notice_id}, #{user_id}, #{content}, now(), #{path})
+	</insert>
+	
+	<select id="queryNotice" resultType="cn.hm.oil.domain.Notice">
+		SELECT n.*, (SELECT `name` FROM sys_users WHERE id = n.user_id) AS author
+		<choose>
+			<when test="type==2">
+			,el.level AS jibie_name,IF(n.last_reply_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) AND NOW(),1,0) AS is_new FROM   sys_users su , notice n LEFT JOIN event_level el ON el.id=n.jibie
+					
+				<if test="all==null">
+					WHERE (EXISTS (SELECT id FROM notice_receiver WHERE user_id=#{user_id} AND notice_id=n.id) OR n.user_id = #{user_id} OR n.fuze = #{user_id}) AND n.user_id = su.id AND n.type=2
+				</if>
+				<if test="all!=null">
+					WHERE  n.user_id = su.id AND n.type=2
+				</if>
+			</when>
+			<when test="type==3">
+				<if test="roleId==2">
+			 	FROM notice n,sys_users su, notice_receiver nr 
+			 	WHERE n.user_id = su.id AND nr.notice_id = n.id AND nr.user_id = #{user_id} AND n.type=3
+				</if>
+				<if test="roleId!=2">
+				FROM notice n,notice_receiver nr WHERE n.user_id = #{user_id} AND n.type=3
+				</if>
+			</when>
+			<otherwise>
+			FROM notice n, sys_users su 
+			WHERE n.user_id = su.id
+			</otherwise>
+		</choose>
+		AND n.type=#{type} AND close!=1
+		<if test="status!=null">
+		AND n.status=#{status}
+		</if>
+		<if test="ask_ca!=null and ask_ca==1">
+		AND (n.ask_ca=#{ask_ca} OR n.ask_ca is null)
+		</if>
+		<if test="ask_ca!=null and ask_ca==2">
+		AND n.ask_ca=#{ask_ca}
+		</if>
+		<if test="verify_status!=null">
+		AND n.verify_status = #{verify_status} 
+		</if>
+		<if test="s_title!=null">
+		AND n.title like CONCAT('%',#{s_title},'%')
+		</if>
+		<if test="key_w!=null">
+		AND (n.title like CONCAT('%',#{key_w},'%')
+			OR n.content like CONCAT('%',#{key_w},'%')
+			OR n.postil like CONCAT('%',#{key_w},'%')
+		)
+		</if>
+		<if test="uid!=null">
+		AND n.user_id=#{uid}
+		</if>
+		<if test="f_time!=null">
+		AND n.create_time between #{f_time} and #{t_time}
+		</if>
+	    GROUP BY n.id
+		ORDER BY 
+		<if test="type==2">
+			 is_new DESC,
+		</if>
+		n.create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryNotice_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM (SELECT n.id, (SELECT `name` FROM sys_users WHERE id = n.user_id) AS author
+		<choose>
+			<when test="type==2">
+			FROM notice n, sys_users su
+				<if test="all==null">
+					WHERE (EXISTS (SELECT id FROM notice_receiver WHERE user_id=#{user_id} AND notice_id=n.id) OR n.user_id = #{user_id}  OR n.fuze = #{user_id}) AND n.user_id = su.id AND n.type=2
+				</if>
+				<if test="all!=null">
+					WHERE  n.user_id = su.id AND n.type=2
+				</if>
+			</when>
+			<when test="type==3">
+				<if test="roleId==2">
+			 	FROM notice n,sys_users su, notice_receiver nr 
+			 	WHERE n.user_id = su.id AND nr.notice_id = n.id AND nr.user_id = #{user_id} AND n.type=3
+				</if>
+				<if test="roleId!=2">
+				FROM notice n,notice_receiver nr WHERE n.user_id = #{user_id} AND n.type=3
+				</if>
+			</when>
+			<otherwise>
+			FROM notice n
+			WHERE 1 = 1
+			</otherwise>
+		</choose>
+		AND n.type=#{type} AND close!=1
+		<if test="status!=null">
+		AND n.status=#{status}
+		</if>
+		<if test="ask_ca!=null and ask_ca==1">
+		AND (n.ask_ca=#{ask_ca} OR n.ask_ca is null)
+		</if>
+		<if test="ask_ca!=null and ask_ca==2">
+		AND n.ask_ca=#{ask_ca}
+		</if>
+		<if test="verify_status!=null">
+		AND n.verify_status = #{verify_status} 
+		</if>
+		<if test="s_title!=null">
+		AND n.title like CONCAT('%',#{s_title},'%')
+		</if>
+		<if test="key_w!=null">
+		AND (n.title like CONCAT('%',#{key_w},'%')
+			OR n.content like CONCAT('%',#{key_w},'%')
+			OR n.postil like CONCAT('%',#{key_w},'%')
+		)
+		</if>
+		<if test="uid!=null">
+		AND n.user_id=#{uid}
+		</if>
+		<if test="f_time!=null">
+		AND n.create_time between #{f_time} and #{t_time}
+		</if>
+		 GROUP BY n.id) cn
+	</select>
+	
+	
+	<select id="queryAllNotice" resultType="cn.hm.oil.domain.Notice">
+		SELECT n.*, (SELECT `name` FROM sys_users WHERE id = n.user_id) AS author
+		FROM notice n WHERE
+		type=#{type} AND close!=1 
+		<if test="s_title!=null">
+		AND n.title like CONCAT('%',#{s_title},'%')
+		</if>
+		<if test="key_w!=null">
+		AND (n.title like CONCAT('%',#{key_w},'%')
+			OR n.content like CONCAT('%',#{key_w},'%')
+			OR n.postil like CONCAT('%',#{key_w},'%')
+		)
+		</if>
+		<if test="f_time!=null">
+		AND n.create_time between #{f_time} and #{t_time}
+		</if>
+		<if test="uid!=null">
+		AND n.user_id=#{uid}
+		</if>
+		<if test="status!=null">
+		AND n.status=#{status}
+		</if>
+		<if test="ask_ca!=null and ask_ca==1">
+		AND (n.ask_ca=#{ask_ca} OR n.ask_ca is null)
+		</if>
+		<if test="ask_ca!=null and ask_ca==2">
+		AND n.ask_ca=#{ask_ca}
+		</if>
+		ORDER BY n.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryAllNotice_count" resultType="java.lang.Integer">
+		SELECT count(1)
+				FROM notice WHERE
+		type=#{type} AND close!=1 
+		<if test="s_title!=null">
+		AND title like CONCAT('%',#{s_title},'%')
+		</if>
+		<if test="key_w!=null">
+		AND (title like CONCAT('%',#{key_w},'%')
+			OR content like CONCAT('%',#{key_w},'%')
+			OR create_time like CONCAT('%',#{key_w},'%')
+			OR postil like CONCAT('%',#{key_w},'%')
+		)
+		</if>
+		<if test="f_time!=null">
+		AND create_time between #{f_time} and #{t_time}
+		</if>
+		<if test="uid!=null">
+		AND user_id=#{uid}
+		</if>
+		<if test="status!=null">
+		AND status=#{status}
+		</if>
+		<if test="ask_ca!=null and ask_ca==1">
+		AND (ask_ca=#{ask_ca} OR ask_ca is null)
+		</if>
+		<if test="ask_ca!=null and ask_ca==2">
+		AND ask_ca=#{ask_ca}
+		</if>
+	</select>
+	
+	
+	<select id="queryAllNoticeRecord" resultType="cn.hm.oil.domain.NoticeRecord">
+		SELECT id,content,n_id,user_id,create_time FROM notice_record WHERE n_id=#{n_id}
+		ORDER BY id DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryAllNoticeRecord_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM notice_record WHERE n_id=#{n_id}
+	</select>
+	
+	
+	<select id="queryNoticeRead" resultType="cn.hm.oil.domain.NoticeRead">
+		SELECT * FROM notice_read WHERE notice_id=#{notice_id} AND user_id=#{user_id}
+	</select>
+	
+	<insert id="insertNoticeRead" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice_read(user_id,notice_id) VALUES(#{user_id}, #{notice_id})
+	</insert>
+	
+	<select id="queryNoticeReadList" resultType="cn.hm.oil.domain.Readed">
+		SELECT nd.*,u.`name` AS `name`,u.username AS `username`,n.`title` AS `title` FROM notice_read nd,notice n, sys_users u WHERE u.id = nd.user_id AND n.id=nd.notice_id AND close!=1 
+		ORDER BY n.create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	<select id="queryNoticeReadList_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM notice_read nr,notice n WHERE n.id=nr.notice_id AND close!=1
+	</select>
+	
+	<select id="queryAskNoticeById" resultType="cn.hm.oil.domain.Notice">
+		SELECT * FROM notice WHERE id = #{id} and close!=1
+	</select>
+	
+	<select id="queryNoticeAttachementByNoticeId" resultType="cn.hm.oil.domain.NoticeAttachement">
+		SELECT * FROM notice_attachement WHERE n_id = #{id} 
+	</select>
+	
+	<update id="saveVerify">
+		UPDATE notice SET verifier = #{verifier},verify_status = #{verify_status}, verify_desc = #{verify_desc}, verify_time = NOW() WHERE id=#{id}
+	</update>
+	
+	<update id="updateNoticeClose">
+		UPDATE notice SET close=#{close}  WHERE id=#{id}
+	</update>
+	
+	<update id="updateLastReplyTime">
+		UPDATE notice SET last_reply_time = now()  WHERE id=#{id}
+	</update>
+	
+	<update id="updatePublicNotice">
+		UPDATE notice SET title=#{title},content=#{content}
+		<if test="path!=null">
+		,path=#{path}
+		</if>
+		  WHERE id=#{id}
+	</update>
+	<update id="updateAskNotice">
+		UPDATE notice SET title=#{title},content=#{content} ,postil=#{postil},ask_type=#{ask_type},send=#{send},ask_ca=#{ask_ca}
+		<if test="path!=null">
+		,path=#{path}
+		</if>
+		  WHERE id=#{id}
+	</update>
+	
+	<update id="updateTempNotice">
+		UPDATE notice SET title=#{title},content=#{content} ,postil=#{postil},send=#{send},fuze=#{fuze},fuze_name=#{fuze_name},over_time=#{over_time}
+		<if test="path!=null">
+		,path=#{path}
+		</if>
+		  WHERE id=#{id}
+	</update>
+	
+	<update id="updateNoticeReply">
+		UPDATE notice_reply SET content=#{content}
+		<if test="path!=null">
+		,path=#{path}
+		</if>
+		  WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteNoticeReplyById" >
+		DELETE FROM notice_reply WHERE id=#{id}
+	</delete>
+	
+	<select id="queryTmpByToday" resultType="cn.hm.oil.domain.Notice">
+		SELECT * FROM notice WHERE `type`=2 AND `status`=1 AND CLOSE=0 AND over_time IS NOT NULL AND DATE_FORMAT(over_time ,'%Y%m%d') = DATE_FORMAT(NOW()+INTERVAL 1 DAY ,'%Y%m%d')
+	</select>
+	
+	<select id="queryDelayTmpByToday" resultType="cn.hm.oil.domain.Notice">
+		SELECT * FROM notice WHERE `type`=2 AND `status`=1 AND CLOSE=0 AND over_time IS NOT NULL AND DATE_FORMAT(over_time ,'%Y%m%d') = DATE_FORMAT(NOW()-INTERVAL 1 DAY ,'%Y%m%d')
+	</select>
+	
+</mapper>

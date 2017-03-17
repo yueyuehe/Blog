@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/dateChooser.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/selectDate.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link th:href="@{/assets/css/thickbox.css}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" th:src="@{/assets/js/thickbox.js}"></script>
+<script th:src="@{/assets/js/dateChooser.js}"></script>
+<script th:src="@{/assets/js/plupload.full.min.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>网盘</li>
+		</ul>
+	</div>
+	<div class="rightinfo formbody">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<form th:action="@{/admin/new/excel/list}" id="searchform" method="post" class="mauto">
+			<pre id="console"></pre>
+			<div class="tools fl" >
+				<ul id="container" class="toolbar">
+					<!-- <li id="deletefile"><span><img
+							th:src="@{/assets/images/t03.png}" /></span>删除</li> -->
+							
+					<li id="pickfiles">
+						<span style="margin-top:0">
+						<label id="filelist" >Your browser doesn't have Flash, Silverlight or HTML5 support.</label>&nbsp;
+						</span>上传文件
+					</li>
+					<li id="createdir">
+					<span></span>
+					创建文件夹
+					</li>
+					<li id="returnback" th:if="${parent!=null and parent!=0}"><span><input type="hidden" name="back" /></span>返回上级</li>
+				</ul>
+			</div>
+			<input type="submit" name="search" class="scbtn fr ml20" value="查询"/>
+			<input type="text" class="dfinput fr" name="searchName" style="width: 200px;" th:value="${searchName!=null?searchName:''}"/>
+			<input type="hidden" name="parent" th:value="${parent}"/>
+			<input type="hidden" name="type" th:value="${type}"></input>
+			
+		</form>
+			<table class="tablelist mauto wangpan">
+				<thead>
+					<tr style="display:none">
+						<th width="40"><input id="checkAll" name="checkAll" type="checkbox" /></th>
+						<th width="60">序号</th>
+						<th width="50">类型</th>
+						<th width="200">标题</th>
+						<th width="100">大小</th>
+						<th width="150">上传时间</th>
+						<th width="100"><th:block th:text="${verify==1?'上传人员':'操作人员'}"></th:block></th>
+						<th th:if="${verify==1}" width="100">删除时间</th>
+						<th th:if="${verify==1}" width="60">删除人</th>
+						<th th:if="${type==null}">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="e,status:${excel}">
+						<td><input name="id" type="checkbox" th:value="${e.id}" /></td>
+						<!--<td th:text="${status.count}">序号</td>-->
+						<td class="fileicon" th:text="${e.filetype}">类型</td>
+						<td style="text-align:left;padding-left:10px"><font th:text="${e.title}">标题</font></td>
+						<td th:text="${e.filesize}">大小</td>
+						<td th:text="${#dates.format(e.createtime, 'yyyy-MM-dd HH:mm')}">上传时间</td>
+						<td th:text="${e.creatername}">创建人</td>
+						<td th:if="${e.deletetime}!=null and ${verify==1}" th:text="${#dates.format(e.deletetime, 'yyyy-MM-dd HH:mm')}">删除时间</td>
+						<td th:if="${e.deletetime}==null and ${verify==1}" >未删除</td>
+						<td th:if="${e.deletername}!=null and ${verify==1}" th:text="${e.deletername}">删除人</td>
+						<td th:if="${e.deletername}==null and ${verify==1}" >无</td>
+						<td th:if="${type==null}">
+							<!--<a th:href="@{'/admin/add_user?id=' + ${user.id}}" class="tablelink">编辑</a>-->
+							<a th:if="${e.deletetime==null  and e.isdir==0 and (verify==1 or sec.principal.id==e.creater)}" th:href="@{'/admin/new/excel/del_excel?id=' + ${e.id}}" class="tablelink click">删除</a>
+							<a th:if="${e.deletetime==null and e.isdir==0}" th:href="@{'/admin/new/excel/export_excel?id=' + ${e.id}}" class="tablelink editicon"><div class="fileicon godown"></div></a>
+							<a th:if="${e.deletetime==null and e.isdir==1}" th:href="@{/admin/new/excel/list(parent=${e.id},type=${type})}" class="tablelink editicon"><div class="fileicon goin"></div></a>
+							<!--<input type="button" name="export" value="导出结果" class="sbutton"></input>
+			        	<input name="id" type="hidden" th:value="${us
+			        	er.id}" />-->
+						</td>
+					</tr>
+				</tbody>
+			</table>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+	$(document).ready(function() {
+		//表格图标
+		$(".fileicon").each(function(){
+		  	if ($(this).text()=="文件夹") {
+		  		$(this).text("");
+				$(this).append('<div class="fileicon dir-small"></div>')
+			} else if($(this).text()=="xlsx"||$(this).text()=="xls") {
+				$(this).text("");
+				$(this).append('<div class="fileicon fileicon-small-xls"></div>')
+			}else if($(this).text()=="doc") {
+				$(this).text("");
+				$(this).append('<div class="fileicon fileicon-small-doc"></div>')
+			}else if($(this).text()=="ppt") {
+				$(this).text("");
+				$(this).append('<div class="fileicon fileicon-small-ppt"></div>')
+			}else if($(this).text()=="video") {
+				$(this).text("");
+				$(this).append('<div class="fileicon fileicon-small-video"></div>')
+			}else if($(this).text()=="rar"||$(this).text()=="zip") {
+				$(this).text("");
+				$(this).append('<div class="fileicon fileicon-small-zip"></div>')
+			}
+		  	
+		  });
+		
+		$("#createdir").click(function(){
+			var path = [[@{'/admin/new/excel/create_dir'}]];
+			//alert(path)
+			TB_show('创建文件夹',path+'?KeepThis=true&TB_iframe=true&height=230&width=410&modal=true',false);
+		});
+		
+		$("#returnback").click(function(){
+			$("input[name=back]").val(1);
+			$("#searchform").submit();
+		});
+		
+		$("#deletefile").click(function(){
+			var ids=$("input[name='id']").serialize();
+			if (ids.length == 0) {
+				alert("未选择删除项目！");
+				return;
+			}
+			if (confirm("是否确认删除？")) {
+				url =  "del_excel?"+ids;
+				window.location.href = url;
+			}
+			
+		});
+		
+		$(".click").click(function() {
+			return confirm("是否确认删除？");
+		});
+		
+		
+		$("#checkAll").click(function() {
+			var checked = $(this).prop("checked");
+			$("input[name='id']").each(function() {
+				$(this).prop("checked", checked);
+			});
+		});
+		
+		
+		$("input[name=searchButton]").click(function() {		
+			var  start_time= $.trim($("input[name=start_time]").val());
+			var  end_time= $.trim($("input[name=end_time]").val());
+			if(start_time!=""){
+				if(end_time!=""){
+					var arr=start_time.split("-");    
+					var starttime=new Date(arr[0],arr[1],arr[2]);
+					var arrs=end_time.split("-");    
+					var endtime=new Date(arrs[0],arrs[1],arrs[2]);
+					if(starttime>endtime){
+						alert("开始时间必须小于结束时间");
+						return;
+					}
+				}else{
+					alert("开始与结束时间需要同时输入");
+					return;
+				}
+			}else{
+				if(end_time!=""){
+					alert("开始与结束时间需要同时输入");
+					return;
+				}
+			}
+			
+			$("#searchform").submit();
+		});
+
+	});	
+
+	var uploader = new plupload.Uploader({
+		runtimes : 'html5,flash,silverlight,html4',
+		browse_button : 'pickfiles', // you can pass in id...
+		container: document.getElementById('container'), // ... or DOM Element itself
+		url : [[@{/admin/uploadFile}]],
+		flash_swf_url : [[@{/assets/js/Moxie.swf}]],
+		silverlight_xap_url :  [[@{/assets/js/Moxie.xap}]],
+		chunk_size: '1mb',
+		max_retries: 5,
+		prevent_duplicates: true,
+		unique_names: true,
+		filters : {
+			max_file_size : '100mb'
+		},
+
+	init: {
+		PostInit: function() {
+			document.getElementById('filelist').innerHTML = '';
+
+			
+		},
+
+		FilesAdded: function(up, files) {
+			/*  plupload.each(files, function(file) {
+				document.getElementById('filelist').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>';
+			});  */
+			$("#pickfiles").prop("disabled", true);
+			uploader.start();
+		},
+
+		UploadProgress: function(up, input) {
+			//var qu = new up.QueueProgress();
+			document.getElementById('filelist').innerHTML = uploader.total.percent+'%';
+			//document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span>' + file.percent + "%</span>";
+		},
+		
+		UploadComplete: function(up, files) {
+			$("#pickfiles").prop("disabled", false);
+			var name='';
+			var parent = $("input[name=parent]").val();
+			if(parent.length==0){
+				parent=0;
+			}
+			plupload.each(files, function(file) {
+				if(name==''){
+					name=file.id+"@"+file.size+"@"+file.name;	
+				}else{
+				name=name+";"+file.id+"@"+file.size+"@"+file.name;
+				}
+			});
+			//alert(files[0].id);
+			$.ajax({
+				url: 'import',
+
+				type: 'POST',
+
+				data:{name: name,parent:parent},
+
+				dataType: 'html',
+
+				timeout: 1000,
+
+				error: function(){alert('Error update retry');},
+
+				success: function(result){window.location.reload();}
+
+				});
+			//window.location.href='import?name='+name;
+		},
+		
+		Error: function(up, err) {
+			document.getElementById('console').innerHTML += "\nError #" + err.code + ": " + err.message;
+		}
+	}
+});
+
+uploader.init();
+	
+
+/*]]>*/
+</script>
+</html>

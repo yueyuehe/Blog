@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<style>
+body {
+	background: #fdf6fd;
+}
+
+.formbody {margin-top:0px;background:#fff;padding:50px 20px 55px 15px;}
+.mt50 {margin-top:50px;}
+.ml30 {margin-left:30px;}
+.new-table-title {line-height:50px;}
+.recordBox+table .bd0 td{border:0;}
+.recordBox+table .bd0 {margin:10px;}
+.mr14 {margin-right:14px;}
+.quxianRight-left {height:418px;}
+.quxianRight:hover {border:1px solid #000;}
+.quxianRightDiv {border-color:#000;}
+.recordTitle0 {border-bottom:0px;}
+.recordTitle0 span{font-weight: 500;color:#000;}
+.bottomBody {width: 1000px;margin-left:30px;margin-bottom:30px;}
+.recordBox+table [type="text"] {border:0px;/*border-bottom:1px solid #000;*/text-align:left;}
+.recordBox+table [type="text"]:focus {outline:0px;outline-offset:0px;background:#fff}
+.quxianRight-right {height:414px}
+</style>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li><a
+				th:href="@{'/admin/base/pl_curve/2016/list?' + ${verify==1?'verify=1':''}}">管道保护电位曲线图<th:block
+						th:text="${verify==1?'审核':'查看'}"></th:block>:
+			</a></li>
+			<li>详情：</li>
+		</ul>
+	</div>
+	<div th:if="${pc==null}" class="formbody"
+		style="padding-bottom: 0px; padding: 8px;">暂无数据！</div>
+	
+	<div class="mt50 ml30" th:if="${pc!=null}">
+		<ul class="forminfo mauto">
+			<li>
+				<div class="usercity">
+					<div class="cityleft">
+						<select name="sh_pl_id" class="select1">
+							<option value="0" th:text="全部管线段" />
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${s_pl_id != null and s_pl_id == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}" />
+						</select>
+					</div>
+					<div class="fl">
+						<span>管线名称：</span>
+						<input type="text" name="sh_pl_name" class="new_input" th:text="${s_pl_name==null?'':s_pl_name}"/>
+					</div>
+					
+					<div class="cityright" style="padding-left: 10px">
+						<ul class="seachform mauto">
+							<li class="mr20"><span>时间：</span> <input type="text"
+								readonly="readonly" id="s_c_month" name="sh_c_month"
+								th:value="${s_c_month==null? '' : s_c_month}" class="new_input Wdate"
+								onClick="WdatePicker({dateFmt:'yyyy-MM'})" /></li>
+							<li class="fr mr0" th:if="${role!=null and role==2 and (verify==null or verify != 1)}"><input
+								id="exportButton" name="exportButton" type="button" class="scbtn"
+								value="导出" /></li>
+							<li class="fr mr20"><input id="searchButton" type="button"
+								class="scbtnModi" value="查询" /></li>
+						</ul>
+					</div>
+				</div>
+				<div class="clr"></div>
+			</li>
+		</ul>
+	</div>
+	<form id="searchForm" method="post">
+		<div th:if="${pc!=null}" class="formbody" style="margin-top:-18px;">
+			<div class="formtext" th:if="${msg!=null}">
+				<b th:text="${msg==null?'':msg}"></b>
+			</div>
+			<h3 class="new-table-title">管道保护电位曲线图</h3>
+			<ul class="forminfo mauto">
+				<li>				
+					<input type="hidden" name="s_pp_id" th:value="${s_pp_id}"/>
+		     		<input type="hidden" name="offset" th:value="${offset}"/>
+					<input type="hidden" name="pc_id" th:value="${pc.id}"/>
+					<input type="hidden" name="all" th:value="${all}"/>
+					<input type="hidden" name="pl_id" th:value="${pc.pl_id}"/>				
+					<input type="hidden" name="verify" th:value="${verify}"/>
+					<input type="hidden" name="up_id" th:value="${pc.up_id}"/>
+					<input type="hidden" name="s_pl_id" id="s_pl_id" th:value="${s_pl_id!=null?s_pl_id:0}"/>
+					<input type="hidden" name="s_pl_name" id="s_pl_name" th:value="${s_pl_name!=null?s_pl_name:''}"/>
+					<input type="hidden" name="s_c_month" id="s_c_month" th:value="${s_c_month!=null?s_c_month:''}"/>
+					<input type="hidden" name="s_id" id="s_id" th:value="${s_id!=null?s_id:0}"/>
+					<input type="hidden" name="s_user_name" id="s_user_name" th:value="${s_user_name!=null?s_user_name:''}"/>	
+					<div class="recordBox"></div>
+					<table style="width: 100%;">
+						<tr class="recordTitle0 lh32 bd0">
+							<td>
+								<div class="fl ml20">
+									<span>单位：</span> 
+									<input type="text" name="unit" th:value="${pc.unit}" th:readonly="${pc.canEdit==false}" class="new_input" />
+								</div>
+								<div class="fl" style="margin-left: 20px;">
+									<span class="ml30">管线名称：</span>
+									<input type="text" name="name" th:value="${pc.name}" th:readonly="${pc.canEdit==false}" class="new_input" />
+								</div>
+								<div class="fr mr20">
+									<span class="ml30">时间：</span> 
+									<input th:if="${pc.canEdit==false}" type="text" th:value="${#strings.substring(pc.c_month,0,4) + '-' + #strings.substring(pc.c_month,4,6)}"
+										name="c_month" class="new_input Wdate" readonly="readonly" />
+									<input th:if="${pc.canEdit==true}" type="text" th:value="${#strings.substring(pc.c_month,0,4) + '-' + #strings.substring(pc.c_month,4,6)}"
+										name="c_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+					</table>
+	
+					<table class="quxianRight quxianRight-left fl" style="width:646px">
+						<tr class="lh30 tc">
+							<td width="120">测试桩编号</td>
+							<td width="110">上旬电位（-V）</td>
+							<td width="110">下旬电位（-V）</td>
+							<td width="150">测量人</td>
+							<td width="150">备注</td>
+						</tr>
+						<tr th:each="d:${pc.detailList}">
+							<td><input type="text" style="width: 120px;" name="no"
+								th:style="'width:100%;height:100%;background-color:'+ @{(${pc.status}== 0?'orange' :(${pc.status}== -1?'pink':(${pc.status}== -2?'red':(${pc.status}== 1?'yellow':''))))}"
+								th:readonly="${pc.canEdit==false}" th:value="${d.no!=null?d.no:(pc.canEdit==false?'/':'')}" /></td>
+							<td><input type="text" style="width: 110px;" name="p_early"
+								th:style="'width:100%;height:100%;background-color:'+ @{(${pc.status}== 0?'orange' :(${pc.status}== -1?'pink':(${pc.status}== -2?'red':(${pc.status}== 1?'yellow':''))))}"
+								th:readonly="${pc.canEdit==false}" th:value="${d.p_early!=null?d.p_early:(pc.canEdit==false?'/':'')}" /></td>
+							<td><input type="text" style="width: 110px;" name="p_end"
+								th:style="'width:100%;height:100%;background-color:'+ @{(${pc.status}== 0?'orange' :(${pc.status}== -1?'pink':(${pc.status}== -2?'red':(${pc.status}== 1?'yellow':''))))}"
+								th:readonly="${pc.canEdit==false}" th:value="${d.p_end!=null?d.p_end:(pc.canEdit==false?'/':'')}" /></td>
+							<td><input type="text" style="width: 150px;" name="measurer"
+								th:style="'width:100%;height:100%;background-color:'+ @{(${pc.status}== 0?'orange' :(${pc.status}== -1?'pink':(${pc.status}== -2?'red':(${pc.status}== 1?'yellow':''))))}"
+								th:readonly="${pc.canEdit==false}" th:value="${d.measurer!=null?d.measurer:(pc.canEdit==false?'/':'')}" /></td>
+							<td><input type="text" style="width: 150px;" name="remark"
+								th:style="'width:100%;height:100%;background-color:'+ @{(${pc.status}== 0?'orange' :(${pc.status}== -1?'pink':(${pc.status}== -2?'red':(${pc.status}== 1?'yellow':''))))}"
+								th:readonly="${pc.canEdit==false}" th:value="${d.remark!=null?d.remark:(pc.canEdit==false?'/':'')}" /></td>
+						</tr>
+					</table>
+					<div class="quxianRight quxianRight-right fr">
+						<div class="tc">
+							<img id="quxianImg"
+								th:src="${application.baseImageUrl + pc.chartPath}" width="259"
+								height="259"></img>
+						</div>
+						<label style="float: left; margin: 5px; width: 50px">分析：</label>
+						<textarea name="analysis" readonly="readonly"
+							th:text="${pc.analysis}"
+							style="float: left; margin: 10px; width: 220px; border: 1px solid #000"></textarea>
+					</div>
+					<div class="clr"></div>
+				</li>
+			</ul>
+		</div>
+		<div style="width:1100px;">
+		<div class="tulibox" style="width:600px;margin-bottom:20px;margin:auto">
+			<table>
+				<tr>
+					<td><span class="color-box unlook"></span></td>
+					<td>未审核</td>
+					<td><span class="color-box fail"></span></td>
+					<td>审核未通过</td>
+					<td><span class="color-box success"></span></td>
+					<td>审核已通过</td>
+				</tr>
+			</table>
+		</div>
+		</div> 
+		<div class="mt20" style="width:1100px;" th:if="${pcs!=null and not #lists.isEmpty(pcs)}" th:include="fragment/paginationbar :: paginationbar"></div>
+	</form>
+	
+	<!-- 图例 -->
+		<!-- <div style="width:1100px;">
+		<div class="tulibox" style="width:600px;margin-bottom:20px;margin:auto">
+			<table>
+				<tr>
+					<td><span class="color-box unlook"></span></td>
+					<td>未审核</td>
+					<td><span class="color-box fail"></span></td>
+					<td>审核未通过</td>
+					<td><span class="color-box success"></span></td>
+					<td>审核已通过</td>
+				</tr>
+			</table>
+		</div>
+		</div> -->
+	<div class="bottomBody">
+		<ul>
+			<li class="mt25" th:if="${verify == 1}"><label class="labelModi tl"
+				style="width: 86px;float:left"><span class="red">*</span>审核状态:</label>
+				<div class="vocation">
+					<select name="status" class="select1" th:if="${verify == 1}">
+						<option th:selected="${0 == pc.status}" th:value="0">待审核</option>
+						<option th:selected="${1 == pc.status}" th:value="1">通过</option>
+						<option th:selected="${-1 == pc.status}" th:value="-1">不通过</option>
+					</select> <label th:if="${verify != 1}"
+						th:text="${pc.status == 0?'待审核':pc.status == 1?'通过':'不通过'}"></label>
+				</div>
+				<div class="clr"></div></li>
+			<li style="clear: both;margin-top:25px" th:if="${verify == 1}"><label class="labelModi tl fl"
+				style="width: 86px;"><span class="red">*</span>说明:</label> <textarea
+					class="textinput" rows="" cols="" name="verify_desc"
+					th:readonly="${verify != 1}" placeholder="审核说明"
+					th:text="${pc.verify_desc}" style="width: 870px;"></textarea></li>
+			<li class="tc mt50" style="margin-bottom:90px" th:if="${verify == 1}"><input
+				name="saveButton" id="saveButton" type="button" class="btn"
+				value="确认保存" /></li>
+			<li th:if="${role!=null and role==3 and pc.status == -1}">
+				<!--  <input type="button" value="保存" class="btn" id="saveButton_modify" />
+				<input type="button" value="提交审核" class="btn" id="auditingButton" /> -->
+				<input type="button" value="保存并审核" class="btn"  style="margin-left:400px;"   id="saveSubmitButton" />
+			 </li>
+		</ul>
+	</div>
+	<div class="blackBg">
+		<div id="closeImg">X</div>
+		<div class="clr"></div>
+	</div>
+	<div th:if="${pc!=null}" class="largeImg">
+		<img th:src="${application.baseImageUrl + pc.chartPath}" />
+	</div>
+	<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	/*
+	//保存修改
+	$("#saveButton_modify").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/pl_curve/2016/modify}]]+"");
+		formNode.submit();
+	});
+	
+	//提交审核
+	$("#auditingButton").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/pl_curve/2016/batch_changestatus}]]+"?oldStatus=-1&oldStatus=-2&newStatus=0");
+		formNode.submit();
+	});*/
+	function resetData()
+	{
+		$("#s_pl_id").val($("select[name=sh_pl_id]").val());
+		$("#s_pl_name").val($("input[name=sh_pl_name]").val());
+		$("#s_c_month").val($("input[name=sh_c_month]").val());
+	}
+	
+	//保存修改
+	$("#saveSubmitButton").click(function(){
+		resetData();
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/pl_curve/2016/save}]]+"?status=0&modify=1");
+		formNode.submit();
+	});
+	
+	//导出
+	$("#exportButton").click(function() {
+		resetData();
+		var params = "?";
+		var s_pl_id=$("#s_pl_id").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id=" + s_pl_id;
+		var s_pl_name = $("#s_pl_name").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_c_month = $("#s_c_month").val();
+		if(s_c_month !== null && s_c_month !== undefined && s_c_month.length > 0)
+			params += "&s_c_month="+s_c_month;
+		var s_user_name = [[${s_user_name}]];
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		var s_id = [[${s_id}]];
+		if(s_id > 0)
+			params += "&s_id="+s_id;
+		if([[${all!=null}]])
+			params += "&all="+[[${all}]];
+		window.location.href=[[@{/admin/base/pl_curve/2016/exp}]]+params;
+	});
+	
+	
+
+	//查询
+	$("#searchButton").click(function(){
+		resetData();
+		var params = "?";
+		var s_pl_id=$("#s_pl_id").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id=" + s_pl_id;
+		var s_pl_name = $("#s_pl_name").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_c_month = $("#s_c_month").val();
+		if(s_c_month !== null && s_c_month !== undefined && s_c_month.length > 0)
+			params += "&s_c_month="+s_c_month;
+		var s_user_name = [[${s_user_name}]];
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		if([[${s_id}]] > 0)
+			params += "&s_id="+[[${s_id}]];
+		if([[${verify==1}]])
+			params += "&verify=1";
+		if([[${all!=null}]])
+			params += "&all="+[[${all}]];
+		window.location.href = [[@{/admin/base/pl_curve/2016/show}]] + params;
+	});
+	//点击图片显示大图
+	$("#quxianImg").click(function(){
+		var formbodyWidth1=$(".formbody").css("height");
+		var formbodyWidth2=parseInt(formbodyWidth1)+40;
+		//alert(formbodyWidth2);
+		$(".blackBg").css("height",formbodyWidth2+'px');
+		var largeImgWidth1=$(".largeImg").css("width");
+		var largeImgWidth2=parseInt(largeImgWidth1)
+		var largeImgLeft=(810-largeImgWidth2)/2+30;
+		$(".largeImg").css("left",largeImgLeft+'px');
+		if($(".blackBg").is(":hidden")||$(".largeImg").is(":hidden")){
+			$(".blackBg").fadeIn();
+			$(".largeImg").fadeIn();
+		}
+	})
+	$("#closeImg").click(function(){
+		$(".blackBg").fadeOut();
+		$(".largeImg").fadeOut();
+	})
+	$("#saveButton").click(function() {
+		//alert(11);
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		var status = $("select[name=status]").val();
+		if(status== -1 && verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		
+			
+			if (status != 0 && confirm("是否确认保存？")) {
+				var pcid = [[${pc.id}]];
+				var verify_desc = $("textarea[name=verify_desc]").val();
+				var button = $(this);
+				
+				$.ajax({
+		   			url : [[@{/admin/base/pl_curve/2016/verify_save}]],
+		   			data : {
+		   				'id' : pcid,
+		   				'verify_desc' : verify_desc,
+		   				'status' : status
+		   			},
+		   			dataType: 'json',
+		   			type: 'post',
+		   			async: false,
+		   			success : function(data, textStatus, jqXHR) {
+		   				/*$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+		   				scrollTo(0,0);
+		   				$("select[name=status]").prop("disabled", true);
+		   				$("textarea[name=verify_desc]").prop("readonly", true);
+		   				button.parent().remove();*/
+		   				alert("审核成功！");
+		   				window.location.href = [[@{/admin/base/pl_curve/2016/list?verify=1}]];
+		   			}
+		   		});
+			}
+		
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$('.popbtn').click(function(){
+		  $('.tulipop').slideToggle(300);
+		})
+});
+
+
+/*]]>*/
+</script>
+</body>
+</html>

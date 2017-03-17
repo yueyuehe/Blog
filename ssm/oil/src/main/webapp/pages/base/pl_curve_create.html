@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li>管道保护电位曲线图创建：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+		<form method="post" id="saveform">
+			<ul class="forminfo">
+				<li class="mauto">
+					<div class="usercity">
+						<div class="cityleft">
+							<select name="pl" class="select1">
+								<option value="0">请选择管线</option>
+								<option th:each="pll:${pipeLineList}"
+									th:selected="${pl == pll.id}" th:value="${pll.id}"
+									th:text="${pll.name}"></option>
+							</select>
+						</div>
+						<div class="cityleft">
+							<select name="section" class="select1">
+								<option value="0">请选择起止段落</option>
+								<option th:each="sec:${sectionList}"
+									th:selected="${section ==sec.id}" th:value="${sec.id}"
+									th:text="${sec.name}"></option>
+							</select>
+						</div>
+						<div class="cityright">
+							<select name="spec" class="select1">
+								<option value="0">请选择规格</option>
+								<option th:each="sec:${specList}" th:selected="${spec ==sec.id}"
+									th:value="${sec.id}" th:text="${sec.name}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="mauto">
+					<div class="recordBox"></div>
+					<table width="100%">
+						<tr class="recordTitle lh32">
+							<td colspan="6" width="700">
+								<div class="fl">
+									<span>单位：</span> <input type="text" name="unit"
+										class="new_input" />
+								</div>
+
+								<div class="fl">
+									<span>管线名称：</span> <a id="pl_name"></a>
+								</div>
+								<div class="fr">
+									<span>时间：</span> <input type="text" placeholder="请选择时间"
+										readonly="readonly" name="c_month" class="new_input Wdate"
+										onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+					</table>
+					<table class="quxianRight fl">
+						<tr>
+							<td width="120">测试桩编号</td>
+							<td width="110">上旬电位（-V）</td>
+							<td width="110">下旬电位（-V）</td>
+							<td width="150">测量人</td>
+							<td width="150">备注</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width: 150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+					</table>
+					<div class="quxianRight fl">
+						<div class="quxianRightDiv"></div>
+						<label style="float: left; margin: 5px; width: 50px">分析：</label>
+						<textarea name="analysis"
+							style="float: left; margin: 10px; width: 220px; border: 1px solid #000"></textarea>
+
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="shenhe-box">
+					<div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width: 900px;">
+							<li th:each="b:${br}"><input th:value="${b.leader_id}"
+								th:checked="${b.leader_id==up_id}" type="checkbox" /> <span
+								th:text="${b.leader_name}">姓名1</span></li>
+						</ul>
+					</div>
+				</li>
+				<li class="tc mauto20">
+					<!-- <input type="button" value="保存" class="btn" id="saveButton" /> 
+					<input type="button" value="提交审核" class="btn" id="auditingButton" />  -->
+					<input type="button" value="保存并审核" class="btn" id="auditingButton" />
+					<input type="hidden" name="up_id" /></li>
+			</ul>
+			<div id="addLine" class="addLine"></div>
+		</form>
+	</div>
+	<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	var addLineLeft=parseInt($(".quxianRight").css("width"))+12;
+	//alert(addLineLeft);
+	var assLineTop=parseInt($(".quxianRight").css("height"))-29+106;
+	//alert(assLineTop);
+	$("#addLine").css({"left":addLineLeft+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		var trHtml = "<tr><td><input type='text' name='no' style='width:120px;'/></td>";
+		trHtml = trHtml + "<td><input type='text' name='p_early' style='width:110px;'/></td>";
+		trHtml = trHtml + "<td><input type='text' name='p_end' style='width:110px;'/></td>";
+		trHtml = trHtml + "<td><input type='text' name='measurer' style='width:150px;'/></td>";
+		trHtml = trHtml + "<td><input type='text' name='remark' style='width:150px;'/></td></tr>";
+		trHtml = trHtml + trHtml + trHtml;
+		$(".quxianRight").append(trHtml);
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		times=times+3;;
+	})
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+	
+	
+	//为保存按钮添加事件
+	$(document).ready(function (){
+		var buttons = $("input[type=button]");
+		buttons.click(
+			function (){
+			if(	!saveButtonCheck ()){
+				return;
+			}
+				var buttonNode = $(this);
+				var buttonName = buttonNode.attr("id");
+				var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+				var formNode = $("#saveform") 
+				
+				if(buttonNamePrex === null ){
+					return;
+				}
+				if(buttonNamePrex === "save"){
+					//待审核
+				formNode.attr("action",[[@{/admin/base/pl_curve/save}]]+"?status=0");
+				}
+				
+				if(buttonNamePrex === "auditing"){
+					//保存到草稿箱
+					formNode.attr("action",[[@{/admin/base/pl_curve/save}]]+"?status=-2");
+				
+				}
+				
+					formNode.submit();
+			}
+		);
+		});
+	
+	function saveButtonCheck () {
+		//测试桩编号校验
+		var a = new Array();
+		var b = new Array();
+		var c = new Array();
+		var j = true;
+		$("input[name=no]").each(function(){
+			a.push($(this).val());
+		})
+		$("input[name=p_early]").each(function(){
+			b.push($(this).val());
+		})
+		$("input[name=p_end]").each(function(){
+			c.push($(this).val());
+		})
+		var lastIndex = a.length-1;
+		for (; lastIndex > -1; lastIndex--) {
+			if(a[lastIndex]!=""){
+				break;
+			}
+		}
+		
+		var isError=false;
+		for (; lastIndex > -1; lastIndex--) {
+			if(a[lastIndex]==""||b[lastIndex]==""||c[lastIndex]==""){
+				alert("填入测试桩编号后则上旬电位和下旬电位必须填写且测试桩编号必须连续，中间不能为空!");
+				j=false;
+				isError=true;
+				return false;
+			}
+		}
+		
+		//alert(isError);
+		
+		
+		
+		
+		var jinzhanTxt=$("input[name=unit]").val();
+		if(jinzhanTxt.length==0){
+			alertM("请输入单位名称",{time:3000});
+			return false;
+		}
+		var p_monthTxt=$("input[name=c_month]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return false;
+		}
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return false;
+		}
+		var bool = true;
+		/* $('input[name=no]').each(function(){
+			var no = $(this).val();
+			if(no.length>10){
+				alertM("测试桩编号字数不能大于10",{time:3000});
+				bool = false;
+				return;
+			}
+		}) */
+		var num = /^\d+(\.\d+)?$/;
+		/* $('input[name=p_early]').each(function(){
+			var p_early = $(this).val();
+			if(p_early.length>0){
+				if(!num.test(p_early)){
+					alertM("上旬电位必须位数字",{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		}) */
+		if(!bool){
+			return false;
+		}
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(!confirm("是否确认保存？")){
+			j=false;
+		}
+		if(!j){
+			return false;
+		}
+		return true;
+	}
+	
+});
+
+
+/*]]>*/
+</script>
+</body>
+</html>

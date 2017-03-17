@@ -1,0 +1,17 @@
+upload.maxSize=104857600
+thumbnailator.width=360
+thumbnailator.height=200
+upload.image.path=/home/oil/upload/images
+upload.file.path=/home/oil/upload/file
+upload.delete.path=/home/oil/upload/delete
+upload.file.temp.path=/home/oil/upload/temp
+upload.file.hazard.path=/home/oil/upload/hazard
+base.url=http://121.40.16.166/oil
+base.url.nohttp=121.40.16.166/oil
+base.image.url=http://121.40.16.166/oil/images/
+base.file.url=http://121.40.16.166/oil/file/
+base.thumb.url=http://121.40.16.166/oil/thumb/
+
+pl_measure.line.with=5
+pl_protrol.line.with=12
+rc.line.with=20

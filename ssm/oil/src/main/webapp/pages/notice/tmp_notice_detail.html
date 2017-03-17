@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>闭环及临时性工作 </li>
+	    	<li>内容查看：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg == null ? '' : msg}"></b>
+		</div>
+	    <ul class="forminfoModi mt25 pt10">
+		    <li>
+		    	<input type="text" name="title" th:value="${notice.title}" th:class="${notice.is_delay==1 and notice.status==1?'titleBox delay':'titleBox'}" readonly="readonly" />
+		    </li>
+		    <li>
+		    	<div th:class="${notice.is_delay==1 and notice.status==1?'textinputBox delay':'textinputBox'}"  th:utext="${notice.content}"></div>
+		    </li>
+		    <li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">完成时间:</label>
+		    	<input type="text" name="over_time" readonly="readonly" th:value="${notice.over_time==null?'':beans.dateFormatter.formatDateToStr(notice.over_time,'yyyy-MM-dd HH:mm:ss')}" class="titleTxt" />
+		    	<div th:if="${sec.principal.id==notice.user_id and notice.status==1}">
+		    		<input type="text" name="change_time" readonly="readonly" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  />
+		    		<input type="button"  class="ml20 fileModi2" id="change_over_time" style="line-height:25px" value="更改完成时间"/>
+		    	</div>
+		    	<div class="clr"></div> 
+		    </li>
+		    <li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">级别:</label>
+		    	<input type="text" name="jibie_name" readonly="readonly" th:value="${notice.jibie_name}" class="titleTxt" />
+		    	<div class="clr"></div> 
+		    </li>
+		    <li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">负责人:</label>
+		    	<input type="text" name="fuze_name" readonly="readonly" th:value="${notice.fuze_name}" class="titleTxt"/>
+		    	<input type="button" th:if="${sec.principal.id==notice.user_id and notice.status==1}" class="fileModi2" id="change_fuze" style="line-height:25px" value="更改负责人"/>
+		    	<div class="clr"></div> 
+		    </li>
+		    <li class="w700 mauto20 hid" style="display:none">
+		    	<label class="labelModi" style="width:70px;">变更负责人:</label>
+		    	<label class="w130" style="text-align:left;line-height:40px" id="zr_label">&nbsp;</label>
+		    	<input type="button"   class="fileModi2" id="save_fuze" style="line-height:25px" value="保存更改"/>
+		    	<input type="hidden" name="fuze_id" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="w700 mauto20 hid" style="display:none">
+		    	<label class="labelModi" style="width:70px;">&nbsp;</label>
+		    	<table>
+		    		<tr>
+		    			<td colspan="3">
+		    				<div class="usercity">
+					    		<div class="cityleft">
+						        	<select name="zr_pl" class="select1">
+						            	<option value="0">请选择管线</option>
+						        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						            </select>
+					            </div>
+					            <div class="cityright">
+						            <select name="zr_section" class="select1">
+						            	<option value="0">请选择起止段落</option>
+						        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+						            </select>
+					            </div>
+					        </div>
+					        		    				
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<label>维护工</label>
+		    			</td>
+		    			<td>
+		    				<label>技术干部</label>
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<select class="pl10" name="zr_allUser" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${aallReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    			<td>
+		    				<select class="pl10" name="zr_leader" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="l:${aleaders}" th:value="${l.user_id}" th:text="${l.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="searchZeren">[查询]</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    </li>
+		    <li class="w700 mauto" th:if="${sec.principal.id==notice.user_id}">
+		    	<label class="labelModi" style="width:70px;">是否提醒:</label>	    	
+		    	<label class="tl fl pl10" th:if="${notice.send == 1}">是</label>
+                <label class="tl fl pl10" th:if="${notice.send == 0}">否</label>	    			
+		    	<div class="clr"></div>    	
+		    </li>
+		    <li class="w700 mauto" >
+		    	<label class="labelModi" style="width:70px;">指派对象:</label>	
+		    	<div class="fl" style="display:block;width:500px">	    	
+   					<input type="text" name="checkedUser" readonly="readonly" th:each="u:${receivers}" th:value="${u.receiver}" class="titleTxt" style="width:100px;display:inline" />   				   				
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="w700 mauto" th:if="${!#strings.isEmpty(notice.path)}">
+		    	<label class="labelModi" style="width:70px;">附件:</label>
+		    	<cite>
+		    		<a th:href="${application.baseFileUrl + notice.path}" th:text="${notice.path}"></a>
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">工作状态:</label>
+		    	<label class="tl" th:if="${notice.ask==0 and notice.status==1 and notice.is_delay==0}">正在进行</label>
+		    	<label class="tl" style="color:#ed8571" th:if="${notice.ask==1 and notice.status==1}">申请关闭</label>
+		    	<label class="tl" style="color:#ed8571" th:if="${notice.is_delay==1 and notice.status==1 and notice.ask==0}">已延期</label>
+		    	<label class="tl" th:if="${notice.status==0}">已关闭</label>
+		    	<div class="clr"></div>
+		    </li>
+			<li class="w700 mauto" th:if="${!#lists.isEmpty(replies)}">
+				<label class="labelModi" style="width:70px;">回复内容:</label>
+		    	<table class="backTxtTable backTxtTableModi">
+		    		<tr>
+		    			<th width="112">回复人</th>
+		    			<th width="200">消息内容</th>
+		    			<th width="150">回复时间</th>
+		    			<th width="100">附件</th>
+		    		</tr>
+		    		<tr th:each="r : ${replies}">
+		    			<td th:text="${r.replier}"></td>
+		    			<td th:text="${r.content}"></td>
+		    			<td th:text="${beans.dateFormatter.formatDateToStr(r.create_time)}"></td>
+		    			<td>
+		    				<a th:href="${application.baseFileUrl + r.path}" th:if="${!#strings.isEmpty(r.path)}">点击下载</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+			</li>
+		</ul>
+		<form th:action="@{/admin/tmp_notice_reply}" id="saveform" method="post" enctype="multipart/form-data" th:if="${notice.status == 1}">
+		<ul class="forminfo">		
+			<li class="w700 mauto">
+				<label class="labelModi" style="width:70px;">回复:</label>
+		    	<textarea class="textinput" rows="" cols="" name="msg_content" placeholder="请输入回复内容" style="width:542px;"></textarea>
+			</li>
+			<li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">附件:</label>
+		    	<input type="file" name="file" id="file" class="mt10" />
+		    </li>
+			<li>
+		    	<input type="hidden" name="id" id="id" th:value="${notice.id}" />		    	
+		    </li>
+		    <li class="w700 mauto tc">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="回复"/>
+		    </li>
+	    </ul>
+	    </form>
+	    <form th:if="${delays!=null and not #lists.isEmpty(delays) and notice.status==1 and notice.is_delay==1}" th:action="@{/admin/tmp_notice_delay_verify}" id="delayverifyform" method="post">
+	    	<input type="hidden" name="id" />
+	    	<input type="hidden" name="n_id" />
+	    	<input type="hidden" name="verify_reason"  />
+	    	<input type="hidden" name="verify_delay"  />
+	     </form>
+	    <!-- th:if="${notice.status==1 and notice.fuze==sec.principal.id}" -->
+	    <div th:if="${delays!=null and not #lists.isEmpty(delays)  and notice.is_delay==1}">
+	    <ul th:each="dl:${delays}"  class="forminfoModi mt25 pt10 mauto" style="width:800px;">
+		    <li>
+		    	<label class="w130 fl tr">延期理由:</label>
+		    	<label class="fl tl" style="width:400px" th:text="${dl.delay_reason}"></label>		    	
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="w130 fl tr">延期时间:</label>
+		    	<input type="text" name="delay_time" readonly="readonly" th:value="${dl.delay_time==null?'':beans.dateFormatter.formatDateToStr(dl.delay_time,'yyyy-MM-dd HH:mm:ss')}" class="titleTxt" />
+		    	<div class="clr"></div> 
+		    </li>
+		    <li>
+		    	<label class="w130 fl tr">审核状态:</label>
+		    	<label class="w130 fl tl" th:text="${dl.verify_delay==0?'待审核':(dl.verify_delay==1?'审核通过':'审核不通过')}"></label>	
+		    	<div class="clr"></div>
+			</li>
+		    <li th:if="${!#strings.isEmpty(dl.verify_reason)}">
+		    	<label class="w130 fl tr">审核内容:</label>
+		    	<label class="fl tl" style="width:400px" th:text="${dl.verify_reason}"></label>	
+		    	<div class="clr"></div>
+			</li>
+		     <li th:if="${notice.user_id==sec.principal.id AND dl.verify_delay == 0 and notice.status==1}">
+		    	<label class="w130 fl tr">审核内容:</label>
+		    	<textarea class="textinput mt10" th:readonly="${dl.verify_delay != 0}" name="verify_reason" th:text="${dl.verify_reason!=null?dl.verify_reason:''}" placeholder="请输入审核内容"></textarea>
+		    	<div class="clr"></div>
+			</li>
+		    <li class="tc" th:if="${notice.user_id==sec.principal.id AND dl.verify_delay == 0 and notice.status==1}">
+		    	<input type="hidden" name="id" th:value="${dl.id}" />
+		    	<input name="veriButton" onclick="agree(this)"  type="button" class="btn" value="同意"/>
+		    	<input name="veriButton" onclick="disagree(this)" type="button" class="btn" value="不同意"/>
+		    	<div class="clr"></div>
+		    </li>
+	    </ul>
+	   </div>
+	    
+	    <form th:if="${(delays==null or #lists.isEmpty(delays) or delays[(#lists.size(delays)-1)].verify_delay!=0) and notice.status==1 and notice.fuze==sec.principal.id and notice.is_delay==1}" th:action="@{/admin/tmp_notice_delay}" id="delayform" method="post">
+	    <!-- (delays==null or #lists.isEmpty(delays)) and  -->
+	    <ul  class="forminfoModi mt25 pt10 mauto" style="width:800px;">
+		    <li>
+		    	<label class="w130 fl tr">延期理由:</label>
+		    	<textarea class="textinput" rows="" cols="" name="delay_reason"  style="width:300px;"></textarea>		    	
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">延期时间:</label>
+		    	<input type="text" name="delay_time" readonly="readonly" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  />
+		    	<div class="clr"></div> 
+		    </li>
+		    <li class="tc">
+		    	<input type="hidden" name="id" th:value="${notice.id}"/>
+		    	<input name="delayButton" id="delayButton" type="button" class="btn" value="申请延期"/>
+		    </li>
+	    </ul>
+	    </form>
+	    <ul th:if="${(notice.fuze==sec.principal.id or notice.user_id==sec.principal.id) and notice.status==1}" class="forminfoModi mt25 pt10 mauto" style="width:800px;">
+	    <li>
+	    	<label class="w130 fl tr">取消指派对象:</label>
+		    	<div class="fl w470">
+			    	<div th:each="u:${receivers}" th:if="${u.publish_id==publish_id}" class="fl p5 mt8">
+			    		<input class="inputModi0 fl" type="checkbox" name="cancel_box" th:value="${u.user_id}" />
+			    		<span class="fl" th:text="${u.receiver}"></span>
+			    		<div class="clr"></div>
+			    	</div>
+		    	</div>
+		    	<div class="clr"></div>
+	    </li>
+	    <li class="clr">
+		    	<label class="w130">增加指派对象:</label>
+		    	<table>
+		    		<tr>
+		    			<td colspan="3">
+		    				<div class="usercity">
+					    		<div class="cityleft">
+						        	<select name="pl" class="select1">
+						            	<option value="0">请选择管线</option>
+						        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						            </select>
+					            </div>
+					            <div class="cityright">
+						            <select name="section" class="select1">
+						            	<option value="0">请选择起止段落</option>
+						        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+						            </select>
+					            </div>
+					        </div>		    				
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<select class="pl10" name="allUser" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${allReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    			<td>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="searchButton">[查询]</a>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="addUser">[添加]</a>		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="addAllUser">[全部添加]</a>		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="removeUser">[移除]</a>	    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="removeAllUser">[全部移除]</a>
+		    			</td>
+		    			<td>
+		    				<select class="pl10" name="checkedUser" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 168px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<!-- <option th:each="u:${receivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>  -->
+		    					<!-- <option th:each="u:${allReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>-->
+		    				</select>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    </li>
+		    <li>
+		    	<label class="w130 fl tr">指派技术干部:</label>
+		    	<div class="fl w470">
+			    	<div th:each="l:${leaders}" class="fl p5 mt8">
+			    		<input class="inputModi0 fl" type="checkbox" name="box" th:value="${l.user_id}" />
+			    		<span class="fl" th:text="${l.receiver}"></span>
+			    		<div class="clr"></div>
+			    	</div>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="tc">
+		    	<input type="hidden" name="users" id="users" />
+		    	<input type="hidden" name="cancel_users" id="cancel_users" />
+		    	<input name="addButton" id="addButton" type="button" class="btn" value="修改指派"/>
+		    </li>
+	    </ul>
+	    <div class="tc mt20" th:if="${notice.fuze==sec.principal.id and notice.status==1 and notice.ask==0}">
+	    	<input name="askclose"   type="button" class="btn" value="申请关闭"/>
+	    </div>
+	    
+	    <div class="tc mt20" th:if="${notice.user_id==sec.principal.id  and notice.status==1 and notice.ask==1}">
+	    	<input id="qrclose"   type="button" class="btn" value="关闭工作"/>
+	    </div>
+	    <!-- 原来的关闭 -->
+	    <!-- <div class="tc mt20" th:if="${notice.user_id==sec.principal.id and sec.principal.level==4  and notice.status==1 and notice.ask==1}">
+	    	<input id="qrclose"   type="button" class="btn" value="关闭工作"/>
+	    </div> -->
+	    <!-- <div class="tc mt20" th:if="${sec.principal.level lt 4 and sec.principal.level gt 0 and notice.status==1}">
+	    	<input id="qrclose"   type="button" class="btn" value="关闭工作"/>
+	    </div> -->
+	    <div class="tc mt20" >
+	    	<input id="see_record"   type="button" class="btn" value="流程展示"/>
+	    </div>
+	    <form style="display:none" th:action="@{/admin/tmp_notice_create}" id="searchForm" method="post">
+	    <!-- (delays==null or #lists.isEmpty(delays)) and  -->
+	    <ul  class="forminfoModi mt25 pt10 mauto" style="width:800px;">
+		    <li th:each="n:${nrs}" >
+		    	<label style="width:300px" class="tl" th:text="${n.content}"></label>
+		    	<label style="width:300px" th:text="${beans.dateFormatter.formatDateToStr(n.create_time,'yyyy-MM-dd HH:mm:ss')}"></label>		    	
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="tc">
+		    	<input type="hidden" name="id" th:value="${notice.id}"/>
+		    	<input type="hidden" name="see_record" th:value="${see_record}"/>
+		    	<div class="mt10" th:if="${nrs!=null and not #lists.isEmpty(nrs)}" th:include="fragment/paginationbar :: paginationbar"></div>
+		    	
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+           function agree(this_t){
+		var verify_reason = $(this_t).parent().parent().find("textarea[name=verify_reason]").val();
+		var id = $(this_t).parent().find("input[name=id]").val();
+		$("#delayverifyform").find("input[name=verify_reason]").val(verify_reason);
+		$("#delayverifyform").find("input[name=verify_delay]").val(1);
+		$("#delayverifyform").find("input[name=id]").val(id);
+		$("#delayverifyform").find("input[name=n_id]").val([[${notice.id}]]);
+		$("#delayverifyform").submit();
+	}
+	function disagree(this_t){
+		var verify_reason = $(this_t).parent().parent().find("textarea[name=verify_reason]").val();
+		if(verify_reason.length == 0){
+			alert("请输入不同意的原因!")
+			return;
+		}
+		var id = $(this_t).parent().find("input[name=id]").val();
+		$("#delayverifyform").find("input[name=verify_reason]").val(verify_reason);
+		$("#delayverifyform").find("input[name=verify_delay]").val(2);
+		$("#delayverifyform").find("input[name=id]").val(id);
+		$("#delayverifyform").find("input[name=n_id]").val([[${notice.id}]]);
+		$("#delayverifyform").submit();
+	}
+$(document).ready(function() {
+	if([[${see_record}]]!=null){
+		$("#searchForm").css("display","block");
+	}
+	
+	$("#see_record").click(function(){
+		$("#searchForm").slideDown();
+		$("input[name=see_record]").val(1);
+	});
+	
+	$("#change_fuze").click(function(){
+		$(".hid").slideDown();
+		$(this).hide();
+	});
+	
+	$("select[name=zr_allUser]").change(function(){
+		$("select[name=zr_allUser] option").each(function(){
+		$(this).click(function(){
+			$("input[name=fuze_id]").val($(this).val());
+			//$("input[name=fuze_name]").val($(this).text());
+			$("#zr_label").text($(this).text());
+		});
+		});
+	});
+	
+	$("select[name=zr_leader] option").each(function(){
+		$(this).click(function(){
+			$("input[name=fuze_id]").val($(this).val());
+			$("#zr_label").text($(this).text());
+		});
+		});
+	
+	$("#searchZeren").click(function(){
+		var pl_id = $("select[name=zr_pl]").val();
+		var section_id = $("select[name=zr_section]").val();
+		
+		$.ajax({
+   			url : [[@{/admin/findWorker}]],
+   			data : {
+   				'pl_id': pl_id,
+   				'section_id': section_id
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=zr_allUser]").empty();
+ 				$("select[name=zr_allUser]").trigger("change");
+   				if (data.length > 0) {
+   					var options='';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].user_id + "'>" + data[i].receiver + "</option>";
+   	   				}
+   					$("select[name=zr_allUser]").append(options);
+   				}
+   				$("select[name=zr_allUser]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=zr_pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=zr_section]").empty();
+ 				$("select[name=zr_section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=zr_section]").append(options);
+   				}
+   				$("select[name=zr_section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("#change_over_time").click(function(){
+		var change_over_time = $(this).parent().find("input[name=change_time]").val();
+		if(change_over_time.length==0){
+			alert("请输入改变的时间!")
+			return;
+		}
+		if(confirm("确认更改完成时间?")){
+			window.location.href="tmp_notice_change_over_time?over_time="+change_over_time+"&id="+[[${notice.id}]];
+		}
+	});
+	
+	$("#delayButton").click(function(){
+		var delay_reason = $("textarea[name=delay_reason]").val();
+		var delay_time = $("input[name=delay_time]").val();
+		if(delay_reason.length == 0){
+			alert("请输入延期理由!")
+			return;
+		}
+		if(delay_time.length == 0){
+			alert("请输入延期时间!")
+			return;
+		}
+		if(!confirm('是否确认申请延期?'))return;
+		$("#delayform").submit();
+	});
+	
+	
+	$("input[name=askclose]").click(function(){
+		if(!confirm('是否确认申请?'))return;
+		window.location.href=[[@{/admin/tmp_notice_update_ask(id=${notice.id})}]];
+	});
+	
+	$("#save_fuze").click(function(){
+		var change_fuze = $(this).parent().find("input[name=fuze_id]").val();
+		if(change_fuze.length==0){
+			alert("请选择改变的责任人!")
+			return;
+		}
+		if(confirm("确认更改责任人?")){
+			window.location.href="tmp_notice_change_fuze?fuze_id="+change_fuze+"&id="+[[${notice.id}]];
+		}
+	});
+	
+	$("#qrclose").click(function(){
+		if(!confirm('是否确认关闭?'))return;
+		window.location.href=[[@{/admin/tmp_notice_update_status(id=${notice.id},status=0)}]];
+	});
+	
+	$("#saveButton").click(function() {
+		var content = $.trim($("textarea[name=msg_content]").val());
+		if (content.length == 0 || content.length > 500) {
+			alertM("回复内容不能为空且长度不能大于500!",{time:3000});
+			return;
+		}
+		if(confirm("是否确认回复？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$("#addButton").click(function() {
+		
+		var checkUser = new Array();
+		var cancel_checkUser = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUser.push($(this).val());
+		});
+		/* 获取技术干部 */
+		var str = document.getElementsByName("box");
+		var objarray = str.length;
+		var chestr = "";
+		for (i = 0; i < objarray; i++) {
+			if (str[i].checked == true) {
+				checkUser.push(str[i].value);
+			}
+		}
+		
+		var cancel_str = document.getElementsByName("cancel_box");
+		var cancel_objarray = cancel_str.length;
+		var cancel_chestr = "";
+		for (i = 0; i < cancel_objarray; i++) {
+			if (cancel_str[i].checked == true) {
+				cancel_checkUser.push(cancel_str[i].value);
+			}
+		}
+		if (checkUser.length > 0) {
+				$("#users").val(checkUser.join(",") + chestr);
+		}
+		if (cancel_checkUser.length > 0) {
+			$("#cancel_users").val(cancel_checkUser.join(",") + cancel_chestr);
+		}
+		if(checkUser.length==0 && cancel_checkUser==0){
+			alertM("请指派或取消接收对象！",{time:3000});
+			return;
+		}
+		if(confirm("是否确认修改指派？")){
+			window.location.href=[[@{/admin/tmp_notice_addre}]]+"?id="+[[${notice.id}]]+"&users="+$("#users").val()+"&cancel_users="+$("#cancel_users").val();
+		}
+	});
+	
+	//指派对象的添加
+	//移除选择对象
+	$("#removeUser").click(function() {
+		var ua = $("select[name=checkedUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				$(this).remove();
+			});
+		}
+	});
+	//移除全部的对象
+	$("#removeAllUser").click(function(){
+		var checkedOption=$("select[name=checkedUser]").find("option");
+		if(checkedOption.size()>0){
+			$("select[name=checkedUser]").empty();
+		}		
+	})
+	
+	
+	
+	$("#addUser").click(function() {
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				var exists = false;
+				for (var i = 0; i < checkUserArr.length; i++) {
+					if (checkUserArr[i] == $(this).val()) {
+						exists = true;
+					}
+				}
+				if (!exists) {
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";
+				}
+				$(this).prop("selected", false);
+			});
+			$("select[name=checkedUser]").append(options);
+		}
+	});
+	$("#addAllUser").click(function(){
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option");
+		var options='';
+		ua.each(function(){
+			var exists = false;
+			for (var i=0; i <checkUserArr.length; i++){
+				if(checkUserArr[i]==$(this).val()){
+					exists = true;
+				}
+			}
+			if(!exists){
+				options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+			}			
+		});
+		$("select[name=checkedUser]").append(options);
+	})
+	
+	
+	var addDbl=$("select[name=allUser]");	
+	addDbl.change(function(){
+		$("select[name=allUser] option").each(function(){
+		$(this).dblclick(function(){
+			//alert(this.value)
+			var checkUserArrDbl = new Array();
+			$("select[name=checkedUser] option").each(function() {
+				checkUserArrDbl.push($(this).val());
+			});
+			
+			var ua = $("select[name=allUser]").find("option:selected");
+			var options='';
+			ua.each(function(){
+				var exists = false;
+				for (var i=0; i <checkUserArrDbl.length; i++){
+					if(checkUserArrDbl[i]==$(this).val()){
+						exists = true;
+					}
+				}
+				//alert(exists)
+				if(!exists){
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+					//alert(options)
+				}
+			});
+			$("select[name=checkedUser]").append(options);
+		});
+		});
+	});
+	
+	var removeDbl=$("select[name=checkedUser]");
+	removeDbl.dblclick(function(){
+			//alert(11);
+			var rem=$("select[name=checkedUser]").find("option:selected");
+			rem.remove();
+	});
+	
+	$("#searchButton").click(function() {
+		var pl_id = $("select[name=pl]").val();
+		var section_id = $("select[name=section]").val();
+		
+		$.ajax({
+   			url : [[@{/admin/findAddWorker}]],
+   			data : {
+   				id:[[${notice.id}]],
+   				'pl_id': pl_id,
+   				'section_id': section_id
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=allUser]").empty();
+ 				$("select[name=allUser]").trigger("change");
+   				if (data.length > 0) {
+   					var options='';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].user_id + "'>" + data[i].receiver + "</option>";
+   	   				}
+   					$("select[name=allUser]").append(options);
+   				}
+   				$("select[name=allUser]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	$(".select1").uedSelect({
+		width : 168
+	});
+});
+/*]]>*/
+</script>
+</html>

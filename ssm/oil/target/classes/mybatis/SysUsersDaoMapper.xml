@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.SysUsersDao">
+	
+	<select id="querySysUsersRef" resultType="cn.hm.oil.domain.SysUsersRef">
+		select * from sys_users_ref
+	</select>
+	
+	<select id="querySpaceTime" resultType="cn.hm.oil.domain.SpaceTime">
+		SELECT * FROM space_time LIMIT 1
+	</select>
+
+	<select id="queryUserByRole" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT su.* FROM sys_users su, sys_roles_users sru WHERE su.id = sru.user_id AND sru.role_id=#{role_id}
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	<select id="queryUserByRole_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM sys_users su, sys_roles_users sru WHERE su.id = sru.user_id AND sru.role_id=#{role_id}
+	</select>
+	
+	<select id="queryUserByRole_worker" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT DISTINCT su.* FROM sys_users su, sys_roles_users sru, base_resource br 
+		WHERE su.id = sru.user_id AND sru.role_id=#{role_id} AND su.`id` = br.admin
+		<if test="pl_id!=null">
+		AND br.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND br.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND br.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	<select id="queryUserByRole_worker_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM (
+			SELECT DISTINCT su.* FROM sys_users su, sys_roles_users sru, base_resource br 
+			WHERE su.id = sru.user_id AND sru.role_id=#{role_id} AND su.`id` = br.admin
+			<if test="pl_id!=null">
+			AND br.`pl_id`=#{pl_id}
+			</if>
+			<if test="pl_section_id!=null">
+			AND br.`pl_section_id`=#{pl_section_id}
+			</if>
+			<if test="pl_spec_id!=null">
+			AND br.`pl_spec_id`=#{pl_spec_id}
+			</if>
+		) a
+	</select>
+	
+	<select id="queryRoleIdByUserId" resultType="java.lang.Integer">
+		SELECT role_id FROM sys_roles_users WHERE user_id=#{id}
+	</select>
+	
+	<!-- 增加技术干部 -->
+	<insert id="insertLeader" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_users(username, password, name, mail_address, remark, create_time,level) VALUES(#{username},#{password},#{name}, #{mail_address}, #{remark},now(),4)
+	</insert>
+	
+	<update id="updateUser">
+		UPDATE sys_users SET username=#{username}, name=#{name},mail_address=#{mail_address}, remark=#{remark}
+		<if test="password!=null">
+		,password=#{password}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="insertMenuFilter">
+		INSERT INTO sys_menu_filter(user_id, menu_id) VALUES(#{user_id}, #{menu_id})
+	</insert>
+	
+	<delete id="deleteMenuFilterByUserId">
+		DELETE FROM sys_menu_filter WHERE user_id=#{user_id}
+	</delete>
+	
+	<update id="updatePassword">
+		UPDATE sys_users SET password=#{password} WHERE id=#{userId}
+	</update>
+	
+	<update id="saveSpaceTime">
+		UPDATE space_time SET `time`=#{time}, `start_time` = #{start_time}, `end_time` = #{end_time}
+	</update>
+	
+	<select id="querySysUserByUsernameID" resultType="java.lang.Integer">
+		SELECT count(1) FROM sys_users WHERE username=#{username}
+		<if test="id!=null">
+		AND id!=#{id}
+		</if>
+	</select>
+	
+	<!-- 登录操作 -->
+	<select id="queryLoginUserInfoByUsername" resultType="cn.hm.oil.domain.LoginUserInfo">
+		SELECT * FROM sys_users WHERE username=#{username}
+	</select>
+	
+	<update id="updateLoginInfor">
+		UPDATE sys_users SET last_login_time=now(), last_login_ip=#{ipAdrr} WHERE id=#{userId}
+	</update>
+	
+	<insert id="insertLoginLog">
+		INSERT INTO login_log(user_id, ip, create_time) VALUES(#{user_id}, #{ip}, now())
+	</insert>
+	
+	<select id="queryUserMenusByUsrId" resultType="cn.hm.oil.domain.SysMenus">
+		SELECT sm.* FROM sys_roles_users sru, sys_roles_menus srm, sys_menus sm
+		WHERE sru.user_id = #{userId} AND sru.role_id = srm.role_id AND srm.menu_id = sm.id
+		ORDER BY sm.level ASC, sm.weight ASC, sm.id
+	</select>
+	
+	<select id="queryMenuFilterByUsrId" resultType="java.lang.Integer">
+		SELECT menu_id FROM sys_menu_filter WHERE user_id = #{userId}
+	</select>
+	<!-- 登录操作 END -->
+	
+	<!-- 增加维护工 -->
+	<insert id="insertWorker" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_users(username, password, name, create_time) VALUES(#{username},#{password},#{name},now())
+	</insert>
+	
+	<select id="queryOne" resultType="java.lang.Integer">
+		SELECT 1 FROM sys_users LIMIT 1
+	</select>
+	
+	<delete id="deleteUserById">
+		DELETE FROM sys_users WHERE id=#{id}
+	</delete>
+	
+	<select id="querySysUserById" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT * FROM sys_users WHERE id=#{id}
+	</select>
+	
+	<select id="querySysUserByLevel" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT * FROM sys_users WHERE level=#{level}
+	</select>
+	
+	<select id="queryUserLocationByUserId" resultType="cn.hm.oil.domain.UsersLocation">
+		SELECT * FROM users_location WHERE user_id=#{id} ORDER BY u_date DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryUserLocationByUserId_count" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM users_location WHERE user_id=#{id} 
+	</select>
+	
+	<insert id="saveLocation" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO users_location (user_id, longitude, latitude, `describe`, u_date) 
+		VALUES (#{user_id}, #{longitude}, #{latitude}, #{describe}, NOW())
+	</insert>
+	
+	<select id="queryMailAddress" resultType="java.lang.String">
+		SELECT mail_address FROM sys_users WHERE id = #{id}
+	</select>
+	
+	<insert id="insertFeedBack" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO feedback (title,content,name,phone,path,create_time) 
+		VALUES (#{title}, #{content}, #{name}, #{phone},#{path},NOW())
+	</insert>
+	
+	<select id="queryFeedBacks" resultType="cn.hm.oil.domain.FeedBack">
+		SELECT id,title,content,name,phone,path,close,create_time FROM feedback 
+		ORDER BY close,create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryFeedBacks_count" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM feedback 
+		
+	</select>
+	
+	<select id="queryFeedBackById" resultType="cn.hm.oil.domain.FeedBack">
+		SELECT id,title,content,name,phone,path,close,create_time FROM feedback 
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateFeedBackClose">
+		UPDATE feedback SET close = #{close} WHERE id = #{id}
+	</update>
+	
+</mapper>

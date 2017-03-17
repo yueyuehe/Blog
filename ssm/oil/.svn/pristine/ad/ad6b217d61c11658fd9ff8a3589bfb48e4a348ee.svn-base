@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>投资项目</li>
+			<li>创建：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext2" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+	<form method="post" id="saveform" th:action="@{/admin/base/invest/save}" enctype="multipart/form-data" >
+	<ul class="forminfo">
+	<li>
+	<div class="record3"></div>
+	<table class="addTr table100 mauto">
+		<tr class="recordTitle lh32">
+			<td colspan="9">
+				<div class="fl">
+					<span>工程名称：</span>
+					 <input class="ml20" style="width:250px;" type="text" name="project_name"/>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><span>工程概况</span></td>
+			<td colspan="8">
+				<input type="text" style="width:100%; height:100%;"  name="survey" />
+			</td>
+		</tr><!-- 
+		<tr>
+			<td>
+				<span>工程进度</span>
+			</td>
+			<td colspan="8">
+				<input style="width:100%; height:100%;"  type="text" name="progress" />
+			</td>
+		</tr> -->
+		<tr>
+			<td width="90">进度序号</td>
+			<td width="120">进度内容</td>
+			<td width="120">计划时间</td>
+			<td width="120">落实时间</td>
+			<td width="120">单位</td>
+			<td width="100">联系人</td>
+			<td width="120">联系电话</td>
+			<td width="120">相关附件</td>
+			<td>备注</td>
+		</tr>
+		<tr>
+			<td><input type="text" name="no" value="1"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="可行性研究报告"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="2"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="项目立项"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="3"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="初步设计委托"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="4"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="初步设计完成"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="5"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="初步设计审查"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="6"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="初步设计修改"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="7"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="落实红线"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="8"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="施工图设计委托"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="9"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="施工图设计完成"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="10"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="施工图审查"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="11"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="施工图修改"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="12"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="出施工图0版"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="13"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="出项目概算审查审批书"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="14"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="项目实施计划申请表、项目实施运行表"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="15"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="项目实施计划下达"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="16"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="成立项目机构"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="17"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="工程材料需求表编制和材料采购"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="18"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="造价部出限价"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" value=""/></td>
+			<td><input type="text" name="contacts" value=""/></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="19"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="邀请选商单位"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" value=""/></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="20"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="选商谈判、确定中选单位"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="21"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="签订合同"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="22"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="进场施工"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="23"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="工程预验收"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="24"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="停气连头"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="25"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="完工交接验收"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="26"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="新管道测绘、PCM检测"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="27"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="工程造价结算"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="28"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="财务结算"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+		<tr>
+			<td><input type="text" name="no" value="29"/></td>
+			<td><input class="mesgDiv" type="text" name="content" value="竣工资料整理归档"/></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="plan_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input  placeholder="请选择日期" readonly="readonly" name="workable_time" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" /></td>
+			<td><input type="text" name="workspace" /></td>
+			<td><input type="text" name="contacts" /></td>
+			<td><input type="text" name="telnum" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input class="mesgDiv" type="text" name="remark" /></td>
+		</tr> 
+	</table>
+	</li>
+	<li class="mauto">
+		<span class="fl lh30 mr10">项目负责人：</span>
+		<input class="fl new_input" type="text" name="leader"/>
+		<div class="clr"></div>
+	</li>
+	<li class="w740 mauto20 tc">
+		<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+	</li>
+	</ul>
+	</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	var addLineLeft=parseInt($(".recordTitle").css("width")) +5;
+	//alert(addLineLeft);
+	var assLineTop=parseInt($(".recordTitle").css("height"))+26*8+10;
+	//alert(assLineTop);
+	$("#addLine").css({"left":addLineLeft+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		$(".addTr").append("<tr><td><input type='text' name='no' style='width: 80px;' /></td><td><input type='text name='content' style='width: 80px;' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='plan_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='workable_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input type='text' name='workspace' style='width: 80px;' /></td><td><input type='text' name='contacts' style='width: 80px;'' /></td><td><input type='text' name='telnum' style='width: 100px;'' /></td><td><input type='text' name='annex' style='width: 70px;' /></td><td><input type='text' name='remark' style='width: 100px;' /></td></tr><tr><td><input type='text' name='no' style='width: 80px;' /></td><td><input type='text name='content' style='width: 80px;' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='plan_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='workable_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input type='text' name='workspace' style='width: 80px;' /></td><td><input type='text' name='contacts' style='width: 80px;'' /></td><td><input type='text' name='telnum' style='width: 100px;'' /></td><td><input type='text' name='annex' style='width: 70px;' /></td><td><input type='text' name='remark' style='width: 100px;' /></td></tr><tr><td><input type='text' name='no' style='width: 80px;' /></td><td><input type='text name='content' style='width: 80px;' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='plan_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='workable_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input type='text' name='workspace' style='width: 80px;' /></td><td><input type='text' name='contacts' style='width: 80px;'' /></td><td><input type='text' name='telnum' style='width: 100px;'' /></td><td><input type='text' name='annex' style='width: 70px;' /></td><td><input type='text' name='remark' style='width: 100px;' /></td></tr>");		
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		times=times+3;
+	})
+	$("#saveButton").click(function() {
+		var project_nameTxt=$("input[name=project_name]").val();
+		if(project_nameTxt.length==0||project_nameTxt.length>50){
+			alertM("工程名称不能为空且不能超过50个字",{time:3000});
+			return;
+		}
+		var surveyTxt=$("input[name=survey]").val();
+		if(surveyTxt.length==0||surveyTxt.length>200){
+			alertM("工程概况不能为空且不能超过200个字",{time:3000});
+			return;
+		}
+		var leaderTxt=$("input[name=leader]").val();
+		if(leaderTxt.length==0||leaderTxt.length>50){
+			alertM("项目负责人不能为空且不能超过50个字",{time:3000});
+			return;
+		}
+		var bool = true;
+		var intNum = /^\d*$/;
+		$('input[name=no]').each(function(){
+			var noTxt = $(this).val();
+			if(!intNum.test(noTxt)){
+				alertM("进度序号必须位数字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=content]').each(function(){
+			var contentTxt = $(this).val();
+			if(contentTxt.length>50){
+				alertM("进度内容不能大于50个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		
+		$('input[name=workspace]').each(function(){
+			var workspaceTxt = $(this).val();
+			if(workspaceTxt.length>50){
+				alertM("单位不能大于50个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=contacts]').each(function(){
+			var contactsTxt = $(this).val();
+			if(contactsTxt.length>20){
+				alertM("联系人不能大于20个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=telnum]').each(function(){
+			var telnumTxt = $(this).val();
+			if(telnumTxt.length>20){
+				alertM("联系电话不能大于20个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=remark]').each(function(){
+			var remarkTxt = $(this).val();
+			if(remarkTxt.length>200){
+				alertM("备注不能大于200个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		
+		if(!bool){
+			return false;
+		}
+		else{
+			if(confirm("是否确认保存？")){
+				$("#saveform").submit();
+			}
+		}
+	});
+	
+	
+});
+
+
+/*]]>*/
+</script>
+</html>

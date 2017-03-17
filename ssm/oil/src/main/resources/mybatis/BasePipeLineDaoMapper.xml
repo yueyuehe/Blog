@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePipeLineDao">
+
+	<!-- 查询出所有的管道 -->
+	<select id="queryPipeLine" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT bp.* FROM base_pipeline bp
+		<if test="whCreater!=null">
+			,base_resource br
+			WHERE bp.id=br.`pl_id` AND
+			br.`admin`=#{whCreater} GROUP BY bp.`id`
+		</if>
+	</select>
+
+	<select id="queryLeaderList" resultType="cn.hm.oil.domain.BaseReceiver">
+		SELECT ll.*,su.name AS `leader_name` 
+		FROM leader_list ll LEFT JOIN sys_users su ON
+		su.id=ll.leader_id
+	</select>
+
+	<select id="queryPipeLineByUser" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT bp.* FROM base_pipeline bp,base_resource br WHERE
+		<if test="admin!=1">
+			br.admin = #{admin} AND
+		</if>
+		bp.id = br.pl_id GROUP BY bp.`id`
+	</select>
+
+	<select id="querySection" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT * FROM
+		base_pipeline_section WHERE pl_id=#{pl_id}
+	</select>
+
+	<select id="querySectionByUser" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT bps.* FROM
+		base_pipeline_section bps, base_resource br WHERE bps.pl_id=#{pl_id}
+		AND br.admin = #{admin} AND br.pl_section_id = bps.id
+	</select>
+
+	<!-- 查询规格下拉框使用 -->
+	<select id="querySpec" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT * FROM
+		base_pipeline_spec WHERE pl_section_id=#{pl_section_id}
+	</select>
+	<!-- 查询规格列表 -->
+	<select id="querySpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id,
+		CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name FROM
+		base_pipeline_spec bps
+		LEFT JOIN base_pipeline_section bpse ON
+		bps.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline bp ON bps.pl_id =
+		bp.id
+		<where>
+			<if test="param.pl_section_id!=null">
+				bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where>
+	</select>
+
+	<select id="querySpecByUser" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.* FROM
+		base_pipeline_spec bps,base_resource br WHERE
+		bps.pl_section_id=#{pl_section_id} AND br.admin=#{admin}
+		AND bps.id =
+		br.pl_spec_id
+	</select>
+
+	<select id="queryPipeLineByName" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT * FROM
+		base_pipeline WHERE name=#{name}
+	</select>
+
+	<insert id="inserPipeLine" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO base_pipeline(name) VALUES(#{name})
+	</insert>
+
+	<select id="querySectionByName" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT * FROM
+		base_pipeline_section WHERE name=#{name} AND pl_id=#{pl_id}
+	</select>
+
+	<insert id="inserSection" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO base_pipeline_section(pl_id,name) VALUES(#{pl_id},#{name})
+	</insert>
+
+	<select id="querySpecByName" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT * FROM
+		base_pipeline_spec WHERE name=#{name} AND
+		pl_section_id=#{pl_section_id}
+	</select>
+
+	<insert id="inserSpec" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO base_pipeline_spec(pl_id,name,pl_section_id)
+		VALUES(#{pl_id},#{name},#{pl_section_id})
+	</insert>
+	<!--获取管道基本信息 -->
+	<select id="querySpecListNew" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM
+		<if test="whCreater!=null">
+			base_resource br LEFT JOIN
+		</if>
+			 base_pipeline bp 
+		<if test="whCreater!=null">
+			ON br.`pl_id` = bp.`id`
+		</if>
+			LEFT JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    LEFT JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="whCreater!=null">
+				AND br.`admin` = #{whCreater} GROUP BY  bpsc.id
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script th:src="@{/assets/js/ajaxfileupload_change.js}"></script>
+<body>
+<div class="formbody1">
+	<table class="table100 mauto autobreak">
+		<tr>
+			<th width="78"><label>一月</label></th>
+			<th width="78"><label>二月</label></th>
+			<th width="78"><label>三月</label></th>
+			<th width="78"><label>四月</label></th>
+			<th width="78"><label>五月</label></th>
+			<th width="78"><label>六月</label></th>
+			<th width="78"><label>七月</label></th>
+			<th width="78"><label>八月</label></th>
+			<th width="78"><label>九月</label></th>
+			<th width="78"><label>十月</label></th>
+			<th width="78"><label>十一月</label></th>
+			<th width="78"><label>十二月</label></th>
+		</tr>
+		<tr >
+			<td><input type="file" name="file" id="file1"/></td>
+			<td><input type="file" name="file" id="file2"/></td>
+			<td><input type="file" name="file" id="file3"/></td>
+			<td><input type="file" name="file" id="file4"/></td>
+			<td><input type="file" name="file" id="file5"/></td>
+			<td><input type="file" name="file" id="file6"/></td>
+			<td><input type="file" name="file" id="file7"/></td>
+			<td><input type="file" name="file" id="file8"/></td>
+			<td><input type="file" name="file" id="file9"/></td>
+			<td><input type="file" name="file" id="file10"/></td>
+			<td><input type="file" name="file" id="file11"/></td>
+			<td><input type="file" name="file" id="file12"/></td>
+		</tr>
+		<tr id="text" >
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+			<th width="78" style="word-break:break-all"></th>
+		</tr>
+		<tr th:if="${dcds!=null}" style="text-align:center" >
+			<td th:each="d,status:${dcds}" width="78">
+				<cite th:if="${d.path!=null}" class="citHid">
+		    		<a th:href="${application.baseFileUrl + d.path}" >下载</a>
+				</cite>
+			</td>
+		</tr>
+	</table>
+			<div class="tc" style="margin-top:50px">
+		     		<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     </div>
+		     <div id="mention" style="display:none;text-align:center">正在上传请稍等...</div>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+         
+$(document).ready(function() {
+	  var fi = parent.$("input[name=annex_file]").eq([[${ids}]]-1).val();
+     //alert(fi)
+      if(fi!=""){
+   	   var arr = fi.split(";"); 
+   	   //var i=0;
+   	   //alert(arr);
+   	   for(var i=0 ;i<arr.length;i++){
+   		   //alert($("tr eq:2").text())
+   		   $("#text").find("th").eq(i).text(arr[i]);
+   		   //alert(arr.length)
+   		   //i++;
+   	   }
+      } 
+	$("#saveButton").click(function(){
+		$("#mention").css("display","block");
+		 $.ajaxFileUpload({
+	            url: [[@{/upload/uploadMFile}]],
+	            secureuri: true,
+	            fileElementId: ['file1','file2','file3','file4','file5','file6','file7','file8','file9','file10','file11','file12'],
+	            type: 'POST',
+	            dataType: 'json',
+	            success: function (result) {
+	                //alert(result);
+	                //alert("------")
+	                // to do something
+	                if(result!=""){
+	                	var path = "";
+	                	for(var i=0;i<result.length;i++){
+	                		if(result[i]!=null){
+	                			path=path+result[i]+";";
+	                		} else {
+	                			var te = $("#text").find("th").eq(i).text();
+	                			if(te!=""){
+	                				path=path+te+";";
+	                			} else{
+	                				path=path+";";	                				
+	                			}
+	                		}
+	                	}
+	                	parent.$("input[name=annex_file]").eq([[${ids}]]-1).val(path);
+	                	parent.TB_remove();
+	                } else {
+	                	alert("文件上传失败");
+	                }
+	            }
+	        });
+		//alert(parent.$("input[name=annex_file]").eq([[${ids}]]-1).parent().parent().find("input[name=remark]").val());
+	});
+});
+/*]]>*/
+</script>
+</html>

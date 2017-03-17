@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>考勤管理 </li>
+	    	<li>考勤创建：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+		
+		<form th:action="@{/admin/base/check/save}" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfo mauto" style="width:800px;">
+		    <li>
+		    	<label class="labelModi w70"><span class="red">*</span>内容:</label>
+		    	<input type="text" name="content" class="dfinput" placeholder="请输入内容" />
+		    </li>
+		    
+		    <li>
+		    	<label class="labelModi w70"><span class="red">*</span>负责人:</label>
+		    	<input type="text" name="user_name" class="dfinput" placeholder="请输入负责任" />
+		    </li>
+		    
+		    <li>
+		    	<label class="labelModi w70"><span class="red">*</span>事由:</label>
+		    	<input type="text" name="reason" class="dfinput" placeholder="请输入事由" />
+		    </li>
+		    <li>
+		    	<label class="labelModi fl w70"><span class="red">*</span>备注:</label>
+		    	
+		    	<div class="fl">
+		    	<textarea class="textinput "  rows="10" cols="100" name="remark" placeholder="请输入备注"></textarea>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    
+		    <li class="tc mb0" style="clear:both;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	
+	$("#saveButton").click(function() {
+		var title = $.trim($("input[name=content]").val());
+		if (title.length == 0 || title.length > 50) {
+			alertM("内容不能为空且长度不能大于50!",{time:3000});
+			return;
+		}
+		
+		var un = $.trim($("input[name=user_name]").val());
+		if (un.length == 0 || un.length > 50) {
+			alertM("负责人不能为空且长度不能大于50!",{time:3000});
+			return;
+		}
+		
+		var rs = $.trim($("input[name=reason]").val());
+		if (rs.length == 0 || rs.length > 100) {
+			alertM("事由不能为空且长度不能大于100!",{time:3000});
+			return;
+		}
+		
+		var remark = $.trim($("textarea[name=remark]").val());
+		if (remark.length == 0 || remark.length > 500) {
+			alertM("备注不能为空且长度不能大于500!",{time:3000});
+			return;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	$('#editor1').ckeditor();
+});
+/*]]>*/
+</script>
+</html>

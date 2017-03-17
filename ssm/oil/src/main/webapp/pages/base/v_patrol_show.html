@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a>阀室、阀井维护保养工作记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a>:</li>
+	    </ul>
+    </div>
+    <div th:if="${vp==null}" class="formbody">
+    	暂无数据
+    </div>
+    <div th:if="${vp!=null}" class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+        <form method="post" id="saveform" th:action="@{/admin/base/v_patrol/save}">
+        <ul class="forminfo">
+			<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1" disabled="disabled">
+			            	<option value="0">请选择管线</option>
+			        		<option th:each="pll:${pipeLineList}" th:selected="${vp.pl_id == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1" disabled="disabled">
+			            	<option value="0">请选择起止段落</option>
+			        		<option th:each="sec:${sectionList}" th:selected="${vp.pl_section_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1" disabled="disabled">
+			            	<option value="0">请选择规格</option>
+			        		<option th:each="sec:${specList}" th:selected="${vp.pl_spec_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright" style="padding-left: 10px">
+		            	<ul class="seachform mauto">
+				            <li class="mr20">
+								<span>时间：</span>
+								<input type="text" id="r_month" readonly="readonly" th:value="${r_month==null? '' : r_month}" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+							</li>
+					    	<li class="fr mr0" th:if="${role!=null and role==2}">
+					    		<input id="exportButton" name="exportButton" type="button" class="scbtn" value="导出"/>
+					    	</li>
+					    	<li class="fr mr20">
+					    		<input id="searchButton" type="button" class="scbtnModi" value="查询"/>
+					    	</li>
+		            	</ul>
+	            	</div>
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="table100 mauto20">
+		     	<div class="record3"></div>
+		     	<table class="addTr">
+		        	<tr class="recordTitle lh32">
+		            	<td colspan="11">
+		            		<div class="fl">
+		                	</div>
+		                    <div class="fl">
+		                    	<span>管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div class="fr">
+		                    </div>
+		                </td>
+		            </tr>
+		            <tr class="recordTitle">
+		            	<td colspan="11">
+		            		<div class="fl">
+		                		<span>阀室名称</span>
+		                    	<input style="width:150px;" type="text" name="valve_name" readonly="readonly" placeholder="请输入阀室名称" class="new_input" th:value="${vp.valve_name}"/>
+		                    </div>
+		                    <div class="fl ml95">
+		                    	<span>检查日期：</span>
+		                    	<input style="width:150px;" type="text" placeholder="请选择时间" readonly="readonly" disabled="disabled" th:value="${vp.date_string}" name="check_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />	
+		                    </div>
+		                    <div class="fr">
+		                    	<span class="ml30">检查人：</span>
+		                    	<input style="width:150px;" type="text" name="checker" placeholder="请输入检查人" class="new_input" readonly="readonly" th:value="${vp.checker}"/>
+		                	</div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="2">项目<br/>类别</td>
+		            	<td rowspan="2"  colspan="2">检查项目</td>
+		            	<td colspan="2">检查结果</td>
+		            	<td>备注</td>
+		            </tr>
+		            <tr>
+		            	<td>正常（完好）</td>
+		            	<td>异常及处理情况</td>
+		            	<td></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="8">阀室</td>
+		            	<td rowspan="3">设备检查</td>
+		            	<td>阀室流程检查</td>
+		            	<td><input type="checkbox" name="normal1" disabled="disabled" th:checked="${vp.vpd.normal1==1}" value="1"/></td>
+		            	<td><input type="text" name="handle1" readonly="readonly" th:value="${vp.vpd.handle1}"/></td>
+		            	<td><input type="text" name="remark1" readonly="readonly" th:value="${vp.vpd.remark1}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>压力表、执行机构引压开关开启</td>
+		            	<td><input type="checkbox" name="normal2" value="1" disabled="disabled" th:checked="${vp.vpd.normal2==1}"/></td>
+		            	<td><input type="text" name="handle2" readonly="readonly" th:value="${vp.vpd.handle2}"/></td>
+		            	<td><input type="text" name="remark2" readonly="readonly" th:value="${vp.vpd.remark2}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>设备验漏</td>
+		            	<td><input type="checkbox" name="normal3" disabled="disabled" th:checked="${vp.vpd.normal3==1}" value="1"/></td>
+		            	<td><input type="text" name="handle3" readonly="readonly" th:value="${vp.vpd.handle3}"/></td>
+		            	<td><input type="text" name="remark3" readonly="readonly" th:value="${vp.vpd.remark3}"/></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="5">基础设施检查</td>
+		            	<td>阀室上墙资料是否齐全</td>
+		            	<td><input type="checkbox" name="normal4" disabled="disabled" th:checked="${vp.vpd.normal4==1}" value="1"/></td>
+		            	<td><input type="text" name="handle4" readonly="readonly" th:value="${vp.vpd.handle4}"/></td>
+		            	<td><input type="text" name="remark4" readonly="readonly" th:value="${vp.vpd.remark4}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>阀室是否通风，阀室内是否有沉降</td>
+		            	<td><input type="checkbox" name="normal5" disabled="disabled" th:checked="${vp.vpd.normal5==1}" value="1"/></td>
+		            	<td><input type="text" name="handle5" readonly="readonly" th:value="${vp.vpd.handle5}"/></td>
+		            	<td><input type="text" name="remark5" readonly="readonly" th:value="${vp.vpd.remark5}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>工用具、材料配置齐备，灭火器配置并有效</td>
+		            	<td><input type="checkbox" name="normal6" disabled="disabled" th:checked="${vp.vpd.normal6==1}" value="1"/></td>
+		            	<td><input type="text" name="handle6" readonly="readonly" th:value="${vp.vpd.handle6}"/></td>
+		            	<td><input type="text" name="remark6" readonly="readonly" th:value="${vp.vpd.remark6}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>外墙标识、标语完好，门窗是否完好；</td>
+		            	<td><input type="checkbox" name="normal7" disabled="disabled" th:checked="${vp.vpd.normal7==1}" value="1"/></td>
+		            	<td><input type="text" name="handle7" readonly="readonly" th:value="${vp.vpd.handle7}"/></td>
+		            	<td><input type="text" name="remark7" readonly="readonly" th:value="${vp.vpd.remark7}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>阀室、放空区清洁卫生</td>
+		            	<td><input type="checkbox" name="normal8" disabled="disabled" th:checked="${vp.vpd.normal8==1}" value="1"/></td>
+		            	<td><input type="text" name="handle8" readonly="readonly" th:value="${vp.vpd.handle8}"/></td>
+		            	<td><input type="text" name="remark8" readonly="readonly" th:value="${vp.vpd.remark8}"/></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="3" colspan="2">放空区</td>
+		            	<td>拉锁是否紧固</td>
+		            	<td><input type="checkbox" name="normal9" disabled="disabled" th:checked="${vp.vpd.normal9==1}" value="1"/></td>
+		            	<td><input type="text" name="handle9" readonly="readonly" th:value="${vp.vpd.handle9}"/></td>
+		            	<td><input type="text" name="remark9" readonly="readonly" th:value="${vp.vpd.remark9}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>阀室、放空区、阀室至放空区管线是否标识齐全，周边建构筑物是否满足安全距离</td>
+		            	<td><input type="checkbox" name="normal10" disabled="disabled" th:checked="${vp.vpd.normal10==1}" value="1"/></td>
+		            	<td><input type="text" name="handle10" readonly="readonly" th:value="${vp.vpd.handle10}"/></td>
+		            	<td><input type="text" name="remark10" readonly="readonly" th:value="${vp.vpd.remark10}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>放空区除草、清洁</td>
+		            	<td><input type="checkbox" name="normal11" disabled="disabled" th:checked="${vp.vpd.normal11==1}" value="1"/></td>
+		            	<td><input type="text" name="handle11" readonly="readonly" th:value="${vp.vpd.handle11}"/></td>
+		            	<td><input type="text" name="remark11" readonly="readonly" th:value="${vp.vpd.remark11}"/></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="2" colspan="2">阀井</td>
+		            	<td>标志桩、盖板是否完好</td>
+		            	<td><input type="checkbox" name="normal12" disabled="disabled" th:checked="${vp.vpd.normal12==1}" value="1"/></td>
+		            	<td><input type="text" name="handle12" readonly="readonly" th:value="${vp.vpd.handle12}"/></td>
+		            	<td><input type="text" name="remark12" readonly="readonly" th:value="${vp.vpd.remark12}"/></td>
+		            </tr>
+		            <tr>
+		            	<td>泄漏及锈蚀检查</td>
+		            	<td><input type="checkbox" name="normal13" disabled="disabled" th:checked="${vp.vpd.normal13==1}" value="1"/></td>
+		            	<td><input type="text" name="handle13" readonly="readonly" th:value="${vp.vpd.handle13}"/></td>
+		            	<td><input type="text" name="remark13" readonly="readonly" th:value="${vp.vpd.remark13}"/></td>
+		            </tr>
+        	 	</table>
+		     </li>
+		     <li class="mauto20" th:if="${verify == 1}">
+				<label class="labelModi tl"><span class="red">*</span>审核状态:</label>
+				<div class="vocation">
+					<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == vp.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == vp.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == vp.status}" th:value="-1">不通过</option>
+		            </select>
+		            <label th:if="${verify != 1}" th:text="${vp.status == 0?'待审核':vp.status == 1?'通过':'不通过'}"></label>
+				</div>
+				<div class="clr"></div>
+			</li>
+			<li  class="mauto" th:if="${verify == 1}">
+				<label class="labelModi tl"><span class="red">*</span>说明:</label>
+				<textarea style="width:840px;" class="textinput" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${vp.verify_desc}"></textarea></li>
+				<div class="clr"></div> 
+			<li  class="mauto20 tc" th:if="${verify == 1}">
+				<input name="saveButton" id="saveButton" type="button" class="btn" th:if="${vp.status} != 1" value="确认保存" />
+			</li>
+			<li style="text-align: center;">
+		    	<div class="paging">
+			    	<span id="prev" th:class="${offset==0?'disableColor':'pagingBT enableColor'}" style="cursor: pointer;">上一页</span>
+			    	<span id="offset" th:text="${offset + 1}">1</span>
+			    	<span>/</span>
+			    	<span th:text="${total}">5</span>
+			    	<span id="next" class="pagingBT" th:class="${offset==(total-1)?'disableColor':'pagingBT enableColor'}" style="cursor: pointer;">下一页</span>
+		    	</div>
+		    </li>
+	        </ul>
+        </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	//分页
+	$(".pagingBT").on("click",function(){
+		var id = [[${id}]];//规格ID
+		var r_month = [[${r_month!=null?r_month:''}]]; //月份
+		var offset = parseInt($("#offset").text())-1; //分页偏移
+		var direction = $(this).attr("id"); //上一页 OR 下一页
+		
+		if(direction == "prev"){
+			offset--;
+		}else{
+			offset++;
+		}
+		
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/v_patrol/show}]] + "?verify=1&id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/v_patrol/show}]] + "?id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}
+	});
+	
+	//查询
+	$("#searchButton").click(function(){
+		var id = [[${id}]];//规格ID
+		var r_month = $("#r_month").val(); //月份
+		var offset = 0; //分页偏移
+		var direction = $(this).attr("id"); //上一页 OR 下一页
+		
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/v_patrol/show}]] + "?verify=1&id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/v_patrol/show}]] + "?id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}
+	});
+	
+	//导出
+	$("#exportButton").click(function() {
+		var pl=$("select[name=pl]").val();
+		var section=$("select[name=section]").val();
+		var spec=$("select[name=spec]").val();
+		var r_month=$("input[name=r_month]").val();
+		window.location.href="exp?pl="+pl+"&section="+section+"&spec="+spec+"&check_date="+r_month;
+	});
+	
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var sectionname = $("select[name=section] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var vpid = [[${vp.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/v_patrol/verify_save}]],
+	   			data : {
+	   				'id' : vpid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+});
+/*]]>*/
+</script>
+</html>

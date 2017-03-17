@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.InvestDao">
+	<insert id="saveInvest" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO invest (project_name,survey,progress,leader,creater,create_time) 
+		VALUES(#{project_name},#{survey},#{progress},#{leader},#{creater},now())
+	</insert>
+	
+	<insert id="saveInvestDetail">
+		INSERT INTO invest_detail (iv_id,`no`,content,plan_time,workable_time,workspace,contacts,telnum,annex,remark,operate_num
+		<if test="operator != null">
+		,operator,operate_time
+		</if>
+		) 
+		VALUES(#{iv_id},#{no},#{content},#{plan_time},#{workable_time},#{workspace},#{contacts},#{telnum},#{annex},#{remark}
+		<if test="operate_num != null">
+		,#{operate_num}
+		</if>
+		<if test="operate_num == null">
+		,0
+		</if>
+		<if test="operator != null">
+		,#{operator},now()
+		</if>
+		)
+	</insert>
+	
+	<select id="queryInvest" resultType="cn.hm.oil.domain.Invest">
+		SELECT iv.*,(SELECT MAX(id)-(SELECT MIN(id) FROM invest_detail WHERE iv_id = iv.id)+1 AS num FROM invest_detail WHERE iv_id = iv.id AND workable_time IS NOT NULL ) AS finished_num FROM invest iv 
+		ORDER BY iv.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryInvest_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM invest
+		WHERE 1 = 1
+	</select>
+	
+	<select id="queryInvestById" resultMap="queryInvestByIdRusult">
+		SELECT * FROM invest WHERE `id` = #{id}
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.Invest" id="queryInvestByIdRusult">
+		<id column="id" property="id" />
+		<result column="project_name" property="project_name" />
+		<result column="survey" property="survey" />
+		<result column="progress" property="progress" />
+		<result column="leader" property="leader" />
+		<result column="creater" property="creater" />
+		<result column="create_time" property="create_time" />
+		
+		<collection property="detailList" select="queryInvestDetailByPpId" column="id" javaType="List" ofType="cn.hm.oil.domain.InvestDetail"/>
+	</resultMap>
+	
+	<select id="queryInvestDetailByPpId" resultType="cn.hm.oil.domain.InvestDetail">
+		SELECT ivd.* FROM invest_detail ivd, invest `iv` WHERE ivd.iv_id = #{iv_id} AND `iv`.operate_num = ivd.operate_num AND `iv`.id = ivd.iv_id
+	</select>
+	
+	<select id="queryOperate_num" resultType="java.lang.Integer">
+		SELECT operate_num FROM invest WHERE id = #{id}
+	</select>
+	
+	<update id="updateInvest">
+		UPDATE invest SET operate_num = operate_num + 1 WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteInvestDetail">
+		DELETE FROM invest_detail WHERE iv_id = #{iv_id}
+	</delete>
+</mapper>

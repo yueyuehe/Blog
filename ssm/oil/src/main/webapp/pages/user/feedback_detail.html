@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>反馈管理 </li>
+	    	<li>反馈信息详情：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+		<form action="feedback_update" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfo mauto" style="width:800px;">
+		    <li>
+		    	<label class="labelModi w70">标题:</label>
+		    	<label th:text="${fb.title}"></label>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi fl w70">内容:</label>
+		    	
+		    	<label style="width:325px" th:text="${fb.content}"></label>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi w70">反馈人:</label>
+		    	<label th:text="${fb.name}"></label>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi w70">电话:</label>
+		    	<label th:text="${fb.phone}"></label>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi w70">状态:</label>
+		    	<label th:text="${fb.close==1?'关闭':'正常'}"></label>
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${!#strings.isEmpty(fb.path)}" style="margin-top:50px;">
+		    	<label class="labelModi w70">附件:</label>
+		    	<cite class="pr fl">
+		    		<a class="downA op0" th:href="${application.baseFileUrl + fb.path}" th:text="${fb.path}"></a>
+		    		<input class="downB" type="button" value="点击下载" /> 
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${fb.close==0}" class="tc mb0" style="clear:both;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认关闭"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	
+	$("#saveButton").click(function() {
+		if(confirm("是否确认关闭？")){
+			window.location.href="feedback_update?close=1&id="+[[${fb.id}]];
+		}
+	});
+	
+});
+/*]]>*/
+</script>
+</html>

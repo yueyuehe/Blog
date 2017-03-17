@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseRunRecordNewDao">
+
+	<select id="queryRunRecordAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM run_record_new vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY vp.pl_spec_id
+	</select> 
+
+	<select id="RunRecordByList" resultMap="queryRunRecordByIdRusult">
+		SELECT * FROM run_record_new
+		WHERE 1=1
+		<if test="param.id!=null">
+			AND pl_spec_id=#{param.id}
+		</if>
+		<if test="param.r_month!=null">
+			AND DATE_FORMAT(create_time,'%Y-%m-%d') = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	<select id="RunRecordByListTotal" resultType="int">
+		SELECT COUNT(1) FROM run_record_new 
+		WHERE pl_spec_id=#{param.id} 
+		<if test="param.r_month!=null">
+			AND r_month = #{param.r_month}
+		</if>
+	</select>
+
+	<!-- 新审核机制 -->
+	<select id="queryRunRecordDetailMerge" resultType="cn.hm.oil.domain.RunRecordDetail">
+		SELECT rrdn.* FROM run_record_detail_new rrdn, run_record_new rrn 
+		WHERE rrdn.`r_id`=rrn.`id` AND rrn.`pl_id`=#{pl_id} AND rrn.`pl_section_id`=#{pl_section_id} AND rrn.`pl_spec_id`=#{pl_spec_id}
+		<!-- AND (rrdn.`recorder` != '' OR rrdn.`comment` != '') -->
+		<if test="status!= null">
+		AND rrn.`status` = #{status}
+		</if>
+		AND FIND_IN_SET(#{user_id}, rrn.up_id) OR rrn.up_id IS NULL OR rrn.creater = #{user_id}
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRunRecordDetailMerge_count" resultType="int">
+		SELECT count(1) FROM run_record_detail_new rrdn, run_record_new rrn 
+		WHERE rrdn.`r_id`=rrn.`id` AND rrn.`pl_id`=#{pl_id} AND rrn.`pl_section_id`=#{pl_section_id} AND rrn.`pl_spec_id`=#{pl_spec_id}
+		<!-- AND (rrdn.`recorder` != '' OR rrdn.`comment` != '') -->
+		<if test="status!= null">
+		AND rrn.`status` = #{status}
+		</if>
+		AND FIND_IN_SET(#{user_id}, rrn.up_id) OR rrn.up_id IS NULL OR rrn.creater = #{user_id}
+	</select>
+	
+	<select id="queryRunRecordMergeInfo" resultType="cn.hm.oil.domain.RunRecord">
+		SELECT p.`name` AS pl_name,  pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name, rc.`jinzhan`, rc.`auditor`, rc.`r_month`
+		FROM run_record_new rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="status!= null">
+		AND rc.`status` = #{status}
+		</if>
+		AND rc.`pl_id`=#{pl_id} and rc.`pl_section_id`=#{pl_section_id} and rc.`pl_spec_id`=#{pl_spec_id}
+		AND FIND_IN_SET(#{user_id}, rc.up_id) OR rc.up_id IS NULL OR rc.creater = #{user_id}
+		LIMIT 1
+	</select>
+	
+	<select id="queryRunRecordMerge" resultType="cn.hm.oil.domain.RunRecord">
+		SELECT DISTINCT psp.`id` AS pl_spec_id, p.`id` AS pl_id, p.`name` AS pl_name, pse.`id` AS pl_section_id, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM run_record_new rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="status!= null">
+		AND rc.`status` = #{status}
+		</if>
+		AND FIND_IN_SET(#{user_id}, rc.up_id) OR rc.up_id IS NULL OR rc.creater = #{user_id}
+	</select>
+	
+	<!-- END -->
+	<update id="updateRunRecordVerifyStatus">
+		UPDATE run_record_new rr LEFT JOIN run_record_detail_new rrd  ON rr.id=rrd.`r_id`
+		SET rrd.status=#{status},rr.status=#{status},verify_desc=#{verify_desc},verify_time=now(),verifier=#{verifier},rrd.status=#{status}
+		WHERE rr.id=#{id}
+	</update>
+	
+	<select id="queryRunRecordById" resultMap="queryRunRecordByIdRusult">
+		SELECT * FROM run_record_new WHERE id=#{id}
+	</select>
+	
+	<update id="updateRunRecordTime">
+		UPDATE run_record_new SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	<resultMap type="cn.hm.oil.domain.RunRecord" id="queryRunRecordByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="r_month" property="r_month" />
+		<result column="auditor" property="auditor" />
+		<result column="comment" property="comment"/>
+		
+		<collection property="detailList" select="queryRunRecordDetailByPpId" column="id" javaType="List" ofType="cn.hm.oil.domain.PipelinePatrolDetail"/>
+	</resultMap>
+	
+	<select id="queryRunRecordDetailByPpId" resultType="cn.hm.oil.domain.RunRecordDetail">
+		SELECT * FROM run_record_detail_new WHERE r_id=#{id}
+	</select>
+	
+	<select id="queryRunRecord" resultType="cn.hm.oil.domain.RunRecord">
+		SELECT rc.`id`, rc.`jinzhan`, rc.`r_month`, rc.`auditor`, rc.`create_time`,rc.creater, rc.status, p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM run_record_new rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="whCreater != null">
+		AND creater=#{whCreater}
+		</if>
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="r_month">
+		AND rc.`r_month`=#{r_month}
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, rc.up_id) OR rc.up_id is NULL OR rc.creater = #{user_id}) 
+		</if>
+		ORDER BY rc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRunRecord_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM run_record_new
+		WHERE 1 = 1
+		<if test="whCreater != null">
+		AND creater=#{whCreater}
+		</if>
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="r_month">
+		AND `r_month`=#{r_month}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+	</select>
+	
+	<update id="updateRunRecord">
+		UPDATE run_record_new SET pl_id=#{pl_id},pl_spec_id=#{pl_spec_id},pl_section_id=#{pl_section_id},
+		jinzhan=#{jinzhan},r_month=#{r_month},auditor=#{auditor},status=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="insertRunRecord" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO run_record_new(pl_id,pl_spec_id,pl_section_id,jinzhan,r_month,auditor,create_time,creater, comment,up_id,status) 
+		VALUES(#{pl_id},#{pl_spec_id},#{pl_section_id},#{jinzhan},#{r_month},#{auditor},now(),#{creater}, #{comment},#{up_id},#{status})
+	</insert>
+	
+	<delete id="deleteRunRecordDetailByRid">
+		DELETE FROM run_record_detail_new WHERE r_id=#{r_id}
+	</delete>
+	
+		<delete id="deleteRunRecordById">
+		DELETE FROM run_record_new WHERE id=#{id}
+	</delete>
+	
+	<insert id="insertRunRecordDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO run_record_detail_new(r_id,day,time,jldy,zlsc_a,zlsc_v,tdddw,recorder,comment,others,status) 
+		VALUES(#{r_id},#{day},#{time},#{jldy},#{zlsc_a},#{zlsc_v},#{tdddw},#{recorder},#{comment},#{others},#{status})
+	</insert>	
+	
+	<select id="queryRunRecordDetail" resultType="cn.hm.oil.domain.RunRecordDetail">
+		SELECT * FROM run_record_detail_new rcd join run_record_new
+		rc on rcd.`r_id`=rc.id
+		WHERE ((rcd.day IS NOT NULL AND rcd.time IS NOT NULL) OR (rcd.comment IS NOT NULL AND rcd.comment !=''))
+		<if test="id!= null">
+			AND rc.`pl_spec_id`=#{id}
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(rc.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND rc.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND rc.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND rc.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND rc.`pl_section_id`=#{section}
+		</if>	
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRunRecordDetail_count" resultType="int">
+		SELECT count(1) FROM run_record_detail_new rcd join run_record_new
+		rc on rcd.r_id=rc.id
+		WHERE ((rcd.day IS NOT NULL AND rcd.time IS NOT NULL) OR (rcd.comment IS NOT NULL AND rcd.comment !=''))
+		<if test="id!= null">
+			AND rc.`pl_spec_id`=#{id}
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(rc.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND rc.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND rc.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND rc.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND rc.`pl_section_id`=#{section}
+		</if>
+	</select>
+
+	<update id="updateResetDetailStatus">
+		UPDATE run_record_detail_new rcd JOIN run_record_detail_new rc ON rcd.`r_id`=rc.`id`
+		SET rcd.status = rc.status
+		WHERE rcd.`id`=#{id}
+	</update>
+	
+	<select id="queryDetailStatus" resultType="int">
+		SELECT status FROM run_record_detail_new
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateChangeDetailStatus">
+		UPDATE run_record_detail_new rcd JOIN run_record_new rc ON rcd.`r_id`=rc.`id`
+		SET rcd.status = #{status},rc.status=#{status}
+		WHERE rcd.`id`=#{id}
+	</update>
+	
+	<update id="updateRunRecordDetail">
+		UPDATE run_record_detail_new rcd JOIN run_record_new rc ON rcd.`r_id`=rc.id
+		SET day=#{day},time=#{time},jldy=#{jldy},zlsc_a=#{zlsc_a},zlsc_v=#{zlsc_v},tdddw=#{tdddw},recorder=#{recorder},rcd.comment=#{comment},others=#{others}
+		<if test="status!=null">
+		,rcd.status=#{status}
+		,rc.status=#{status}
+		</if>
+		WHERE rcd.id=#{id}
+	</update>
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE run_record_detail_new pmd JOIN run_record_new pm ON pmd.`r_id`=pm.id
+		SET pmd.status = 0,pm.status=0
+		WHERE pmd.status = -2 OR pm.status = -2
+	</update>
+	
+	<select id="queryBasePipelineByAdminRc" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM run_record_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, run_record_detail_new ppd
+		WHERE ppd.`r_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`		
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="querySpecListNewByAdminRc" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN run_record_new pp ON pp.`pl_spec_id`=bpsc.id
+		    JOIN run_record_detail_new ppd ON ppd.`r_id`=pp.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="status !=null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminRc" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM run_record_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, run_record_detail_new ppd
+		WHERE ppd.`r_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select>
+</mapper>

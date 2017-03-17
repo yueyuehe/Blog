@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>抽签</title>
+<script th:src="@{/assets/js/jquery-1.9.1.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/lotterystyle.css}" />
+</head>
+
+<body th:style="'background-color:#1c77ac; background:url(' + @{/assets/images/loginBg.jpg} + ') center center no-repeat; '">
+		<div style="float:left;margin-top:50px;margin-left:8%;width:20%;text-align:center">
+			<label style="color:#0f0;font-weight:bold;font-size:30px">参与人员</label>
+			<ul id="list" style="height:700px;border:1px solid black;margin-top:30px;color:#fe0;line-height:25px;font-size:20px">
+				
+			</ul>
+		</div>
+	<div style="float:left;margin-left:2%;margin-top:300px;width:40%">
+		
+    	<div  style="text-align:center;">
+    		<input id="result" type="text" style="font-size:30px" readonly="readonly" />
+        	<div style="margin-top:50px">
+            	<!-- <img id="star" onclick="setTimer()" alt="开始" src="../assets/images/star.png" />
+                <img id="stop" onclick="clearTimer()" alt="停止" src="../assets/images/stop.png" /> -->
+            	<input id="star" style="margin-right:80px;font-size:20px" onclick="setTimer()" type="button" value="开始"/>
+                <input id="stop" style="font-size:20px" onclick="clearTimer()" type="button"  value="停止"/>
+            </div>
+            
+        </div>
+        <!-- <div style="text-align:center;margin-top:30px">
+        	<label style="color:#0f0;font-weight:bold;font-size:30px">已抽出人员</label>
+        </div>
+        <div style="text-align:center;margin-top:30px">
+        	<pre><label id="over" style="color:#fe0;line-height:40px;font-size:30px"></label></pre>
+        </div> -->
+    </div>
+    
+    <div style="float:left;margin-top:50px;margin-left:2%;width:20%;text-align:center">
+			<label style="color:#0f0;font-weight:bold;font-size:30px">已抽出人员</label>
+			<pre><div id="over" style="height:700px;border:1px solid black;margin-top:30px;color:#ff0;line-height:25px;font-size:20px"></div></pre>
+		</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	 //chang=false;
+	
+}); 
+	var randnum;
+	var cellnum =1;
+	 var mobile = new Array();
+	 var mobile2 = new Array();
+	 var week = "";
+	 var total = 0;
+		//var i=0;
+		var lotteryList=[[${lotteryList}]];
+		var userList=[[${userList}]];
+		var sz = [[${lotteryList.size()}]];
+		//mobile = lotteryList;
+		//var lotteryList = "${requestScope.lotteryList}";
+		//alert(lotteryList[0].phone)
+		//alert([[${lotteryList.size()}]])
+		
+		  for(var i=0;i<sz; i++ ){
+			//alert(lotteryList[i].username)
+				if(lotteryList[i].id==21){
+					week = lotteryList[i].username+":"+lotteryList[i].phone;
+				
+			}
+			
+			mobile[i] = lotteryList[i].username+":"+lotteryList[i].phone;
+			
+				
+		} 
+		
+		
+		  for(var i=0;i<sz; i++ ){
+			  $("#list").append('<li style="list-style:none">'+userList[i].username+":"+userList[i].phone+'</li>');
+			} 
+		//alert(sz)
+	/* mobile[0]="陈璐:13020000100";
+	mobile[1]="Aaron:13020000101";
+	mobile[2]="Silence:13020000102";
+	mobile[3]="Helen:13020000103";
+	mobile[4]="Eric:13020000104"; */
+
+	var num = mobile.length - 1;
+	var time=0;
+	var flag = false;
+	function GetRnd(m,n){
+		randnum = parseInt(Math.random()*(n-m+1));
+		return randnum;	
+	}
+	function getRandNum(){
+		var y = GetRnd(0,num);
+		document.getElementById("result").value = mobile[y];	
+	}
+	function setTimer(){
+		
+		if(flag){
+			return;
+		}
+		if(mobile.length==0){
+			alert("全部抽完了!");
+			return;
+		}
+		flag=true;
+			time = setInterval("getRandNum()",5);
+
+	}
+	function clearTimer(){
+			if(!flag)return;
+			clearInterval(time);
+			noDupNum();
+			flag=false;
+			 /* $.ajax({
+	   			url : [[@{/services/mobile/lottery_save}]],
+	   			data : {
+	   				phone:document.getElementById("result").value
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				//alert(textStatus)
+	   			}
+	   		});  */
+			
+	}
+	function noDupNum(){
+		if(total < 9){
+			
+			if(total < 6){
+				var ra2 = parseInt(Math.random()*(6-total));
+				/* if(mobile[ra2] == week){
+					if(mobile[0]==week){
+						document.getElementById("result").value=mobile[1];	
+						mobile.removeEleAt(1);
+					} else{
+						document.getElementById("result").value=mobile[0];	
+						mobile.removeEleAt(0);
+					} 
+					document.getElementById("result").value=mobile[ra2];
+					mobile.removeEleAt(ra2);
+				} else {
+					var ra2 = parseInt(Math.random()*(9-total));
+					document.getElementById("result").value=mobile[ra2];
+					mobile.removeEleAt(ra2);
+				}*/
+				document.getElementById("result").value=mobile[ra2];
+				mobile.removeEleAt(ra2);
+			} else {
+				var ra2 = parseInt(Math.random()*(9-total));
+				document.getElementById("result").value=mobile[ra2];
+				mobile.removeEleAt(ra2);
+			}
+				total++;
+		} else {
+			mobile.removeEleAt(randnum);
+		}
+		var value = document.getElementById("result").value;
+		var result = $("#over").text();
+		if(result != ""){
+			$("#over").text(result+"\n"+value);
+		} else {
+			$("#over").text(value);
+		}
+		var o = 0;
+		for(var p=0;p<mobile.length;p++){
+			if(typeof mobile[p]!='undefine'){
+				mobile[o] = mobile[p]	
+			}
+			o++;	
+		}
+		num = mobile.length-1;
+	}
+	Array.prototype.removeEleAt = function(dx){
+		this.splice(dx,1);
+	}
+	
+	/* $("#star").hover(function(){
+		$(this).attr("src","../assets/images/star_hover.png");	
+	},
+		function(){
+		$(this).attr("src","../assets/images/star.png");	
+	})
+	$("#stop").hover(function(){
+		$(this).attr("src","../assets/images/stop_hover.png");	
+	},
+		function(){
+		$(this).attr("src","../assets/images/stop.png");	
+	}) */
+	/*]]>*/
+</script>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header">
+	<style type="text/css">
+		.newtable td{border: 1px solid #000!important; height: 35px!important;}
+		.patrol tr textarea {}
+	</style>
+</head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body style="background:#fdf6fd;">
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li>管道巡检工作记录创建：</li>
+		</ul>
+	</div>
+	<div class="formbody" style=" width:1000px;background:#fff;">
+		<div class="formtext2">
+			<h3 class="new-table-title">管道巡检工作记录</h3>
+		</div>
+		<!-- <div class="formtext2" th:if="${prompt!=null}">
+			<h3 th:text="${prompt.describe==null?'':prompt.describe}"></h3>
+		</div> -->
+        <form method="post" id="saveform" th:action="@{/admin/base/new/pl_patrol/save}" enctype="multipart/form-data">
+        <ul class="forminfo">
+			<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1">
+			            	<option value="0">请选择管线</option>
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1">
+			            	<option value="0">请选择起止段落</option>
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1">
+			            	<option value="0">请选择规格</option>
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="clr mauto">
+		     <div class="record3"></div>
+		     	<table class="addTr table100 mauto table newtable patrol" style="width:auto;">
+		        	<tr class="recordTitle lh32">
+		            	<td colspan="18" style="border:0!important">
+		            		<div class="fl">
+		                		<span>单位</span>
+		                    	<input style="width:150px;border-bottom:1px solid #000;border-top:0px;border-left:0px;border-right:0px;" type="text" name="jinzhan" class="new_input" />
+		                    </div>
+		                    <div class="fl ml70">
+		                    	<span>巡检人：</span>
+		                    	<input style="width:100px;border-bottom:1px solid #000;border-top:0px;border-left:0px;border-right:0px;" type="text" name="patroler" class="new_input" />
+		                    </div>
+		                    <div class="fl ml70">
+		                    	<span>巡检管线名称规格：</span>
+		                    	<a id="pl_name" style="border-bottom:1px solid #000;font-weight:normal;font"></a>
+		                    </div>
+		                    <div class="fr">
+		                    	<span>巡检管线(段)：</span>
+		                    	<input style="width:150px;border-bottom:1px solid #000;border-top:0px;border-left:0px;border-right:0px;" type="text" name="patrol_no" class="new_input" />
+		                    </div>
+		                    <!-- <div class="fr">
+		                    	<span>时间：</span>
+		                    	<input style="width:150px;" type="text" placeholder="请选择时间" readonly="readonly" name="p_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+		                    </div> -->
+		                    <div class="clr"></div>
+		                </td>
+		            </tr>
+		            <tr>		          
+		            	<td width="38" rowspan="2">日期</td>
+		            	<td colspan="16" style="height:24px">巡检内容</td>
+		            	<td rowspan="2" width="280">备注</td>
+		            </tr>
+		            <tr style="height:128px">
+		                <td width="38">管线“三桩”、警示牌</td>
+		                <td width="38">管道护坡、堡坎</td>
+		                <td width="38">埋地管道</td>
+		                <td width="38">明管跨越管段</td>
+		                <td width="38">铁路、公路穿越段</td>
+		                <td width="38">隧道穿越段</td>
+		                <td width="38">穿越河流、沟渠管段</td>
+		                <td width="38">管道两侧环境</td>
+		                <td width="38">管道沿途地址灾害</td>
+		                <td width="38">管道高后果区及高风险段</td>
+		                <td width="38">管道泄漏情况</td>
+		                <td width="38">站场阴保装置</td>
+		                <td width="38">阴极保护测试桩</td>
+		                <td width="38">阳极线路</td>
+		                <td width="38">线路阀室（井）</td>
+		                <td width="38">管道保护宣传</td>
+		            </tr>
+		            <tr style="height:40px;">
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text"  name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text"  name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text"  name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text"  name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text"  name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>
+		            	<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>
+		                <td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><textarea name="remark"></textarea></td>
+		            </tr>
+        </table>
+				</li>
+				<!-- <li class="mauto20">
+					<span class="fl lh30 mr10">保存井（站）：</span>
+					<input type="text" name="save_jinzhan" placeholder="请输入保存井（站）" class="new_input fl" />
+					<div class="clr"></div>
+				</li> -->
+				<div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+					</div>
+				<li class="tc mauto20">
+		     		<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     		<input type="hidden" name="up_id"/>
+		    	</li>
+			</ul>
+			<!-- <div id="addLine" class="addLine"></div> -->
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+           function check_f(this_t){
+        			if($(this_t).val()!=""){
+        				$(this_t).val("");
+        			} else {
+        				$(this_t).val("√");
+       				}
+			}
+$(document).ready(function() {
+	
+	
+	var addLineLeft=parseInt($(".recordTitle").css("width"))+1;
+	//alert(addLineLeft);
+	var assLineTop=parseInt($(".recordTitle").css("height"))+69+26*14;
+	//alert(assLineTop);
+	$("#addLine").css({"left":addLineLeft+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		$(".addTr").append('<tr>'
+		            	+'<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:\'MM-dd\'})" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>'
+		            	+'<td><input type="text" name="content_11" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>'
+		            	+'<td><input type="text" name="content_16" /></td>'
+		            	+'<td><input type="text" name="remark" /></td>'
+		            	+'</tr><tr>'
+		            	+'<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:\'MM-dd\'})" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>'
+		            	+'<td><input type="text" name="content_11" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>'
+		            	+'<td><input type="text" name="content_16" /></td>'
+		            	+'<td><input type="text" name="remark" /></td>'
+		            	+'</tr><tr>'
+		            	+'<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:\'MM-dd\'})" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_1" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_2"  /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_3" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_4" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_5" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_6" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_7" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_9" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_10" /></td>'
+		            	+'<td><input type="text" name="content_11" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_12" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_13" /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_14"  /></td>'
+		            	+'<td><input type="text" readonly="readonly"  onclick="check_f(this)" name="content_15" /></td>'
+		            	+'<td><input type="text" name="content_16" /></td>'
+		            	+'<td><input type="text" name="remark" /></td>'
+		            	+'</tr>');		
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		times=times+3;
+	})
+	$("#saveButton").click(function() {
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0||jinzhanTxt.length>50){
+			alertM("单位不能为空且不能大于50个字",{time:3000});
+			return;
+		}
+		/* var p_monthTxt=$("input[name=p_month]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return;
+		} */
+		var pl_nameTxt=$("#pl_name").text();
+		//alert(pl_nameTxt);
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return;
+		}	
+		
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+});
+/*]]>*/
+</script>
+</html>

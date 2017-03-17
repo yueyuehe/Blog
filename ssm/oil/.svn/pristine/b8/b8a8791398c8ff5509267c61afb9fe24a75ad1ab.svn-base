@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePotentialMeasureDao_2016">
+	
+	<resultMap type="cn.hm.oil.domain.PotentialMeasure_2016" id="queryPotentialMeasureByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="name" property="name" />
+		<result column="auditor" property="auditor" />
+		<result column="created_by" property="created_by" />
+		<result column="c_month" property="c_month" />
+		<result column="create_time" property="create_time" />
+		<result column="verify_name" property="verify_name"/>
+
+		<collection property="detailList" select="queryPotentialMeasureDetailByPmId" column="id" javaType="List" ofType="cn.hm.oil.domain.PotentialMeasureDetail"/>
+	</resultMap>
+	
+	<select id="queryPotentialMeasureByCreate" resultMap="queryPotentialMeasureByIdRusult">
+		SELECT * FROM potential_measure_2016 
+		WHERE create_time=#{createTime} AND creater=#{createId}
+	</select>
+	
+	<select id="queryPotentialMeasureById" resultMap="queryPotentialMeasureByIdRusult">
+		SELECT * FROM potential_measure_2016 
+		WHERE id=#{id}
+	</select>
+	
+	<select id="queryPotentialMeasureDetailByPmId" resultType="cn.hm.oil.domain.PotentialMeasureDetail">
+		SELECT * FROM potential_measure_detail_2016 WHERE pm_id=#{id}
+	</select>
+	
+	<update id="updatePotentialMeasure">
+		UPDATE potential_measure_2016 SET pl_id=#{pl_id},name=#{name},
+		created_by=#{created_by},c_month=#{c_month},auditor=#{auditor},status=#{status},verify_name = #{verify_name},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+	
+	<delete id="deletePotentialMeasureDetailByPMid">
+		DELETE FROM potential_measure_detail_2016 WHERE pm_id=#{pm_id}
+	</delete>
+	
+	<insert id="insertPotentialMeasure" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO potential_measure_2016(pl_id,name,created_by,c_month,auditor,create_time,creater,verify_name,up_id,status) 
+		VALUES(#{pl_id},#{name},#{created_by},#{c_month},#{auditor},now(),#{creater},#{verify_name},#{up_id},#{status})
+	</insert>
+	
+	<insert id="insertPotentialMeasureDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO potential_measure_detail_2016(pm_id,no,m_date,potential,measurer,remark,status) 
+		VALUES(#{pm_id},#{no},#{m_date},#{potential},#{measurer},#{remark},#{status})
+	</insert>
+
+	<select id="queryBasePipelineByAdminPlMeasure" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM potential_measure_2016 pp, base_pipeline p, sys_users us
+		WHERE us.id = pp.creater AND pp.`pl_id` = p.`id`
+		<if test="s_pp_id!=null">
+			AND pp.`id`=#{s_pp_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+			AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="queryUsers" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT DISTINCT us.name,us.id
+		FROM potential_measure_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+		AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<select id="queryPlMeasures" resultMap="queryPotentialMeasureByIdRusult">
+		SELECT pp.*, p.name AS pl_name
+		FROM potential_measure_2016 pp, base_pipeline p, sys_users us
+		WHERE us.id = pp.creater AND pp.`pl_id` = p.`id`
+		<if test="s_pp_id!=null">
+			AND pp.`id`=#{s_pp_id}
+		</if>
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+			AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		ORDER BY pp.create_time
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPlMeasures_count" resultType="int">
+		SELECT COUNT(pp.id)
+		FROM potential_measure_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="s_pp_id!=null">
+			AND pp.`id`=#{s_pp_id}
+		</if>
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+			AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<update id="updatePotentialMeasureVerifyStatus">
+		UPDATE potential_measure_2016 pm LEFT JOIN potential_measure_detail_2016 pmd ON pm.id=pmd.`pm_id`
+		SET	pm.status=#{status},pm.verify_desc=#{verify_desc},pm.verify_time=now(),pm.verifier=#{verifier},pmd.status=#{status}
+		WHERE pm.id=#{id} AND pm.status=0
+	</update>
+	
+	<!-- 
+	<select id="queryRunRecordAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM potential_measure_new vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY vp.pl_spec_id
+	</select> 
+
+	<select id="queryPotentialMeasureByParam" resultMap="queryPotentialMeasureByIdRusult">
+		SELECT pm.*, p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM potential_measure_new pm
+		LEFT JOIN base_pipeline p ON pm.`pl_id` = p.`id`
+		LEFT JOIN base_pipeline_section pse ON pm.`pl_section_id` = pse.`id`
+		LEFT JOIN base_pipeline_spec psp ON pm.`pl_spec_id` = psp.`id`
+		WHERE   1=1
+		<if test="param.id!=null">
+			AND pm.pl_spec_id=#{param.id}
+		</if>
+		<if test="param.r_month!=null">
+			AND c_month = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND pm.creater=#{param.whCreater}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	<select id="queryPotentialMeasureByParamTotal" resultType="int">
+		SELECT COUNT(1)
+		FROM potential_measure_new pm
+		LEFT JOIN base_pipeline p ON pm.`pl_id` = p.`id`
+		LEFT JOIN base_pipeline_section pse ON pm.`pl_section_id` = pse.`id`
+		LEFT JOIN base_pipeline_spec psp ON pm.`pl_spec_id` = psp.`id`
+		WHERE pm.pl_spec_id=#{param.id}  
+		<if test="param.r_month!=null">
+			AND c_month = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND pm.creater=#{param.whCreater}
+		</if>
+	</select>
+
+	<select id="queryPotentialMeasureDetailMerge" resultType="cn.hm.oil.domain.PotentialMeasureDetail">
+	SELECT pmd.* FROM potential_measure_new pm LEFT JOIN potential_measure_detail_new pmd   ON pmd.`pm_id` = pm.`id`
+	WHERE (FIND_IN_SET(#{user_id}, pm.up_id) OR pm.up_id IS NULL OR pm.creater = #{user_id}) AND (pmd.`no` != '' OR pmd.`remark` != '')
+	AND pm.`pl_id`=#{pl_id} and pm.`pl_section_id`=#{pl_section_id} and pm.`pl_spec_id`=#{pl_spec_id}
+	<if test="status!= null">
+	AND pm.`status` = #{status}
+	</if>
+	<if test="c_month">
+	AND pm.`c_month`=#{c_month}
+	</if>
+	AND FIND_IN_SET(#{user_id}, pm.up_id) OR pm.up_id IS NULL OR pm.creater = #{user_id}
+	<if test="order!=null">
+		ORDER BY pmd.id DESC
+	</if>
+	<if test="limit != null">
+		LIMIT #{limit} OFFSET #{offset}
+	</if>
+	</select>
+	
+	<select id="queryPotentialMeasureDetailMerge_count" resultType="int">
+	SELECT count(1) FROM potential_measure_detail_new pmd JOIN potential_measure_new pm ON pmd.`pm_id` = pm.`id`
+	WHERE (FIND_IN_SET(#{user_id}, pm.up_id) OR pm.up_id IS NULL OR pm.creater = #{user_id}) AND (pmd.`no` != '' OR pmd.`remark` != '')
+	AND pm.`pl_id`=#{pl_id} and pm.`pl_section_id`=#{pl_section_id} and pm.`pl_spec_id`=#{pl_spec_id}
+	<if test="status!= null">
+	AND pm.`status` = #{status}
+	</if>
+	<if test="c_month">
+	AND pm.`c_month`=#{c_month}
+	</if>
+	AND FIND_IN_SET(#{user_id}, pm.up_id) OR pm.up_id IS NULL OR pm.creater = #{user_id}
+	</select>
+	
+	<select id="queryPotentialMeasureMergeInfo" resultType="cn.hm.oil.domain.PotentialMeasure">
+	SELECT p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name, pm.`created_by`, pm.`created_by`, pm.`c_month`, pm.`status`, pm.`verify_desc`
+	FROM potential_measure_new pm, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+	WHERE pm.`pl_id` = p.`id` AND pm.`pl_section_id` = pse.`id` AND pm.`pl_spec_id` = psp.`id` 
+	<if test="status!= null">
+	AND pm.`status` = #{status}
+	</if>
+	<if test="c_month">
+	AND pm.`c_month`=#{c_month}
+	</if>
+	AND pm.`pl_id`=#{pl_id} and pm.`pl_section_id`=#{pl_section_id} and pm.`pl_spec_id`=#{pl_spec_id}
+	AND FIND_IN_SET(#{user_id}, pm.up_id) OR pm.up_id IS NULL OR pm.creater = #{user_id}
+	LIMIT 1
+	</select>
+	
+	<select id="queryPotentialMeasureMerge" resultType="cn.hm.oil.domain.PotentialMeasure">
+		SELECT DISTINCT psp.`id` AS pl_spec_id, p.`id` AS pl_id, p.`name` AS pl_name, pse.`id` AS pl_section_id, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM potential_measure_new pm, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE pm.`pl_id` = p.`id` AND pm.`pl_section_id` = pse.`id` AND pm.`pl_spec_id` = psp.`id`
+		<if test="pl_id!=null">
+		AND pm.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND pm.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND pm.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="status!= null">
+		AND pm.`status` = #{status}
+		</if>
+		<if test="c_month">
+		AND pm.`c_month`=#{c_month}
+		</if>
+		AND FIND_IN_SET(#{user_id}, pm.up_id) OR pm.up_id IS NULL OR pm.creater = #{user_id}
+	</select>
+
+	
+	
+	<select id="queryPotentialMeasureById" resultMap="queryPotentialMeasureByIdRusult">
+		SELECT pm.*, p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name 
+		FROM potential_measure_new pm, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp 
+		WHERE pm.id=#{id} AND pm.`pl_id` = p.`id` AND pm.`pl_section_id` = pse.`id` AND pm.`pl_spec_id` = psp.`id` 
+	</select>
+	
+	<update id="updatePotentialMeasureTime">
+		UPDATE potential_measure_new SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	
+	
+	
+	
+	
+	<delete id="deletePotentialMeasureById">
+		DELETE FROM potential_measure_new WHERE id=#{id}
+	</delete>
+	
+	<select id="queryPotentialMeasure" resultType="cn.hm.oil.domain.PotentialMeasure">
+		SELECT pm.`id`, pm.`jinzhan`, pm.`c_month`, pm.`created_by`, pm.`auditor`, pm.`create_time`, p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name, pm.status, pm.creater
+		FROM potential_measure_new pm, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE pm.`pl_id` = p.`id` AND pm.`pl_section_id` = pse.`id` AND pm.`pl_spec_id` = psp.`id` 
+		<if test="pl_id!=null">
+		AND pm.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND pm.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND pm.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="c_month">
+		AND pm.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND pm.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, pm.up_id) OR pm.up_id is NULL OR pm.creater = #{user_id}) 
+		</if>
+		<if test="whCreater!=null">
+			AND pm.creater = #{whCreater}
+		</if>
+		ORDER BY pm.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPotentialMeasure_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM potential_measure_new
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="c_month">
+		AND `c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="whCreater!=null">
+			AND creater = #{whCreater}
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+	</select>	
+	
+	<select id="queryPotentialMeasureDetail" resultType="cn.hm.oil.domain.PotentialMeasureDetail">
+		SELECT * FROM potential_measure_detail_new pmd join potential_measure_new
+		pm on pmd.pm_id=pm.id
+		WHERE (pmd.`no` IS NOT NULL AND pmd.`no`!= '')
+		<if test="id!= null">
+			AND pm.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND (pm.`status` = #{status} OR pmd.`status` = #{status})
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(pm.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND pm.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND pm.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND pm.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND pm.`pl_section_id`=#{section}
+		</if>	
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPotentialMeasureDetail_count" resultType="int">
+		SELECT COUNT(*) FROM potential_measure_detail_new pmd join potential_measure_new
+		pm on pmd.pm_id=pm.id
+		WHERE (pmd.`no` IS NOT NULL AND pmd.`no`!= '')
+		<if test="id!= null">
+			AND pm.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND (pm.`status` = #{status} OR pmd.`status` = #{status})
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(pm.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND pm.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND pm.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND pm.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND pm.`pl_section_id`=#{section}
+		</if>	
+	</select>
+	
+	
+
+	
+	
+	
+	
+	
+
+	<update id="updateResetDetailStatus">
+		UPDATE potential_measure_detail_new pmd JOIN potential_measure_new pm ON pmd.`pm_id`=pm.`id`
+		SET pmd.status = pm.status
+		WHERE pmd.`id`=#{id}
+	</update>
+	
+	<select id="queryDetailStatus" resultType="int">
+		SELECT status FROM potential_measure_detail_new
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateChangeDetailStatus">
+		UPDATE potential_measure_detail_new pmd JOIN potential_measure_new pm ON pmd.`pm_id`=pm.`id`
+		SET pmd.status = #{status},pm.status=#{status}
+		WHERE pmd.`id`=#{id}
+	</update>
+	
+	<update id="updatePotentialMeasureDetail">
+		UPDATE potential_measure_detail_new pmd JOIN potential_measure_new pm ON pmd.`pm_id`=pm.id
+		SET no=#{no},potential=#{potential},measurer=#{measurer},remark=#{remark}
+		<if test="status!=null">
+		,pmd.status=#{status}
+		,pm.status=#{status}
+		</if>
+		WHERE pmd.id=#{id}
+	</update>
+	
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE potential_measure_detail_new pmd JOIN potential_measure_new pm ON pmd.`pm_id`=pm.id
+		SET pmd.status = 0,pm.status=0
+		WHERE pmd.status = -2 OR pm.status = -2
+	</update>
+	
+	
+	
+	<select id="querySpecListNewByAdminPlMeasure" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN potential_measure_new pp ON pp.`pl_spec_id`=bpsc.id
+		    JOIN potential_measure_detail_new ppd ON ppd.`pm_id`=pp.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+			<if test="status !=null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminPlMeasure" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM potential_measure_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, potential_measure_detail_new ppd
+		WHERE ppd.`pm_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select> -->
+</mapper>

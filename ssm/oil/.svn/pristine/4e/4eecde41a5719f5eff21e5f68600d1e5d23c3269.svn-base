@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="fragment/common :: header">
+</head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<style>
+.mauto1 {
+	position: absolute;
+	top: -190px;
+}
+
+.shenhe-div, .scbtnModi {
+	position: absolute;
+}
+
+.shenhe-div {
+	bottom: -116px;
+}
+
+.shenhe-div label {
+	line-height: 28px;
+}
+
+.scbtnModi {
+	bottom: -170px;
+}
+
+.formtext2 {
+	line-height: 45px;
+	margin-top:40px;
+}
+
+.formbodynew1{
+	width: 940px;
+    margin-top:100px;
+    padding: 35px 30px 55px 40px;
+    height: 650px;
+}
+
+.recordTitle span {
+	font-weight: normal;
+	color: #000;
+}
+.newtable td {
+	border: 2px solid #000 !important;
+}
+
+.analyzeFooter {
+	margin: 0px;
+}
+
+.analyzeFooter>div {
+	margin: 0px;
+}
+
+.input-box {
+	float: right;
+}
+</style>
+<body style="background: #fdf6fd;">
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li>绝缘接头(法兰)性能测量记录创建：</li>
+		</ul>
+	</div>
+	<div class="formbodynew1">
+		<!-- <div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div> -->
+		<div class="formtext2">
+			<h3 class="new-table-title">绝缘接头(法兰)性能测量记录</h3>
+		</div>
+		<form method="post" id="saveform">
+			<div >
+				<input type="hidden" id="id" name="pm_id" th:value="${id}" th:if="${pm != null}"/>
+			</div>
+			<ul class="forminfo">
+				<li class="mauto mauto1" style="top:-177px;left:-40px;">
+					<div class="cityleft">
+						<select name="pl_id" class="select1">
+							<option value="0">请选择管线</option>
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${pl == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}"></option>
+						</select>
+					</div>
+					<div class="fl" hidden="hidden">
+			             <span>巡检管线名称规格：</span>
+			             <input style="width:150px;border:none;" type="text" name="name" class="new_input" th:value="${pm!=null?pm.name:''}" />
+			        </div>
+					<div class="clr"></div>
+				</li>
+				<li class="clr mauto">
+					<div class="record0"></div>
+					<table class="addTr table100 clr mauto newtable">
+						<tr class="recordTitle lh15" style="height: 0px;">
+							<td colspan="14" style="border: 0 !important; height: 20px;">
+								<div class="fl">
+									<span>井（站）</span> <input type="text" name="jinzhan"
+										class="new_input mb5" style="width: 120px; border: 0px;" th:value="${pm!=null?pm.jinzhan:''}"/>
+								</div>
+								<div></div>
+								<div class="fr mr20">
+									<input type="text" readonly="readonly" name="m_year"
+										style="width: 110px; border: 0px;" class="new_input Wdate mb5"
+										onClick="WdatePicker({dateFmt:'yyyy'})" th:value="${(pm!=null)?(pm.m_year):''}"/> <span>年</span>
+								</div>
+							</td>
+						</tr>
+						<tr style="height: 25px;">
+							<td width="70px">位置</td>
+							<td width="110px">类别</td>
+							<td width="64px">1月</td>
+							<td width="64px">2月</td>
+							<td width="64px">3月</td>
+							<td width="64px">4月</td>
+							<td width="64px">5月</td>
+							<td width="64px">6月</td>
+							<td width="64px">7月</td>
+							<td width="64px">8月</td>
+							<td width="64px">9月</td>
+							<td width="64px">10月</td>
+							<td width="64px">11月</td>
+							<td width="64px">12月</td>
+						</tr>
+						<tr th:if="${pm!=null}" th:each="d : ${pm!=null?pm.detailList:''}">
+							<td th:if="${d.type==1}" rowspan="3"><input name="position" class="tc"
+								style="height: 75px;" type="text" th:value="${d.position}"/></td>
+							<td th:if="${d.type==1}" >通电点电位(-V)</td>
+							<td th:if="${d.type==2}" >保护端(-V)</td>
+							<td th:if="${d.type==3}" >未保护端(-V)</td>
+							<td><input type="text" name="month_1" th:value="${d.month_1}"/></td>
+							<td><input type="text" name="month_2" th:value="${d.month_2}"/></td>
+							<td><input type="text" name="month_3" th:value="${d.month_3}"/></td>
+							<td><input type="text" name="month_4" th:value="${d.month_4}"/></td>
+							<td><input type="text" name="month_5" th:value="${d.month_5}"/></td>
+							<td><input type="text" name="month_6" th:value="${d.month_6}"/></td>
+							<td><input type="text" name="month_7" th:value="${d.month_7}"/></td>
+							<td><input type="text" name="month_8" th:value="${d.month_8}"/></td>
+							<td><input type="text" name="month_9" th:value="${d.month_9}"/></td>
+							<td><input type="text" name="month_10" th:value="${d.month_10}"/></td>
+							<td><input type="text" name="month_11" th:value="${d.month_11}"/></td>
+							<td><input type="text" name="month_12" th:value="${d.month_12}"/></td>
+						</tr>
+						<tr th:if="${ppLength lt 17}" th:each="i : ${#numbers.sequence(ppLength,17)}">
+							<td th:if="${i%3==0}" rowspan="3"><input name="position" class="tc"
+								style="height: 75px;" type="text" /></td>
+							<td th:if="${i%3==0}">通电点电位(-V)</td>
+							<td th:if="${i%3==1}">保护端(-V)</td>
+							<td th:if="${i%3==2}">未保护端(-V)</td>
+							<td><input type="text" name="month_1" /></td>
+							<td><input type="text" name="month_2" /></td>
+							<td><input type="text" name="month_3" /></td>
+							<td><input type="text" name="month_4" /></td>
+							<td><input type="text" name="month_5" /></td>
+							<td><input type="text" name="month_6" /></td>
+							<td><input type="text" name="month_7" /></td>
+							<td><input type="text" name="month_8" /></td>
+							<td><input type="text" name="month_9" /></td>
+							<td><input type="text" name="month_10" /></td>
+							<td><input type="text" name="month_11" /></td>
+							<td><input type="text" name="month_12" /></td>
+						</tr>
+					</table>
+				</li>
+				<li class="analyzeFooter"
+					style="line-height: 20px; margin-bottom: 65px;">
+					<div class="fl" style="margin-left: -20px;">
+						填报人：<input type="text" style="border: 0px" name="created_by" th:value="${pm!=null?pm.created_by:''}"/>
+					</div>
+					<div class="fr">
+						审核人：<input type="text" style="border: 0px" name="auditor" th:value="${pm!=null?pm.auditor:''}" />
+					</div>
+					<div class="clr"></div>
+				</li>
+			</ul>
+			<div class="shenhe-div" style="bottom:-173px;">
+				<div class="shenhe-box">
+					<label>上报上级：</label>
+					<ul class="input-box" style="width: 900px;">
+						<li th:each="b:${br}"><input th:value="${b.leader_id}" th:checked="${b.leader_id==up_id}" type="checkbox" /> 
+						<span th:text="${b.leader_name}">姓名1</span>
+						</li>
+					</ul>
+				</div>
+				<div class="tc mauto20">
+					<!-- <input type="button" value="保存" class="btn" id="saveButton" /> 
+						<input type="button" value="提交审核" class="btn" id="auditingButton" /> -->
+					<input type="button" value="保存并审核" class="btn" id="auditingButton" /> 
+					<input type="button" value="新增一页" class="btn" id="newPageButton" />
+				 	<input type="hidden" name="up_id" />
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+
+//为保存按钮添加事件
+$(document).ready(function (){
+	 $("select[name=pl_id]").change(function() {
+		var cid = $(this).val();		
+		if (cid == '0') {
+			$(this).val([[${pl}]]);
+			return;
+		}
+		if(!confirm("即将切换管线，请确认当前的页面信息已保存以免数据丢失，是否继续？")){
+			$(this).val([[${pl}]]);
+			return;
+		}
+		var plname = $("select[name=pl_id] option:selected").text()+'/';
+		window.location.href = [[@{/admin/base/p_measure/2016/create}]] + "?pl_name="+plname+"&pl="+cid;
+	}); 
+	 
+	$(".select1").uedSelect({
+		width : 168
+	}); 
+	
+	
+	
+	var buttons = $("input[type=button]");
+	buttons.click(
+		function (){
+			if(	!saveButtonCheck ()){
+				return;
+			}
+			var buttonNode = $(this);
+			var buttonName = buttonNode.attr("id");
+			var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+			var formNode = $("#saveform") 
+			
+			if(buttonNamePrex === null ){
+				return;
+			}
+			if(buttonNamePrex === "save"){
+				//待审核
+				formNode.attr("action",[[@{/admin/base/p_measure/2016/save}]]+"?status=-2");
+			}			
+			else if(buttonNamePrex === "auditing"){
+				//保存到草稿箱
+				formNode.attr("action",[[@{/admin/base/p_measure/2016/save}]]+"?status=0");			
+			}
+			else if(buttonNamePrex === "newPage"){
+				formNode.attr("action",[[@{/admin/base/p_measure/2016/save}]]+"?newPage=1&status=0&pl="+[[${pl}]]);
+			}
+			
+				formNode.submit();
+		}
+	);
+	
+	function saveButtonCheck () {
+		var plId = $("select[name=pl_id]").val();
+		if(plId <= 0){
+			alertM("请选择管线",{time:3000});
+			return false;
+		}
+		
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0){
+			alertM("请输入井站名称",{time:3000});
+			return;
+		}
+		var bool = true;
+		$('.select1').each(function(){
+			var select1 = $(this).val();
+			if(select1==0){
+				alertM("请选择管线",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		var p_monthTxt=$("input[name=m_year]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return;
+		}
+		var p_personName=$("input[name=created_by]").val();
+		if(p_personName.length==0){
+			alertM("请填写填报人姓名",{time:3000});
+			return false;
+		}
+		var p_auditorName=$("input[name=auditor]").val();
+		if(p_auditorName.length==0){
+			alertM("请输入审核人姓名",{time:3000});
+			return false;
+		}
+		var plName=$("input[name=name]").val();
+		if(plName.length==0){
+			alertM("请输入管线名称及规格",{time:3000});
+			return false;
+		}
+		$('input[name=position]').each(function(){
+			var position = $(this).val();
+			if(position.length>0){
+				if(position.length>20){
+					alertM("位置的字数不能大于20！",{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		num = /^\d+(\.\d+)?$/;
+		for(var i=1;i<12;i++){
+			$('input[name=month_'+i+']').each(function(){
+				var month = $(this).val();
+				if(month.length>0){
+					if(!num.test(month) && month != "/" && month != "\\"){
+						alertM("保护端和为保护端电压必须为数字！",{time:3000});
+						bool = false;
+						return;
+					}
+				}
+			})
+		}
+		if(!bool){
+			return false;
+		}
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(confirm("是否确认保存？")){
+			return true;
+		}
+		return false;
+	}
+});
+
+/*]]>*/
+</script>
+</html>

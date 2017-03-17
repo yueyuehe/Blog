@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a href="#">首页</a></li>
+	    </ul>
+    </div>
+    <div class="mainindex formbody">
+	    <div class="welinfo">
+		    <span><img th:src="@{/assets/images/sun.png}" alt="天气" /></span>
+		    <b th:text="${sec.principal.name != null ? sec.principal.name : ''} + ' 您好，欢迎使用信息管理系统'"></b>
+	    </div>
+	    
+	    <div class="welinfo">
+		    <span><img th:src="@{/assets/images/time.png}" alt="时间" /></span>
+		    <i th:text="${'您上次登录的时间：' + beans.dateFormatter.formatDateToStr(sec.principal.last_login_time)}">2013-10-09 15:22</i>
+	    </div>
+	    <div class="mt10" th:if="${tipsList!=null and not #lists.isEmpty(tipsList)}">
+		    <table class="tablelistModi mauto">
+		    	<tr>
+					<th width="600">消息内容</th>
+					<th width="250">日期</th>
+					<th width="100">操作</th>
+				</tr>
+		    	<tr th:each="tips:${tipsList}">
+		    		<td th:text="${tips.content}"></td>
+		    		<td th:text="${beans.dateFormatter.formatDateToStr(tips.create_time)}"></td>
+		    		<td><a th:href="@{${tips.url}(tips_id=${tips.id})}">查看</a></td>
+		    	</tr>
+		    </table>
+		    <div class="mt20" th:include="fragment/paginationbar :: paginationbar"></div>
+    	</div>
+    </div>
+</body>
+</html>

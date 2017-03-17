@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script type="text/javascript">
+$(function() {	
+	//导航切换
+	$(".menuson li div").click(function(){
+		var gson = $(this).next("ul.menugson");
+		if (gson.length == 0) {
+			$(".menuson li.active").removeClass("active")
+			$(this).addClass("active");
+		} else {
+			$(this).parents(".menuson").find("ul.menugson").each(function() {
+				$(this).slideUp();
+			});
+			
+			if (gson.is(':visible')) {
+				gson.slideUp();
+			} else {
+				gson.slideDown();
+			}
+		}
+	});
+	
+	 $(".menugson li").click(function(){
+		//alert("-----------")
+		$(".menugson li.active").removeClass("active")
+		$(this).addClass("active");
+	}); 
+	  $(".menuson>li").click(function(){
+		 $(".menuson>li.active").removeClass("active") 
+		//$(this).addClass("active");
+		 if(!$(this).has("li").length){
+			 $(this).addClass("active");
+		 }
+	});  
+	
+	$('.title').click(function(){
+		var $ul = $(this).next('ul');
+		$('dd').find('ul').slideUp();
+		if ($ul.is(':visible')) {
+			$(this).next('ul').slideUp();
+		} else {
+			$(this).next('ul').slideDown();
+		}
+	});
+})	
+</script>
+<body style="background:#fff; width:267px; overflow:hidden;">
+	<div class="lefttop"></div>
+    <div class="gnTitle">功能列表</div>
+    <dl class="leftmenu">
+    <dd th:each="menu : ${sec.principal.menus}">
+    <div class="title">
+    	<label th:text="${menu.name}"></label>
+    	<span></span>
+    	<div class="clr"></div>
+    </div>
+	    <ul class="menuson">
+	        <li th:each="submenu : ${menu.subMenus}">
+	        	<div><cite></cite><a th:href="@{${#strings.isEmpty(submenu.url) ? 'javascript:void(0);' : submenu.url}}" target="rightFrame" th:text="${submenu.name}">菜单名称</a></div>
+	        	<ul class="menugson" th:if="${not #lists.isEmpty(submenu.subMenus)}">
+			        <li th:each="gsubmenu : ${submenu.subMenus}">
+			        	<cite></cite><a style="margin-left:20px;" th:href="@{${gsubmenu.url}}" target="rightFrame" th:text="${gsubmenu.name}">菜单名称</a>
+			        </li>
+			    </ul>
+	        </li>
+	    </ul> 
+       
+    </dd>
+    </dl>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+      $(document).ready(function(){
+    	  var winH = $(window).height();
+    	  var leftH = winH - 128;
+    	  //alert(leftH);
+    	  $('.leftmenu').css("height",leftH+'px');
+    	  
+      })     
+           
+           
+/*]]>*/
+</script>
+</html>

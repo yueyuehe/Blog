@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties resource="resource-config.properties" />
+	
+	<settings>
+	  <setting name="cacheEnabled" value="true"/>
+	  <setting name="callSettersOnNulls" value="true"/>
+	</settings>
+    
+    <environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${jdbc.driver}" />
+				<property name="url" value="${jdbc.url}"/>
+				<property name="username" value="${jdbc.user}" />
+				<property name="password" value="${jdbc.password}" />
+                <property name="poolPingEnabled" value="true"/>
+				<property name="poolPingQuery" value="SELECT id FROM resource WHERE id=1" />
+		    	<property name="poolPingConnectionsNotUsedFor" value="7200000"/> 
+			</dataSource>
+		</environment>
+	</environments>
+    <mappers>
+    	<mapper resource="mybatis/SysUsersDaoMapper.xml" />
+    	<mapper resource="mybatis/SysRolesDaoMapper.xml" />
+    	<mapper resource="mybatis/InforDaoMapper.xml" />
+    	<mapper resource="mybatis/BasePipeLineDaoMapper.xml" />
+    	<mapper resource="mybatis/BaseResourceDaoMapper.xml" />
+    	<mapper resource="mybatis/BasePotentialMeasureDaoMapper.xml" />
+    	<mapper resource="mybatis/BasePotentialMeasureNewDaoMapper.xml" />
+    	<mapper resource="mybatis/BasePotentialMeasureDaoMapper_2016.xml" />
+    	<mapper resource="mybatis/BasePipelinePatrolDAOMapper.xml" />
+    	<mapper resource="mybatis/BaseFacilitiesMaintenanceDaoMapper.xml" />
+    	<mapper resource="mybatis/BaseRunRecordDaoMapper.xml" />
+    	<mapper resource="mybatis/BaseRunRecordDaoMapper_new.xml" />
+    	<mapper resource="mybatis/BaseRunRecordcomprehensiveMapper.xml" />
+    	<mapper resource="mybatis/BaseRunRecordcomprehensiveNewMapper.xml" />
+    	<mapper resource="mybatis/BaseRunRecordcomprehensiveMapper_2016.xml" />
+    	<mapper resource="mybatis/BasePerformanceMeasureDaoMapper.xml" />
+    	<mapper resource="mybatis/BasePerformanceMeasureNewDaoMapper.xml" />
+    	<mapper resource="mybatis/BasePerformanceMeasureDaoMapper_2016.xml" />
+    	<mapper resource="mybatis/BasePotentialCurveDao.xml" />
+    	<mapper resource="mybatis/BasePotentialCurveDaoMapper_2016.xml" />
+    	<mapper resource="mybatis/NoticeDaoMapper.xml" />
+    	<mapper resource="mybatis/BaseExcelDaoMapper.xml" />
+    	<mapper resource="mybatis/BaseHazardDaoMapper.xml" />
+    	<mapper resource="mybatis/EventDaoMapper.xml" />
+    	<mapper resource="mybatis/BaseHighConsequenceDaoMapper.xml" />
+    	<mapper resource="mybatis/InvestDaoMapper.xml" />
+    	<mapper resource="mybatis/CapitalDaoMapper.xml" />
+    	<mapper resource="mybatis/LocalityDaoMapper.xml" />
+    	<mapper resource="mybatis/PromptDaoMapper.xml" />
+    	<mapper resource="mybatis/ValveMaintDaoMapper.xml" />
+    	<mapper resource="mybatis/ValvePatrolDaoMapper.xml"/>
+    	<mapper resource="mybatis/DynamicConseMapper.xml"/>
+    	<mapper resource="mybatis/TipsDaoMapper.xml"/>
+    	<mapper resource="mybatis/SysPushDaoMapper.xml"/>
+    	<mapper resource="mybatis/UpgradeDaoMapper.xml"/>
+    	<mapper resource="mybatis/BasePipelinePatrolDAOMapper_new.xml"/>
+    	<mapper resource="mybatis/BasePipelinePatrolDAOMapper_2016.xml"/>
+    	<mapper resource="mybatis/BaseRoutineAttentionDaoMapper.xml"/>
+    	<mapper resource="mybatis/BaseRoutineAttentionDaoMapper_2016.xml"/>
+    	<mapper resource="mybatis/ConstructionDaoMapper.xml"/>
+    	<mapper resource="mybatis/LotteryDaoMapper.xml"/>
+    </mappers>
+</configuration>

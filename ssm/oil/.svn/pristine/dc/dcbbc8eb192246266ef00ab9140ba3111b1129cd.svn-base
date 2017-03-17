@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body style="min-width:400px">
+    <form id="searchForm" th:action="@{/save_dir}" method="post" class="formthickbox">
+    <div class="rightinfo">
+		<ul class="seachform mauto">
+			<li class="mr20">
+				<label>文件夹名称</label>
+				<input type="text" class="dfinput fr" name="filetitle" style="width: 200px;"/>
+			</li>
+		</ul>
+		<div style="text-align:center;margin-top:20px">
+			<input type="button" id="save" value="创建文件夹" class="scbtn"/>
+		</div>
+		<input type="hidden" name="filesoure"/>
+		<input type="hidden" name="parent" />
+		<input type="hidden" name="type" ></input>
+	</div>
+	</form>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#save").click(function(){
+		var filetitle = $("input[name=filetitle]").val();
+		if($.trim(filetitle).length==0){
+			alert("文件夹名称不可为空");
+			return;
+		}
+		$("input[name=filetitle]").val($.trim(filetitle));
+		var filesoure = parent.$("input[name=filesoure]").val();
+		var pa = parent.$("input[name=parent]").val();
+		var type = parent.$("input[name=type]").val();
+		if(pa.length==0){
+			pa=0;
+		}
+		var exist=false;
+		$.ajax({
+			url: 'check_dir',
+
+			type: 'POST',
+
+			data:{filetitle: filetitle,parent:pa},
+
+			dataType: 'json',
+
+			timeout: 1000,
+			async:false,
+			error: function(){alert('Error update retry');},
+
+			success: function(result){
+				//alert(result)
+				if(result=="exist"){
+					alert("该文件夹名已经存在!")
+					exist=true;
+				}
+			}
+
+			});
+		if(exist)return;
+		//alert("----")
+		$("input[name=filesoure]").val(filesoure);
+		$("input[name=parent]").val(pa);
+		$("input[name=type]").val(type);
+		$.ajax({
+			url: 'save_dir',
+
+			type: 'POST',
+
+			data:{filetitle: filetitle,filesoure:filesoure,parent:pa,type:type},
+
+			dataType: 'json',
+
+			timeout: 1000,
+			async:false,
+			error: function(){alert('Error update retry');},
+
+			success: function(result){
+				parent.window.location.reload();
+			}
+
+			});
+		
+		//$("#searchForm").submit();
+		//parent.$("input[name=search]").click();
+		//window.location.reload();
+		//parent.TB_remove();
+	});
+});
+/*]]>*/
+</script>
+</html>

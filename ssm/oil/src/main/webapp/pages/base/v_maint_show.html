@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a>阀室、阀井维护保养工作记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a>:</li>
+	    </ul>
+    </div>
+     <div th:if="${vm==null}" class="formbody">
+    	暂无数据
+    </div>
+    <div th:if="${vm!=null}" class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+        <form method="post" th:action="@{/admin/base/v_maint/save}" id="saveform" class="webForm">
+	        <ul class="forminfo">
+	    		<li class="mauto">
+	    			<div class="usercity ml10">
+						<div class="cityleft">
+							<select name="pl" class="select1" disabled="disabled">
+						    	<option value="0">请选择管线</option>
+						        <option th:each="pll:${pipeLineList}" th:selected="${vm.pl_id == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						    </select>
+				        </div>
+				        <div class="cityleft">
+					    	<select name="section" class="select1" disabled="disabled">
+					        	<option value="0">请选择起止段落</option>
+					        	<option th:each="sec:${sectionList}" th:selected="${vm.pl_section_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+					        </select>
+				        </div>
+				        <div class="cityright">
+					        <select name="spec" class="select1" disabled="disabled">
+					            <option value="0">请选择规格</option>
+					        	<option th:each="sec:${specList}" th:selected="${vm.pl_spec_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+					        </select>
+				        </div>
+				        <div class="cityright" style="padding-left: 10px">
+		            	<ul class="seachform mauto">
+				            <li class="mr20">
+								<span>时间：</span>
+								<input type="text" id="r_month" readonly="readonly" th:value="${r_month==null? '' : r_month}" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+							</li>
+					    	<li class="fr mr0" th:if="${role!=null and role==2}">
+					    		<input id="exportButton" name="exportButton" type="button" class="scbtn" value="导出"/>
+					    	</li>
+					    	<li class="fr mr20">
+					    		<input id="searchButton" type="button" class="scbtnModi" value="查询"/>
+					    	</li>
+		            	</ul>
+	            	</div>
+				    </div>
+				    <div class="clr"></div>
+				</li> 
+				<li>   
+					<div class="record1"></div>	
+			        <table class="table100">
+			        	<tr class="recordTitle lh32">
+			            	<td colspan="4">
+			                    <span class="fl">管线名称及规格：</span>
+			                    <a class="fl" id="pl_name"></a>
+			                    <div class="clr"></div>
+			                </td>
+			            </tr>
+			        	<tr>
+			            	<td width="150">阀室名称</td>
+			                <td colspan="3">
+		                    	<input style="width:100%;" type="text" readonly="readonly" th:value="${vm.valve_name}" name="valve_name" placeholder="请输入阀室名称" class="new_input" /><!-- th:value="${vm.valve_name}" -->
+		                    </td>
+			            </tr>
+			            <tr>
+			            	<td>时间：</td>
+		                    <td>
+		                    	<input style="width:100%;" type="text" disabled="disabled" th:value="${vm.date_string}" placeholder="请选择时间" readonly="readonly" name="check_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		                    </td>
+			            </tr>
+			            <tr>
+			            	<td>参加人员</td>
+			                <td colspan="3"><input type="text" readonly="readonly" th:value="${vm.vmd.particips}" name="particips" /></td>
+			            </tr>
+			            <tr>
+			            	<td>工作内容</td>
+			                <td colspan="3"><input style="height:100%;" type="text" name="content" readonly="readonly" th:value="${vm.vmd.content}" /></td>
+			            </tr>
+			            <tr>
+			            	<td>存在问题说明</td>
+			                <td colspan="3"><input style="height:100%;" type="text" name="question" readonly="readonly" th:value="${vm.vmd.question}" /></td>
+			            </tr>
+		            </table>	
+	        	</li>
+	        	<li class="mauto" th:if="${verify == 1}">
+					<label class="labelModi tl fl ml10" style="width:76px;"><span class="red">*</span>审核状态:</label>
+					<div class="vocation fl">
+						<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == vm.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == vm.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == vm.status}" th:value="-1">不通过</option>
+		            </select>
+		            <label th:if="${verify != 1}" th:text="${vm.status == 0?'待审核':vm.status == 1?'通过':'不通过'}"></label>
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="clr mauto" th:if="${verify == 1}">
+					<label class="labelModi fl tl ml10" style="width:76px;"><span class="red">*</span>说明:</label>
+					<textarea style="width:860px;" class="textinput fl" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${vm.verify_desc}"></textarea>
+					<div class="clr"></div> 
+				</li>
+				<li class="clr mauto20" th:if="${verify == 1}">
+					<div class="tc ml96" style="width: 345px;">
+						<input name="saveButton" id="saveButton" type="button" class="btn"
+							th:if="${vm.status} != 1" value="确认保存" />
+					</div>
+				</li>
+				<li style="text-align: center;">
+		    	<div class="paging">
+			    	<span id="prev" th:class="${offset==0?'disableColor':'pagingBT enableColor'}" style="cursor: pointer;">上一页</span>
+			    	<span id="offset" th:text="${offset + 1}">1</span>
+			    	<span>/</span>
+			    	<span th:text="${total}">5</span>
+			    	<span id="next" class="pagingBT" th:class="${offset==(total-1)?'disableColor':'pagingBT enableColor'}" style="cursor: pointer;">下一页</span>
+		    	</div>
+		    </li>
+	        </ul>
+        </form>	
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	//分页
+	$(".pagingBT").on("click",function(){
+		var id = [[${id}]];//规格ID
+		var r_month = [[${r_month!=null?r_month:''}]]; //月份
+		var offset = parseInt($("#offset").text())-1; //分页偏移
+		var direction = $(this).attr("id"); //上一页 OR 下一页
+		
+		if(direction == "prev"){
+			offset--;
+		}else{
+			offset++;
+		}
+		
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/v_maint/show}]] + "?verify=1&id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/v_maint/show}]] + "?id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}
+	});
+	
+	//查询
+	$("#searchButton").click(function(){
+		var id = [[${id}]];//规格ID
+		var r_month = $("#r_month").val(); //月份
+		var offset = 0; //分页偏移
+		var direction = $(this).attr("id"); //上一页 OR 下一页
+		
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/v_maint/show}]] + "?verify=1&id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/v_maint/show}]] + "?id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}
+	});
+	
+	//导出
+	$("#exportButton").click(function() {
+		var pl=$("select[name=pl]").val();
+		var section=$("select[name=section]").val();
+		var spec=$("select[name=spec]").val();
+		var r_month=$("input[name=r_month]").val();
+		window.location.href="exp?pl="+pl+"&section="+section+"&spec="+spec+"&check_date="+r_month;
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var sectionname = $("select[name=section] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#saveButton").click(function() {
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var vmid = [[${vm.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/v_maint/verify_save}]],
+	   			data : {
+	   				'id' : vmid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+});
+/*]]>*/
+</script>
+</html>

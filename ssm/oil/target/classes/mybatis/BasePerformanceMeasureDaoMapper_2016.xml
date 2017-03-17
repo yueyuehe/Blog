@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePerformanceMeasureDao_2016">
+	<resultMap type="cn.hm.oil.domain.PerformanceMeasure_2016" id="queryPerformanceMeasureByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="name" property="name" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="m_year" property="m_year" />
+		<result column="created_by" property="created_by" />
+		<result column="auditor" property="auditor" />
+
+		<collection property="detailList" select="queryPerformanceMeasureDetailByPmId" column="id" javaType="List" ofType="cn.hm.oil.domain.PerformanceMeasureDetail"/>
+	</resultMap>
+	
+	<select id="queryPerformanceMeasureDetailByPmId" resultType="cn.hm.oil.domain.PerformanceMeasureDetail">
+		SELECT * FROM performance_measure_detail_2016 WHERE pm_id=#{id}
+	</select>
+	
+	<select id="queryLastPMeasureByUserId" resultMap="queryPerformanceMeasureByIdRusult">
+		select * FROM performance_measure_2016
+		WHERE creater = #{id}
+		<if test="pl_id != null">
+			AND pl_id=#{pl_id}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	
+	<select id="queryPMeasureById" resultMap="queryPerformanceMeasureByIdRusult">
+		SELECT * FROM performance_measure_2016 WHERE id=#{id}
+	</select>
+
+	<select id="queryPipeLineByAdminPMeasure" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM performance_measure_2016 pp, base_pipeline p, sys_users us
+		WHERE us.id = pp.creater AND pp.`pl_id` = p.`id`
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+			AND pp.`m_year`=#{year}
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+
+	<select id="queryUsers" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT DISTINCT us.name,us.id
+		FROM performance_measure_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+			AND pp.`m_year`=#{year}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+
+	<select id="queryPMeasures" resultMap="queryPerformanceMeasureByIdRusult">
+		SELECT pp.*
+		FROM performance_measure_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+			AND pp.`m_year`=#{year}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	<select id="queryPMeasures_count" resultType="int">
+		SELECT COUNT(pp.id)
+		FROM performance_measure_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+			AND pp.`m_year`=#{year}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<update id="updatePerformanceMeasure">
+		UPDATE performance_measure_2016 SET pl_id=#{pl_id},
+		jinzhan=#{jinzhan},name=#{name},created_by=#{created_by},m_year=#{m_year},auditor=#{auditor},status=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+
+	<delete id="deletePerformanceMeasureDetailByPMid">
+		DELETE FROM performance_measure_detail_2016 WHERE pm_id=#{pm_id}
+	</delete>
+	
+	<insert id="insertPerformanceMeasure" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO performance_measure_2016(pl_id,name,jinzhan,m_year,created_by,auditor,create_time,creater,up_id,status) 
+		VALUES(#{pl_id},#{name},#{jinzhan},#{m_year},#{created_by},#{auditor},now(),#{creater},#{up_id},#{status})
+	</insert>
+
+	<insert id="insertPerformanceMeasureDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO performance_measure_detail_2016(pm_id,position,type,month_1,month_2,month_3,month_4,month_5,month_6,month_7,month_8,month_9,month_10,month_11,month_12,status) 
+		VALUES(#{pm_id},#{position},#{type},#{month_1},#{month_2},#{month_3},#{month_4},#{month_5},#{month_6},#{month_7},#{month_8},#{month_9},#{month_10},#{month_11},#{month_12},#{status})
+	</insert>	
+
+	<update id="updatePerformanceMeasureVerifyStatus">
+		UPDATE performance_measure_2016 pm LEFT JOIN performance_measure_detail_2016 pmd ON pm.id=pmd.`pm_id`
+		SET pm.status=#{status},pm.verify_desc=#{verify_desc},pm.verify_time=now(),pm.verifier=#{verifier},pmd.status=#{status}
+		WHERE pm.id=#{id} AND pm.status=0
+	</update>
+	
+	<!-- 
+	<select id="queryPerformanceMeasureAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM performance_measure_new vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>S
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY vp.pl_spec_id
+	</select>  
+
+	<select id="queryValvePatrolByList" resultMap="queryPerformanceMeasureByIdRusult">
+		SELECT * FROM performance_measure_new
+		WHERE 1=1
+		<if test="param.id!=null">
+			AND pl_spec_id=#{param.id}
+		</if>
+		<if test="param.r_month!=null">
+			AND DATE_FORMAT(create_time,'%Y-%m-%d') = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	<select id="queryValvePatrolByListTotal" resultType="int">
+		SELECT COUNT(1) FROM performance_measure_new 
+		WHERE pl_spec_id=#{param.id} 
+		<if test="param.r_month!=null">
+			AND m_year = #{param.r_month}
+		</if>
+	</select>
+	
+	<select id="queryPerformanceMeasureById" resultMap="queryPerformanceMeasureByIdRusult">
+		SELECT * FROM performance_measure_new WHERE id=#{id}
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.PerformanceMeasure" id="queryPerformanceMeasureByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="m_year" property="m_year" />
+		<result column="created_by" property="created_by" />
+		<result column="auditor" property="auditor" />
+
+		<collection property="detailList" select="queryPerformanceMeasureDetailByPmId" column="id" javaType="List" ofType="cn.hm.oil.domain.PerformanceMeasureDetail"/>
+	</resultMap>
+	
+	<select id="queryPerformanceMeasureDetailByPmId" resultType="cn.hm.oil.domain.PerformanceMeasureDetail">
+		SELECT * FROM performance_measure_detail_new WHERE pm_id=#{id}
+	</select>
+	
+	<update id="updatePerformanceMeasureTime">
+		UPDATE performance_measure_new SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryPerformanceMeasure" resultType="cn.hm.oil.domain.PerformanceMeasure">
+		SELECT rc.`id`, rc.`jinzhan`, rc.`m_year`, rc.`created_by`, rc.`auditor`,rc.`create_time`, rc.`creater`,rc.`status` ,p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM performance_measure_new rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="m_year">
+		AND rc.`m_year`=#{m_year}
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, rc.up_id) OR rc.up_id is NULL OR rc.creater = #{user_id}) 
+		</if>
+		 ORDER BY rc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPerformanceMeasure_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM performance_measure_new
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="m_year">
+		AND `m_year`=#{m_year}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+	</select>
+	
+	<update id="updatePerformanceMeasure">
+		UPDATE performance_measure_new SET pl_id=#{pl_id},pl_spec_id=#{pl_spec_id},pl_section_id=#{pl_section_id},
+		jinzhan=#{jinzhan},created_by=#{created_by},m_year=#{m_year},auditor=#{auditor},status=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="insertPerformanceMeasure" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO performance_measure_new(pl_id,pl_spec_id,pl_section_id,jinzhan,m_year,created_by,auditor,create_time,creater,up_id,status) 
+		VALUES(#{pl_id},#{pl_spec_id},#{pl_section_id},#{jinzhan},#{m_year},#{created_by},#{auditor},now(),#{creater},#{up_id},#{status})
+	</insert>
+	
+	<delete id="deletePerformanceMeasureDetailByPMid">
+		DELETE FROM performance_measure_detail_new WHERE pm_id=#{pm_id}
+	</delete>
+	
+	<delete id="deletePerformanceMeasureById">
+		DELETE FROM performance_measure_new WHERE id=#{id}
+	</delete>
+	
+	<insert id="insertPerformanceMeasureDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO performance_measure_detail_new(pm_id,position,type,month_1,month_2,month_3,month_4,month_5,month_6,month_7,month_8,month_9,month_10,month_11,month_12,status) 
+		VALUES(#{pm_id},#{position},#{type},#{month_1},#{month_2},#{month_3},#{month_4},#{month_5},#{month_6},#{month_7},#{month_8},#{month_9},#{month_10},#{month_11},#{month_12},#{status})
+	</insert>
+
+	<select id="queryPerformanceMeasureDetail" resultType="cn.hm.oil.domain.PerformanceMeasureDetail">
+		SELECT * FROM performance_measure_detail_new pmd join performance_measure_new
+		pm on pmd.pm_id=pm.id
+		WHERE (pmd.position != "")
+		<if test="id!= null">
+			AND pm.`pl_spec_id`=#{id}
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(pm.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND pm.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND pm.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND pm.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND pm.`pl_section_id`=#{section}
+		</if>	
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPerformanceMeasureDetail_count" resultType="int">
+		SELECT count(1) FROM performance_measure_detail_new pmd join performance_measure_new
+		pm on pmd.pm_id=pm.id
+		WHERE (pmd.position != "")
+		<if test="id!= null">
+			AND pm.`pl_spec_id`=#{id}
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(pm.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND pm.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND pm.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND pm.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND pm.`pl_section_id`=#{section}
+		</if>
+	</select>
+	
+	<update id="updateResetDetailStatus">
+		UPDATE performance_measure_detail_new pmd JOIN performance_measure_new pm ON pmd.`pm_id`=pm.`id`
+		SET pmd.status = pm.status
+		WHERE pmd.`id`=#{id}
+	</update>
+	
+	<select id="queryDetailStatus" resultType="int">
+		SELECT status FROM performance_measure_detail_new
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateChangeDetailStatus">
+		UPDATE performance_measure_detail_new pmd JOIN performance_measure_new pm ON pmd.`pm_id`=pm.`id`
+		SET pmd.status = #{status},pm.status=#{status}
+		WHERE pmd.`id`=#{id}
+	</update>
+	
+	<update id="updatePerformanceMeasureDetail">
+		UPDATE performance_measure_detail_new pmd JOIN performance_measure_new pm ON pmd.`pm_id`=pm.id
+		SET month_1=#{month_1},month_2=#{month_2},month_3=#{month_3},month_4=#{month_4},month_5=#{month_5},month_6=#{month_6},month_7=#{month_7},month_8=#{month_8},
+		month_9=#{month_9},month_10=#{month_10},month_11=#{month_11},month_12=#{month_12}
+		<if test="status!=null">
+		,pmd.status=#{status}
+		,pm.status=#{status}
+		</if>
+		WHERE pmd.id=#{id}
+	</update>
+	
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE performance_measure_detail_new pmd JOIN performance_measure_new pm ON pmd.`pm_id`=pm.`id`
+		SET pmd.status = 0,pm.status=0
+		WHERE pmd.status = -2 OR pm.status = -2
+	</update>
+	
+	<select id="queryBasePipelineByAdminPMeasure" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM performance_measure_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, performance_measure_detail_new ppd
+		WHERE ppd.`pm_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`	
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="querySpecListNewByAdminPMeasure" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN performance_measure_new pp ON pp.`pl_spec_id`=bpsc.id
+		    JOIN performance_measure_detail_new ppd ON ppd.`pm_id`=pp.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="status != null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminPMeasure" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM performance_measure_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, performance_measure_detail_new ppd
+		WHERE ppd.`pm_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select> -->
+</mapper>

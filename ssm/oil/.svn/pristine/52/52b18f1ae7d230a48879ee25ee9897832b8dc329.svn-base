@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script th:src="@{/assets/js/plupload.full.min.js}"></script>
+<body>
+<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>一事一案 </li>
+	    	<li>修改回复：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    <form th:action="@{/admin/event/save_reply}" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfo mauto">
+		    <li>
+		    	<label class="labelModi">内容:</label>
+		    	<textarea class="textinput" id="content" rows="" cols="" name="content" th:text="${er.content}" placeholder="请输入内容"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">时间:</label>
+		    	<input type="text" placeholder="请选择时间" th:value="${beans.dateFormatter.formatDateToStr(er.create_time)}" readonly="readonly" name="create_time" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+		    	 <div class="clr"></div>
+		    </li>
+		     <li th:if="${er.leader == null or er.leader != 1}" style="clear:both;">
+		    	<label class="labelModi">附件上传:</label>
+		    	<div style="float:left;">
+		    		<div id="container">
+					    <input class="fileChooseModi lh30" type="button" id="pickfiles" value="[选择文件]" />
+					    <input class="fileChooseModi lh30 ml10" type="button" id="uploadfiles" value="[开始上传]" />
+					    <input class="fileChooseModi lh30 ml10" type="button" id="clearfiles" value="[清除]" />
+					    <input type="hidden" name="filename" id="filename" />
+					</div>
+			    	<div id="filelist">您的浏览器不支持Flash, Silverlight或者HTML5，不能够上传.</div>
+				</div>
+		    </li>
+		    <li th:if="${er.leader == null or er.leader != 1}" style="clear:both;">
+		    	<label class="labelModi">已上传附件:</label>
+		    	<table>
+		    		<tr th:each="f : ${er.eras}">
+		    			<td style="padding:10px; ">
+		    				<img class="imgClick" alt="缩略图" th:if="${!#strings.isEmpty(f.path) and (#strings.endsWith(#strings.toLowerCase(f.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(f.path),'.jpeg'))}" th:src="${application.baseThumbUrl + f.path}" width="100px"/>
+		    				<a th:href="${application.baseFileUrl + f.path}" th:if="${!#strings.isEmpty(f.path)}">点击下载</a>
+		    			<!-- <a class="disib lh32" th:href="@{/admin/event/del_ea(ea.id)}">删除附件</a> -->
+		    				<a href="javascript:void(0);" id="99" th:onclick="'delImage(' + ${f.id} + ', this)'">删除附件</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="ml130 clr tc" style="width:350px;">
+		    	<input type="hidden" name="id" th:value="${er.id}" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn mt20" value="保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+           
+           function delImage(imageId,this_t) {
+    	 //alert(this_t.id)
+        	if (confirm("确认删除该附件？")) {
+        		$.ajax({
+           			url : [[@{/admin/event/del_attachement}]],
+           			data : {
+           				id : imageId
+           			},
+           			dataType: 'json',
+           			type: 'get',
+           			async: false,
+           			success : function(data, textStatus, jqXHR) {
+           				//alert(this_t)
+           				alert("删除成功")
+           				$(this_t).parent().remove();
+           				//self.patrnt.del_attachement(imageId);
+           			}
+           		});
+        	}
+        }
+           
+           var upload_finished = false;
+
+var uploader = new plupload.Uploader({
+	runtimes : 'html5,flash,silverlight,html4',
+	browse_button : 'pickfiles',
+	container: document.getElementById('container'), 
+	url : [[@{/upload/uploadFile}]],
+	flash_swf_url : [[@{/assets/js/Moxie.swf}]],
+	silverlight_xap_url : [[@{/assets/js/Moxie.xap}]],
+	chunk_size: '10mb',
+	max_retries: 5,
+	prevent_duplicates: true,
+	unique_names: true,
+	filters : {
+		max_file_size : '1000MB'
+	},
+
+	init: {
+		PostInit: function() {
+			document.getElementById('filelist').innerHTML = '';
+
+			document.getElementById('uploadfiles').onclick = function() {
+				$("a.class_fileupload").each(function() {
+					$(this).hide();
+				});
+				$("#filename").val('');
+				uploader.start();
+				$("#pickfiles").prop("disabled", true);
+				$("#uploadfiles").prop("disabled", true);
+				upload_finished = false;
+				return false;
+			};
+			
+			$("#clearfiles").click(function() {
+				uploader.splice();
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				$("#filename").val("");
+				upload_finished = false;
+			});
+		},
+
+		FilesAdded: function(up, files) {
+			plupload.each(files, function(file) {
+				var fi = file.id;
+				document.getElementById('filelist').innerHTML += '<div id="' + fi + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <a href="#" class="class_fileupload" onclick="removeFile(' + fi + ')">删除</a>&nbsp;&nbsp;&nbsp;&nbsp;<b></b></div>';
+			});
+		},
+		
+		FileUploaded: function(up, file, response) {
+			var name = $("#filename").val();
+			if (name != '') {
+				name += ";";
+			}
+			$("#filename").val(name + response.response);
+		},
+		
+		UploadComplete: function(up, file) {
+			upload_finished = true;
+		},
+
+		UploadProgress: function(up, file) {
+			document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span style="display:inline;">' + file.percent + "%</span>";
+		},
+
+		Error: function(up, err) {
+			var alt = false;
+			switch(err.code) {
+			case -601:
+				alert("仅支持zip格式的压缩文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -602:
+				alert("不能选择重复的文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -200:
+				alert("网络异常上传失败，请重新上传!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			}
+			if (!alt) {
+				alert("\nError #" + err.code + ": " + err.message);
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);				
+			}
+		},
+		FilesRemoved: function(up, files) {
+			plupload.each(files, function(file) {
+				$("div#" + file.id).remove();
+			});
+		}
+	}
+});
+
+uploader.init();
+
+function removeFile(id) {
+	if (confirm("确认删除？")) {
+		uploader.removeFile(id);
+	}
+}
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		if (confirm("确认修改？")) {
+			var content = $("#content").val();
+			if(content.length==0){
+				alert("回复不能为空")
+				return;
+			}
+			
+			$("#saveform").submit();
+			/* $.ajax({
+	   			url : [[@{/admin/event/save_reply}]],
+	   			data : {
+	   				'id': [[${er.id}]],
+	   				'content': content,
+	   				'filename':$("input[name=filename]").val()
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				self.parent.updateContent([[${er.id}]], content);
+	   				self.parent.TB_remove();
+	   			}
+	   		}); */
+		}
+		
+	});
+});
+
+/*]]>*/
+</script>
+</html>

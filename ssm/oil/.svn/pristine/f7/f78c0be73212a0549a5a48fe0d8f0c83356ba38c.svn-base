@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.EventDao">
+	
+	<select id="queryLeaderList" resultType="cn.hm.oil.domain.EventReceiver">
+		SELECT su.id as user_id, su.name AS receiver FROM sys_users su 
+		WHERE su.level=#{level}
+	</select>
+	
+	<select id="queryEventReplyAttachementById" resultType="cn.hm.oil.domain.EventReplyAttachement">
+		SELECT * FROM event_reply_attachement 
+		WHERE id=#{id}
+	</select>
+	
+	<select id="queryEventType" resultType="cn.hm.oil.domain.EventType">
+		SELECT * FROM event_type
+	</select>
+	
+	<select id="queryEventLevel" resultType="cn.hm.oil.domain.EventLevel">
+		SELECT * FROM event_level
+	</select>
+	
+	<select id="queryEventCodeNo" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM event  WHERE DATE_FORMAT(#{discover_date} ,'%Y%m%d') = DATE_FORMAT(discover_date ,'%Y%m%d') AND status=1
+	</select>
+	
+	<update id="updateEventStatus">
+		UPDATE `event` SET status=#{status}, message=#{message},verify=#{verify_name}
+		<if test="status==1">
+		, verify_level=#{verify_level} ,code_no=#{code_no}
+		</if>
+		<if test="type_id!=null">
+		, type_id=#{type_id} 
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	<update id="updateEventLevel">
+		UPDATE `event` SET verify_level=#{event_level}
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryEventById" resultType="cn.hm.oil.domain.Event">
+		SELECT e.*, su.name AS reporter, et.name AS typeName, pl.name AS pl_name, ppl.name AS pl_section_name, pps.name AS pl_spec_name, el.level AS level_name
+		FROM sys_users su, event_type et, base_pipeline pl, base_pipeline_section ppl, base_pipeline_spec pps,`event` e LEFT JOIN event_level el ON e.verify_level = el.id
+		WHERE e.created_by = su.id AND e.type_id = et.id AND e.id=#{id} AND pl.id = e.pl_id AND ppl.id = e.pl_section_id AND pps.id = e.pl_spec_id AND e.deleted!=1 
+	</select>
+	
+	<select id="queryEventExcelByEventId" resultType="cn.hm.oil.domain.EventExcel">
+		SELECT *
+		FROM event_excel WHERE e_id=#{id} 
+	</select>
+	
+	<select id="queryEventAttachementByEventId" resultType="cn.hm.oil.domain.EventAttachement">
+		SELECT * FROM event_attachement WHERE event_id=#{event_id}
+	</select>
+	
+	<select id="queryEventAttachementById" resultType="cn.hm.oil.domain.EventAttachement">
+		SELECT * FROM event_attachement WHERE id=#{id}
+	</select>
+	
+	<select id="queryEvent" resultType="cn.hm.oil.domain.Event">
+		SELECT e.id,e.pl_no,e.discover_date, e.position_start, e.is_delay, e.position_end, e.content, e.remark, e.status, e.verify,e.code_no,e.verify_level,
+		su.name AS reporter,el.level AS level_name, et.name AS typeName, e.close, e.created_by, e.keyword, p.name AS `pl_name`, ps.name AS pl_section_name, psp.name AS pl_spec_name 
+		FROM sys_users su, event_type et ,base_pipeline p, base_pipeline_section ps, base_pipeline_spec psp ,`event` e LEFT JOIN event_level el ON e.verify_level = el.id
+		WHERE e.created_by = su.id AND e.type_id = et.id  AND e.deleted!=1 AND e.pl_id = p.id AND e.pl_section_id = ps.id AND e.pl_spec_id = psp.id
+		<if test="admin!=1">
+			AND (e.created_by=#{user_id} OR e.id IN (SELECT event_id FROM event_receiver WHERE user_id=#{user_id}))
+		</if>
+		<if test="verify!=null">
+			AND e.status!=1
+		</if>
+		<if test="status!=null">
+			AND e.status=#{status}
+		</if>
+		<if test="pl_id!=null">
+			AND e.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+			AND e.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+			AND e.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="close!=null">
+			AND e.`close`=#{close}
+		</if>
+		<if test="create_date_s">
+			AND e.`discover_date`  between #{create_date_s} and #{create_date_e}
+		</if>
+		<if test="key_w!=null">
+			AND (e.`keyword` like CONCAT('%',#{key_w},'%')
+			OR e.`content` like CONCAT('%',#{key_w},'%')
+			OR e.`position_start` like CONCAT('%',#{key_w},'%')
+			OR e.`message` like CONCAT('%',#{key_w},'%')
+			)
+		</if>
+		<if test="status!=null">
+			AND e.`status` = #{status} 
+		</if>
+		<if test="checked_id!=null">
+			AND e.id IN 
+			<foreach item="chec" index="index" collection="checked_id" open="(" separator="," close=")">
+            	#{chec}
+        	</foreach>
+		</if>
+		ORDER BY e.discover_date DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryEvent_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM `event` WHERE 1 = 1 AND deleted!=1
+		<if test="admin!=1">
+			AND created_by=#{user_id} OR id IN (SELECT event_id FROM event_receiver WHERE user_id=#{user_id})
+		</if>
+		<if test="verify!=null">
+			AND status!=1
+		</if>
+		<if test="status!=null">
+			AND status=#{status}
+		</if>
+				<if test="pl_id!=null">
+			AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+			AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+			AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="create_date_s">
+			AND `discover_date` between #{create_date_s} and #{create_date_e}
+		</if>
+		<if test="close!=null">
+			AND `close`=#{close}
+		</if>
+		<if test="key_w!=null">
+			AND (`keyword` like CONCAT('%',#{key_w},'%')
+			OR `content` like CONCAT('%',#{key_w},'%')
+			OR `position_start` like CONCAT('%',#{key_w},'%')
+			OR `message` like CONCAT('%',#{key_w},'%')
+			)
+		</if>
+	</select>
+	
+	<select id="queryEventReply" resultMap="queryEventReplyRusult">
+		SELECT er.*, su.name AS replier
+		FROM event_reply er, sys_users su
+		WHERE er.user_id = su.id AND er.event_id=#{event_id} ORDER BY er.create_time
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.EventReply" id="queryEventReplyRusult">
+		<id column="id" property="id" />
+		
+
+		<collection property="eras" select="queryEventReplyByEventReplyId" column="id" javaType="List" ofType="cn.hm.oil.domain.EventReplyAttachement"/>
+	</resultMap>
+	
+	<select id="queryEventReplyByEventReplyId" resultType="cn.hm.oil.domain.EventReplyAttachement">
+		SELECT * FROM event_reply_attachement WHERE reply_id=#{id}
+	</select>
+	
+	<select id="queryEventReceiver" resultType="cn.hm.oil.domain.EventReceiver">
+		SELECT er.*, su.name AS receiver
+		FROM event_receiver er, sys_users su
+		WHERE er.user_id = su.id AND event_id=#{event_id}
+	</select>
+	
+	<select id="queryEventReplyById" resultMap="queryEventReplyRusult">
+		SELECT *  FROM event_reply WHERE id=#{id}
+	</select>
+	
+	<update id="updateEventReply">
+		UPDATE event_reply SET content=#{content},create_time=#{create_time} WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteEventReplyById">
+		DELETE FROM event_reply WHERE id=#{id}
+	</delete>
+	
+	<delete id="deleteEventReplyAttachementById">
+		DELETE FROM event_reply_attachement WHERE id=#{id}
+	</delete>
+	
+	<delete id="deleteEventReplyAttachementByReplyId">
+		DELETE FROM event_reply_attachement WHERE reply_id=#{id}
+	</delete>
+	
+	<delete id="deleteEventReplyByUserId">
+		DELETE FROM event_reply WHERE user_id=#{user_id}
+	</delete>
+
+	<insert id="insertEventReply" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO event_reply(user_id, event_id, content, create_time, leader) VALUES(#{user_id}, #{event_id}, #{content}, now(), #{leader})
+	</insert>
+	
+	<insert id="insertEventExcel" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO event_excel(e_id, aType, path, create_time) VALUES(#{e_id}, #{aType}, #{path}, now())
+	</insert>
+
+	<insert id="insertEventReplyAttachement" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO event_reply_attachement(reply_id, path) VALUES(#{id},#{path})
+	</insert>
+
+	<insert id="insertEventReceiver">
+		INSERT INTO event_receiver(user_id, event_id) VALUES(#{user_id}, #{event_id})
+	</insert>
+	
+	<delete id="deleteEventReceiverByUserId">
+		DELETE FROM event_receiver WHERE user_id=#{user_id}
+	</delete>
+	
+	<delete id="deleteEventReceiverByEventId">
+		DELETE FROM event_receiver WHERE event_id=#{event_id}
+	</delete>
+	
+	<delete id="deleteEventAttachementById">
+		DELETE FROM event_attachement WHERE id=#{id}
+	</delete>
+	
+	<delete id="deleteEventAttachementByEventId">
+		DELETE FROM event_attachement WHERE event_id=#{id}
+	</delete>
+	
+	<insert id="insertEventAttachement">
+		INSERT INTO event_attachement(event_id, path) VALUES(#{event_id}, #{path})
+	</insert>
+	
+	<insert id="insertEvent" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO	`event`(`pl_id`, `pl_section_id`, `pl_spec_id`, `discover_date`, `position_start`, `position_end`,
+             `longitude`, `latitude`, `content`, `remark`, `send_notice`, `notice_file`, `is_warn`, `warn_file`, `moon_file`,`scene_file`,
+             `create_time`, `created_by`, type_id, report_object, `keyword`,ef_length,pl_no,risk,link_name,link_duty,link_method,unit_name,unit_address,unit_post,ma_remark,is_ma_remark)
+        VALUES(#{pl_id}, #{pl_section_id}, #{pl_spec_id}, #{discover_date}, #{position_start}, #{position_end},
+             #{longitude}, #{latitude}, #{content}, #{remark}, #{send_notice}, #{notice_file}, #{is_warn}, 
+             #{warn_file}, #{moon_file},#{scene_file}, now(), #{created_by}, #{type_id}, #{report_object},#{keyword},#{ef_length},#{pl_no},#{risk},#{link_name},#{link_duty},#{link_method},#{unit_name},#{unit_address},#{unit_post},#{ma_remark},#{is_ma_remark})
+	</insert>
+	
+	<update id="updateEvent">
+		UPDATE `event` SET `pl_id`=#{pl_id}, `pl_section_id`=#{pl_section_id}, `pl_spec_id`=#{pl_spec_id}, `discover_date`=#{discover_date}, 
+		`position_start`=#{position_start}, `position_end`=#{position_end}, `longitude`=#{longitude}, `latitude`=#{latitude}, 
+		`content`=#{content}, `remark`=#{remark}, `send_notice`=#{send_notice}, `is_warn`=#{is_warn}, type_id=#{type_id},report_object=#{report_object},
+		status=#{status}, `keyword`=#{keyword},ef_length=#{ef_length},pl_no=#{pl_no},risk=#{risk},link_name=#{link_name},link_duty=#{link_duty},link_method=#{link_method},unit_name=#{unit_name},unit_address=#{unit_address},unit_post=#{unit_post},`is_ma_remark`=#{is_ma_remark}
+		<if test="notice_file!=null">
+		, `notice_file`=#{notice_file}
+		</if>
+		<if test="warn_file!=null">
+		, `warn_file`=#{warn_file}
+		</if>
+		<if test="moon_file!=null">
+		, `moon_file`=#{moon_file}
+		</if>
+		<if test="scene_file!=null">
+		, `scene_file`=#{scene_file}
+		</if>
+		<if test="ma_remark!=null">
+		,ma_remark=#{ma_remark}
+		</if>
+        WHERE id=#{id}
+	</update>
+	
+	<update id="deleteEventById">
+		UPDATE `event` SET `deleted`=1 WHERE id=#{id}
+	</update>
+	
+	<select id="queryWorkerList" resultType="cn.hm.oil.domain.EventReceiver">
+		SELECT DISTINCT br.admin as user_id, su.name AS receiver FROM base_resource br, sys_users su 
+		WHERE br.admin = su.id 
+		<if test="pl_id != null">
+		AND pl_id=#{pl_id} 
+		</if>
+		<if test="pl_section_id != null">
+		AND pl_section_id=#{pl_section_id}
+		</if>
+	</select>
+	
+	<update id="updateEventClose">
+		UPDATE `event` SET close=1 WHERE id=#{id}
+	</update>
+	
+	<update id="updateEventMoonPath">
+		UPDATE `event` SET moon_file=#{path} WHERE id=#{id}
+	</update>
+	
+	<insert id="insertEventDelay" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO event_delay(event_id,create_time)  (SELECT e.id,NOW() 
+		FROM event e WHERE (SELECT COUNT(1) FROM event_reply er,event_reply_attachement era 
+		WHERE er.event_id = e.id AND er.create_time &gt;= ADDDATE(NOW(),-1) AND er.create_time &lt;= NOW() 
+		AND era.reply_id = er.id AND era.path IS NOT NULL) = 0 AND e.close = 0 AND e.deleted = 0 AND e.status = 1) 
+	</insert>
+	
+	<update id="updateEventDelay">
+		UPDATE event e SET e.is_delay = 1 WHERE (SELECT COUNT(1) 
+		FROM event_reply er,event_reply_attachement era 
+		WHERE er.event_id = e.id AND er.create_time &gt;= ADDDATE(NOW(),-1) 
+		AND er.create_time &lt;= NOW() AND era.reply_id = er.id AND era.path IS NOT NULL) = 0 
+		AND e.close = 0 AND e.deleted = 0 AND e.status = 1
+	</update>
+	
+	<update id="updateEventDelayByAll">
+		UPDATE event e SET e.is_delay = 0
+	</update>
+	
+	<select id="queryEventDelay" resultType="cn.hm.oil.domain.Event">
+		SELECT e.*,su.name AS creater,bp.name AS pl_name,bpc.name AS pl_section_name,bps.name AS pl_spec_name FROM event e,sys_users su,base_pipeline bp,base_pipeline_section bpc,base_pipeline_spec bps WHERE e.is_delay = 1 AND su.id=e.created_by AND e.pl_id = bp.id AND e.pl_section_id = bpc.id AND e.pl_spec_id = bps.id
+	</select>
+	
+	<update id="updateEventDelayById">
+		UPDATE event SET is_delay = 0 WHERE id = #{id}
+	</update>
+</mapper>

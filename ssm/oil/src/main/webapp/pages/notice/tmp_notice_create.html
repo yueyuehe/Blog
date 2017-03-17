@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>闭环及临时性工作 </li>
+	    	<li>内容创建：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+		<form th:action="@{/admin/tmp_notice_save}" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfoModi mt25 pt10 mauto" style="width:800px;">
+		    <li>
+		    	<label class="w130 tr"><span class="red">*</span>标题:</label>
+		    	<input type="text" name="title" class="dfinput" placeholder="请输入标题" />
+		    </li>
+		    <li>
+		    	<label class="w130"><span class="red">*</span>内容:</label>
+		    	<div class="fl">
+		    		<textarea class="textinput" id="editor1" rows="10" cols="100" name="content" placeholder="请输入内容"></textarea>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="w130"><span class="red">*</span>完成时间:</label>
+		    	<input type="text" name="over_time" readonly="readonly" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"  />
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="w130"><span class="red">*</span>级别:</label>
+		    	<div class="vocation">
+				    <select name="jibie" class="select2">
+				    <option th:each="el:${els}"  th:value="${el.id}" th:text="${el.level}"></option>
+				    </select>
+				 </div>
+				 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="w130"><span class="red">*</span>负责人:</label>
+		    	<label class="w130" style="text-align:left;line-height:40px" id="zr_label"></label>
+		    	<input type="hidden" name="fuze" />
+		    	<input type="hidden" name="fuze_name" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<label class="w130">&nbsp;</label>
+		    	<table>
+		    		<tr>
+		    			<td colspan="3">
+		    				<div class="usercity">
+					    		<div class="cityleft">
+						        	<select name="zr_pl" class="select1">
+						            	<option value="0">请选择管线</option>
+						        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						            </select>
+					            </div>
+					            <div class="cityright">
+						            <select name="zr_section" class="select1">
+						            	<option value="0">请选择起止段落</option>
+						        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+						            </select>
+					            </div>
+					        </div>
+					        		    				
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<label>维护工</label>
+		    			</td>
+		    			<td>
+		    				<label>技术干部</label>
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<select class="pl10" name="zr_allUser" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${allReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    			<td>
+		    				<select class="pl10" name="zr_leader" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="l:${leaders}" th:value="${l.user_id}" th:text="${l.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="searchZeren">[查询]</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    </li>
+		    <li>
+		    	<label class="w130 fl">附件:</label>
+		    	<input class="fl mt5" type="file" name="file" id="file" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<label class="w130"><span class="red">*</span>是否短信提醒:</label>
+		    	<cite>
+		    		<input class="radioModi" type="radio" name="send" value="0" checked="checked" />否
+		    		<input class="radioModi" type="radio" name="send" value="1" />是
+		    	</cite>
+		    </li>
+		    <li class="clr">
+		    	<label class="w130"><span class="red">*</span>指派对象:</label>
+		    	<table>
+		    		<tr>
+		    			<td colspan="3">
+		    				<div class="usercity">
+					    		<div class="cityleft">
+						        	<select name="pl" class="select1">
+						            	<option value="0">请选择管线</option>
+						        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						            </select>
+					            </div>
+					            <div class="cityright">
+						            <select name="section" class="select1">
+						            	<option value="0">请选择起止段落</option>
+						        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+						            </select>
+					            </div>
+					        </div>		    				
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<select class="pl10" name="allUser" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${allReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    			<td>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="searchButton">[查询]</a>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="addUser">[添加]</a>		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="addAllUser">[全部添加]</a>		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="removeUser">[移除]</a>	    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="removeAllUser">[全部移除]</a>
+		    			</td>
+		    			<td>
+		    				<select class="pl10" name="checkedUser" multiple="multiple" style="opacity:1; filter:alpha(opacity:100); width: 168px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${receivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option> 
+		    					<!-- <option th:each="u:${allReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>-->
+		    				</select>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    </li>
+		    <li>
+		    	<label class="w130 fl tr">指派技术干部:</label>
+		    	<div class="fl w470">
+			    	<div th:each="l:${leaders}" class="fl p5 mt8">
+			    		<input class="inputModi0 fl" type="checkbox" name="box" th:value="${l.user_id}" />
+			    		<span class="fl" th:text="${l.receiver}"></span>
+			    		<div class="clr"></div>
+			    	</div>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="tc">
+		    	<input type="hidden" name="users" id="users" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	//调用ckeditor控件
+	$('#editor1').ckeditor();
+	//校验
+	$("#saveButton").click(function() {
+		var title = $.trim($("input[name=title]").val());
+		if (title.length == 0 || title.length > 50) {
+			alertM("标题不能为空且长度不能大于50个字!",{time:3000});
+			return;
+		}
+		
+		var content = $.trim($("textarea[name=content]").val());
+		if (content.length == 0 || content.length > 6000) {
+			alertM("内容不能为空且长度不能大于6000个字!",{time:3000});
+			return;
+		}
+		
+		var checkUser = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUser.push($(this).val());
+		});
+		/* 获取技术干部 */
+		var str = document.getElementsByName("box");
+		var objarray = str.length;
+		var chestr = "";
+		for (i = 0; i < objarray; i++) {
+			if (str[i].checked == true) {
+				checkUser.push(str[i].value);
+			}
+		}
+		/* var postil = $("input[name=postil]").val();
+		if(postil.length==0||postil.length>200){
+			alertM("批注不能为空且不能大于200个字！",{time:3000});
+			return;
+		} */
+		var over_time = $("input[name=over_time]").val();
+		if(over_time.length==0){
+			alertM("完成时间不能为空",{time:3000});
+			return;
+		}
+		var zr_label = $("#zr_label").text();
+		if(zr_label.length==0){
+			alertM("请选择负责人",{time:3000});
+			return;
+		}
+		if (checkUser.length > 0) {
+				$("#users").val(checkUser.join(",") + chestr);
+		} else {
+			alertM("请指派接收对象！",{time:3000});
+			return;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	//指派对象的添加
+	//移除选择对象
+	$("#removeUser").click(function() {
+		var ua = $("select[name=checkedUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				$(this).remove();
+			});
+		}
+	});
+	//移除全部的对象
+	$("#removeAllUser").click(function(){
+		var checkedOption=$("select[name=checkedUser]").find("option");
+		if(checkedOption.size()>0){
+			$("select[name=checkedUser]").empty();
+		}		
+	})
+	
+	
+	
+	$("#addUser").click(function() {
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				var exists = false;
+				for (var i = 0; i < checkUserArr.length; i++) {
+					if (checkUserArr[i] == $(this).val()) {
+						exists = true;
+					}
+				}
+				if (!exists) {
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";
+				}
+				$(this).prop("selected", false);
+			});
+			$("select[name=checkedUser]").append(options);
+		}
+	});
+	$("#addAllUser").click(function(){
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option");
+		var options='';
+		ua.each(function(){
+			var exists = false;
+			for (var i=0; i <checkUserArr.length; i++){
+				if(checkUserArr[i]==$(this).val()){
+					exists = true;
+				}
+			}
+			if(!exists){
+				options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+			}			
+		});
+		$("select[name=checkedUser]").append(options);
+	})
+	
+	
+	var addDbl=$("select[name=allUser]");	
+	addDbl.change(function(){
+		$("select[name=allUser] option").each(function(){
+		$(this).dblclick(function(){
+			//alert(this.value)
+			var checkUserArrDbl = new Array();
+			$("select[name=checkedUser] option").each(function() {
+				checkUserArrDbl.push($(this).val());
+			});
+			
+			var ua = $("select[name=allUser]").find("option:selected");
+			var options='';
+			ua.each(function(){
+				var exists = false;
+				for (var i=0; i <checkUserArrDbl.length; i++){
+					if(checkUserArrDbl[i]==$(this).val()){
+						exists = true;
+					}
+				}
+				//alert(exists)
+				if(!exists){
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+					//alert(options)
+				}
+			});
+			$("select[name=checkedUser]").append(options);
+		});
+		});
+	});
+	
+	$("select[name=zr_allUser]").change(function(){
+		$("select[name=zr_allUser] option").each(function(){
+		$(this).click(function(){
+			$("input[name=fuze]").val($(this).val());
+			$("input[name=fuze_name]").val($(this).text());
+			$("#zr_label").text($(this).text());
+		});
+		});
+	});
+	
+	$("select[name=zr_leader] option").each(function(){
+		$(this).click(function(){
+			$("input[name=fuze]").val($(this).val());
+			$("input[name=fuze_name]").val($(this).text());
+			$("#zr_label").text($(this).text());
+		});
+		});
+	
+	
+	var removeDbl=$("select[name=checkedUser]");
+	removeDbl.dblclick(function(){
+			//alert(11);
+			var rem=$("select[name=checkedUser]").find("option:selected");
+			rem.remove();
+	});
+
+	$("#searchZeren").click(function(){
+		var pl_id = $("select[name=zr_pl]").val();
+		var section_id = $("select[name=zr_section]").val();
+		
+		$.ajax({
+   			url : [[@{/admin/findWorker}]],
+   			data : {
+   				'pl_id': pl_id,
+   				'section_id': section_id
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=zr_allUser]").empty();
+ 				$("select[name=zr_allUser]").trigger("change");
+   				if (data.length > 0) {
+   					var options='';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].user_id + "'>" + data[i].receiver + "</option>";
+   	   				}
+   					$("select[name=zr_allUser]").append(options);
+   				}
+   				$("select[name=zr_allUser]").trigger("change");
+   			}
+   		});
+	});
+	
+	
+	$("#searchButton").click(function() {
+		var pl_id = $("select[name=pl]").val();
+		var section_id = $("select[name=section]").val();
+		
+		$.ajax({
+   			url : [[@{/admin/findWorker}]],
+   			data : {
+   				'pl_id': pl_id,
+   				'section_id': section_id
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=allUser]").empty();
+ 				$("select[name=allUser]").trigger("change");
+   				if (data.length > 0) {
+   					var options='';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].user_id + "'>" + data[i].receiver + "</option>";
+   	   				}
+   					$("select[name=allUser]").append(options);
+   				}
+   				$("select[name=allUser]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=zr_pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=zr_section]").empty();
+ 				$("select[name=zr_section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=zr_section]").append(options);
+   				}
+   				$("select[name=zr_section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	}); 
+	$(".select2").uedSelect({
+		width : 168
+	});
+});
+/*]]>*/
+</script>
+</html>

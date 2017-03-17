@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.TipsDao">
+	<insert id="saveTips"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tips(content, url, create_time, user_id) VALUES(#{content}, #{url}, now(), #{user_id})
+	</insert>
+	
+	<select id="queryTips" resultType="cn.hm.oil.domain.Tips">
+		SELECT * FROM tips WHERE user_id=#{user_id}
+		ORDER BY create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryTips_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM tips WHERE user_id=#{user_id}
+	</select>
+	
+	<select id="queryCheckList" resultType="cn.hm.oil.domain.CheckLog">
+		SELECT * FROM check_log WHERE deleted!=1
+		<if test="s_time!=null">
+			AND create_time BETWEEN #{s_time} AND #{e_time}
+		</if>
+		ORDER BY create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryCheckList_count" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM check_log WHERE deleted!=1
+		<if test="s_time!=null">
+			AND create_time BETWEEN #{s_time} AND #{e_time}
+		</if>
+	</select>
+	
+	<select id="queryCheckById" resultType="cn.hm.oil.domain.CheckLog">
+		SELECT * FROM check_log WHERE id=#{id}
+		
+	</select>
+	
+	<delete id="deleteTipsByid">
+		DELETE FROM tips WHERE id=#{id};
+	</delete>
+	
+	<update id="deleteCheckLogByid">
+		UPDATE check_log SET deleted=1 WHERE id=#{id};
+	</update>
+	
+	<insert id="insertCheckLog"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO check_log(`type`,o_id,content, href, create_time, user_name,reason,remark) VALUES(#{type},#{o_id},#{content}, #{href}, now(), #{user_name},#{reason},#{remark})
+	</insert>
+	
+	<update id="updateCheckLog">
+		UPDATE check_log SET content=#{content}, update_time=now(), user_name=#{user_name},reason=#{reason},remark=#{remark} WHERE id=#{id}
+	</update>
+</mapper>

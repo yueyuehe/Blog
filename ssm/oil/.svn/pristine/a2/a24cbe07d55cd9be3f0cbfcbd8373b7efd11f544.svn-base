@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<script th:src="@{/assets/js/plupload.full.min.js}"></script>
+<script th:src="@{/assets/js/ajaxfileupload.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>一事一案 </li>
+	    	<li>查看：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    <div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+	    <fieldset class="ulFieldset">
+			<legend>管道基本信息</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+	    	<li>
+	    		<label class="labelModi">管线段落规格：</label>
+		    	<div class="usercity" style="width:300px;">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1" disabled="disabled">
+			        		<option th:each="pll:${pipeLineList}" th:selected="${e.pl_id == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1" disabled="disabled">
+			        		<option th:each="sec:${sectionList}" th:selected="${e.pl_section_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1" disabled="disabled">
+			        		<option th:each="sec:${specList}" th:selected="${e.pl_spec_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		         <div class="clr"></div>
+		     </li>
+		    <li>
+		    	<label class="labelModi">时间:</label>
+		    	<input type="text" placeholder="请选择时间" disabled="disabled" th:value="${beans.dateFormatter.formatDateToStr(e.discover_date)}" readonly="readonly" name="discover_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">地段（点）:</label>
+		    	<div class="usercity">
+			    	<div class="cityleft">
+					    <input type="text" name="position_start" th:value="${e.position_start}" class="new_input" disabled="disabled" placeholder="请输入开始位置" />
+				    </div>
+				    <!-- <span class="fl lh32 mr10">到 </span>	
+				    <div class="cityright">
+				    	<input type="text" name="position_end" th:value="${e.position_end}" class="new_input" disabled="disabled" placeholder="请输入结束位置" />
+				    </div> -->
+			    </div>
+			    <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">经度:</label>
+		    	<div class="usercity">
+			    	<div class="cityleft">
+					    <input type="text" name="longitude" th:value="${e.longitude}" class="new_input" disabled="disabled" placeholder="请输入GPS开始坐标" />
+				    </div>
+				    <span class="fl lh32 mr10">纬度： </span>	
+				    <div class="cityright">
+				    	<input type="text" name="latitude" th:value="${e.latitude}" class="new_input" disabled="disabled" placeholder="请输入GPS结束坐标" />
+				    </div>
+			    </div>
+			    <div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+			<legend>管道问题备注</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi"><span class="red">&nbsp;</span>问题类型:</label>
+		    	<div class="vocation">
+				    <select name="type_id" class="select2" disabled="disabled">
+				    	<option th:each="type:${types}" th:selected="${e.type_id==type.id}" th:value="${type.id}" th:text="${type.name}"></option>
+				    </select>
+				 </div>
+				 <div class="clr"></div>
+		    </li>
+		    <li th:if="${e.status == 1}">
+		    	<label class="labelModi"><span class="red">&nbsp;</span>等级:</label>
+		    	<div class="vocation">
+				    <select name="event_level" class="select2" th:disabled="${sec.principal.level gt 3}">
+				    	<option th:each="el:${els}" th:selected="${e.verify_level==el.id}" th:value="${el.id}" th:text="${el.level}"></option>
+				    </select>
+				 </div>
+				 <input type="button" th:if="${sec.principal.level lt 4 and sec.principal.level gt 0}" class="ml20 fileModi2" id="changejibie" style="line-height:25px" value="确认更改级别"/>
+				 <div class="clr"></div>
+		    </li>
+		     <li th:if="${e.status == 1}">
+		    	<label class="labelModi"><span class="red">&nbsp;</span>编号:</label>
+		    	<div class="vocation">
+				    <input type="text"  disabled="disabled" name="code_no" class="new_input" th:value="${e.code_no}" />
+				 </div>
+				 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">关键字:</label>
+		    	<input type="text" placeholder="请输入关键字" disabled="disabled" name="keyword" class="new_input" th:value="${e.keyword}" />
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">内容:</label>
+		    	<textarea class="textinput" rows="" cols="" name="content" th:text="${e.content}" disabled="disabled" placeholder="请输入内容"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">备注:</label>
+		    	<textarea class="textinput" rows="" cols="" name="remark" th:text="${e.remark}" disabled="disabled" placeholder="请输入备注"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    		    <li>
+		    	<label class="labelModi">影响管线长度:</label>
+		    	<input type="text"  name="ef_length" th:value="${e.ef_length}" disabled="disabled" class="new_input"/>
+		    	 <div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">管线桩号:</label>
+		    	<input type="text"  name="pl_no" class="new_input" th:value="${e.pl_no}" disabled="disabled"/>
+		    	 <div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">主要存在风险:</label>
+		    	<textarea class="textinput" rows="" cols="" name="risk" th:text="${e.risk}" disabled="disabled" ></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>第三方通讯录</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi" style="width:130px;">第三方通讯录信息:</label>
+		    	<!-- <input type="text"  name="link_name" class="new_input" th:value="${e.link_name}" disabled="disabled"/> -->
+		    	<textarea class="textinput" rows="" cols="" name="link_name" th:text="${e.link_name}" disabled="disabled" ></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    <!-- <li>
+		    	<label class="labelModi" style="width:150px;">第三方通讯录职务:</label>
+		    	<input type="text"  name="link_duty" class="new_input" th:value="${e.link_duty}" disabled="disabled"/>
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi" style="width:150px;">第三方通讯录联系方式:</label>
+		    	<input type="text"  name="link_method" class="new_input" th:value="${e.link_method}" disabled="disabled"/>
+		    	 <div class="clr"></div>
+		    </li> -->
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>单位</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi">单位名称:</label>
+		    	<!-- <input type="text"  name="unit_name" class="new_input" th:value="${e.unit_name}" disabled="disabled"/> -->
+		    	<textarea class="textinput" rows="" cols="" name="unit_name" th:text="${e.unit_name}" disabled="disabled" ></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    <!-- <li>
+		    	<label class="labelModi">单位地址:</label>
+		    	<textarea class="textinput" rows="" cols="" name="unit_address" th:text="${e.unit_address}" disabled="disabled" ></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">单位邮编:</label>
+		    	<input type="text"  name="unit_post" class="new_input" th:value="${e.unit_post}" disabled="disabled"/>
+		    	 <div class="clr"></div>
+		    </li> -->
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>情况说明</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi" style="width:160px;">是否发放安全隐患告知书:</label>
+		    	<cite>
+			    	<input name="send_notice" type="radio" disabled="disabled" value="1" th:checked="${e.send_notice}" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="send_notice" type="radio" disabled="disabled" value="0" th:checked="${!e.send_notice}" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${e.send_notice}">
+		    	<label class="labelModi" style="width:160px;">附件:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(e.notice_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.notice_file),'.jpeg')}" th:src="${application.baseThumbUrl + e.notice_file}" width="100px"/>
+		    	<a class="disib lh32" th:href="${application.baseFileUrl + e.notice_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi" style="width:160px;">是否现场加密警示标志:</label>
+		    	<cite>
+			    	<input name="is_warn" type="radio" value="1" disabled="disabled" th:checked="${e.is_warn}" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="is_warn" type="radio" value="0" disabled="disabled"  th:checked="${!e.is_warn}" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${e.is_warn}" class="clr">
+		    	<label class="labelModi" style="width:160px;">附件:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(e.warn_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.warn_file),'.jpeg')}" th:src="${application.baseThumbUrl + e.warn_file}" width="100px"/>
+		    	<a class="disib lh32" th:href="${application.baseFileUrl + e.warn_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi" style="width:160px;">是否有探管记录:</label>
+		    	<cite>
+			    	<input name="is_ma_remark" type="radio" value="1" disabled="disabled" th:checked="${e.is_ma_remark}" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="is_ma_remark" type="radio" value="0" disabled="disabled"  th:checked="${!e.is_ma_remark}" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		     <li th:if="${e.is_ma_remark}" class="clr">
+		    	<label class="labelModi" style="width:160px;">附件:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(e.ma_remark),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.ma_remark),'.jpeg')}" th:src="${application.baseThumbUrl + e.ma_remark}" width="100px"/>
+		    	<a class="disib lh32" th:href="${application.baseFileUrl + e.ma_remark}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>示意图</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		     <li  class="clr">
+		    	<label class="labelModi">现场示意图:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${e.scene_file!=null and (#strings.endsWith(#strings.toLowerCase(e.scene_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.scene_file),'.jpeg'))}" th:src="${application.baseThumbUrl + e.scene_file}" width="100px"/>
+		    	<a class="disib lh32" th:if="${e.scene_file!=null}" th:href="${application.baseFileUrl + e.scene_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		      <li  class="clr">
+		    	<label class="labelModi">卫星示意图:</label>
+		    	<img class="imgClick" id="moon" alt="缩略图" th:if="${e.moon_file!=null and (#strings.endsWith(#strings.toLowerCase(e.moon_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.moon_file),'.jpeg'))}" th:src="${application.baseThumbUrl + e.moon_file}" width="100px"/>
+		    	<a class="disib lh32" th:if="${e.moon_file!=null}" th:href="${application.baseFileUrl + e.moon_file}">点击下载附件</a>
+		    	<img class="imgClick" id="moon" alt="" th:if="${e.moon_file==null}"  width="100px"/>
+		    	<div class="clr"></div>
+		    </li>
+		     <li th:if="${sec.principal.level!=5 and e.status != 1}">
+		    	<label class="labelModi"><span class="red">&nbsp;</span>卫星示意图上传:</label>
+		    	<input type="file" name="moon_file" style="width:150px" id="file2" class="fileModi" />
+		    	<input type="button" id="updatefile"  class="fileModi2" value="上传图片"/>
+		    	<img width="26px" class="loadpicture" alt="load" src="../../assets/images/load.gif" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${ealist != null and !#lists.isEmpty(ealist)}" style="clear:both;">
+		    	<label class="labelModi">已上传附件:</label>
+		    	<table>
+		    		<tr th:each="ea:${ealist}">
+		    			<td>
+		    			<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(ea.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(ea.path),'.jpeg')}" th:src="${application.baseThumbUrl + ea.path}" width="100px"/>
+		    			<a class="disib lh32" th:href="${application.baseFileUrl + ea.path}">点击下载附件</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    	<div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>汇报人</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		     <li>
+		    	<label class="labelModi">汇报人:</label>
+		    	<input type="text"  disabled="disabled" name="reporter" class="new_input" th:value="${e.reporter}" />
+		    	 <div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">审核人:</label>
+		    	<input type="text"  disabled="disabled" name="verifier" class="new_input" th:value="${e.verify}" />
+		    	 <div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>审核</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li th:if="${e.status > 0}" class="clr">
+		    	<label class="labelModi"><span class="red">&nbsp;</span>当前审核状态:</label>
+		    	<div class="vocation">
+				    <select name="status" class="select2" disabled="disabled">
+				    	<option th:selected="${e.status == 1}" th:value="1">通过</option>
+				    	<option th:selected="${e.status == 2}" th:value="2">不通过</option>
+				    </select>
+				 </div>
+				 <div class="clr"></div>
+		    </li>
+		    <li th:if="${e.status > 0}">
+		    	<label class="labelModi">审核意见:</label>
+		    	<textarea class="textinput" disabled="disabled" rows="" cols="" name="message" th:text="${e.message}" placeholder="请输入处理方案"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    
+		    <fieldset th:if="${e.status == 1}" class="ulFieldset">
+		    <legend>管道风险个体事件附件表格</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">管道信息记录表</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==1}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="1"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">基础信息表</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==2}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="2"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">会商意见处理表</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==3}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="3"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">现场处置记录</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==4}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="4"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">现场验收记录</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==5}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="5"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">销结确认表</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==6}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="6"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    <li class="clr">
+		    	<h4 style="text-align:center;font-size:17px">第三方施工协调工作记录</h4>
+		    	<label th:each="e:${ees}" th:if="${e.aType==7}" th:text="${#strings.substringAfter(#strings.substringAfter(#strings.replace(e.path,'\','/'),'/'),'/')}" style="width:80%;text-align:center">测试一个2014-02-13.doc</label>
+		    	
+		    	<div class="clr"></div>
+		    	<form th:action="@{/admin/event/uploadFile}"  method="post" enctype="multipart/form-data" class="tc">
+		    		<input style="width:75px" type="file" name="file"/>
+		    		<input type="button" class="ml20 fileModi2 uploadf" value="上传文件"/>
+		    		<input type="hidden" name="aType" value="7"/>
+		    		<input type="hidden" name="e_id" th:value="${e.id}"/>
+		    	</form>
+				 <div class="clr"></div>
+		    </li>
+		    
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>领导批复意见及回复</legend>
+		    <ul class="forminfo mauto" style="width:800px;">
+		    <li th:if="${!#lists.isEmpty(leaderPHReplies)}">
+				<label class="labelModi">领导批复意见:</label>
+		    	<table class="backTxtTable backTxtTableModi">
+		    		<tr>
+		    			<th width="112">批复人</th>
+		    			<th width="200">批复意见</th>
+		    			<th width="150">批复时间</th>
+		    		</tr>
+		    		<tr th:each="r : ${leaderPHReplies}">
+		    			<td th:text="${r.replier}"></td>
+		    			<td th:text="${r.content}"></td>
+		    			<td th:text="${beans.dateFormatter.formatDateToStr(r.create_time)}"></td>
+		    		</tr>
+		    	</table>
+			</li>
+		    <li th:if="${!#lists.isEmpty(replies)}">
+				<label class="labelModi">回复内容:</label>
+		    	<table class="backTxtTable backTxtTableModi">
+		    		<tr>
+		    			<th width="112">回复人</th>
+		    			<th width="200">消息内容</th>
+		    			<th width="150">回复时间</th>
+		    			<th width="100">附件</th>
+		    		</tr>
+		    		<tr th:each="r : ${replies}">
+		    			<td th:text="${r.replier}"></td>
+		    			<td th:text="${r.content}"></td>
+		    			<td th:text="${beans.dateFormatter.formatDateToStr(r.create_time)}"></td>
+		    			<td>
+		    				<div th:each="f : ${r.eras}">
+		    					<a th:href="${application.baseFileUrl + f.path}" th:if="${!#strings.isEmpty(f.path)}">点击下载</a>
+		    					<img class="imgClick" alt="缩略图" th:if="${!#strings.isEmpty(f.path) and (#strings.endsWith(#strings.toLowerCase(f.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(f.path),'.jpeg'))}" th:src="${application.baseThumbUrl + f.path}" width="100px"/>
+		    				</div>
+		    			</td>
+		    		</tr>
+		    	</table>
+			</li>
+	    </ul>
+	    <form th:action="@{/admin/event/reply}" id="saveReplyForm" method="post" enctype="multipart/form-data" th:if="${e.status == 1 and e.close != 1}">
+		<ul class="forminfo mauto" style="width:500px;">		
+			<li>
+				<label class="labelModi mr20">&nbsp;</label>
+		    	<textarea class="textinput" rows="" cols="" name="msg_content" placeholder="请输入回复内容"></textarea>
+			</li>
+			<li>
+				<input type="hidden" name="filename" id="filename" />
+		    	<input type="hidden" name="id" id="id" th:value="${e.id}" />		    	
+		    </li>
+		    <li>
+		    	<label class="labelModi">附件上传:</label>
+		    	<div style="float:left;">
+		    		<div id="container">
+					    <input class="fileChooseModi lh30" type="button" id="pickfiles" value="[选择文件]" />
+					    <input class="fileChooseModi lh30 ml10" type="button" id="uploadfiles" value="[开始上传]" />
+					    <input class="fileChooseModi lh30 ml10" type="button" id="clearfiles" value="[清除]" />
+					</div>
+			    	<div id="filelist">您的浏览器不支持Flash, Silverlight或者HTML5，不能够上传.</div>
+				</div>
+		    </li>
+		    <li style="clear:both;" class="tc">
+		    	<input name="saveReplyButton" id="saveReplyButton" type="button" class="btn mt20" value="回复"/>
+		    </li>
+	    </ul>
+	    </form>
+	    </fieldset>
+	    
+	    <th:block th:if="${sec.principal.level!=5 and e.close!=1 and e.status==1}">
+	    <form th:action="@{/admin/event/saveWorker}" id="saveform" method="post" name="saveform">
+		<ul class="forminfo mt25 pt10 mauto" style="width:680px;">
+		<fieldset class="ulFieldset">
+		<legend>批复意见</legend>
+			<th:block th:if="${sec.principal.level==4}">
+		    <li class="clr">
+		    	<label><span class="red">*</span>指派对象:</label>
+		    	<table>
+		    		<tr>
+		    			<td colspan="3">
+		    				<div class="usercity">
+					    		<div class="cityleft">
+						        	<select name="vpl" class="select1">
+						            	<option value="0">请选择管线</option>
+						        		<option th:each="pll:${basePipeLineList}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						            </select>
+					            </div>
+					            <div class="cityright">
+						            <select name="vsection" class="select1">
+						            	<option value="0">请选择起止段落</option>
+						            </select>
+					            </div>
+					        </div>
+		    				<a href="javascript:void(0);" class="ibtn ml10" id="searchButton">[查询]</a>
+		    			</td>
+		    		</tr>
+		    		<tr>
+		    			<td>
+		    				<select class="pl10" name="allUser" multiple="multiple" style="opacity:1; width: 148px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${allReceivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option>
+		    				</select>
+		    			</td>
+		    			<td>
+		    				<a href="javascript:void(0);" class="ibtnModi" id="addUser">[添加]</a>
+		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="addAllUser">[全部添加]</a>
+		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="removeUser">[移除]</a>
+		    				
+		    				<a href="javascript:void(0);" class="ibtnModi" id="removeAllUser">[全部移除]</a>
+		    			</td>
+		    			<td>
+		    				<select class="pl10" name="checkedUser" multiple="multiple" style="opacity:1; width: 168px; height: 150px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+		    					<option th:each="u:${receivers}" th:value="${u.user_id}" th:text="${u.receiver}">用户名称</option> 
+		    				</select>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    	<div class="clr"></div>
+		    </li>
+		    </th:block>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <th:block th:if="${sec.principal.level lt 4}">
+		    <li th:if="${e.status > 0}">
+		    	<label class="labelModi">批复意见:</label>
+		    	<textarea class="textinput" rows="" cols="" name="message" placeholder="请输入批复意见"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <!-- <li>
+		    	<label class="labelModi">是否关闭:</label>
+		    	<cite>
+			    	<input name="close" type="radio" value="1" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="close" type="radio" value="0" checked="checked" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li> -->
+		    <li class="clr">
+		    	<label class="labelModi fl">指派技术干部:</label>
+		    	<div class="fl w470">
+		    	<div th:each="l:${leaders}" class="fl p5 mt8">
+		    		<input class="inputModi0 fl" type="checkbox" name="box" th:value="${l.user_id}" />
+		    		<span class="fl w60" th:text="${l.receiver}"></span>
+		    	</div>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    </th:block>
+		    <th:block th:if="${sec.principal.level != 1}">
+		    <li>
+		    	<label class="labelModi">是否汇报给上级:</label>
+		    	<cite>
+			    	<input class="mr5" name="up_to_level" type="radio" value="1" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input class="mr5" name="up_to_level" type="radio" value="0" checked="checked" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    </th:block>
+		    <li class="tc">
+		    	<input type="hidden" name="users" id="users" />
+		    	<input type="hidden" name="subUsers" id="subUsers" />
+		    	<input type="hidden" name="id" th:value="${e.id}" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="保存批复意见"/>
+		    </li>
+		    <li class="tc" th:if="${sec.principal.level == 3 or sec.principal.level == 2}">
+		    	<input id="closeButton" type="button" class="btn" value="关闭一事一案"/>
+		    </li>
+		     <li class="tc" th:if="${sec.principal.level == 3 and e.is_delay}">
+		    	<input name="delayButton" id="delayButton" type="button" class="btn" value="取消标红"/>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    
+	    </ul>
+	    </form>
+	    </th:block>
+    </div>
+    <div class="largePic0">
+		<div class="largeClose fr mr20 mt20" id="largeClose">X</div>
+		<div class="clr"></div>
+	</div>
+	<div class="largepicture">
+		<img id="lapic" alt="缩略图" style="width:300px;"  />
+	</div>
+	<div id="load" style="display:none;z-index:98;position:fixed;left:0;top:0;background:#000;height:100%;width:100%;-webkit-opacity:0.3;-moz-opacity:0.3;opacity:0.3;filter:alpha(opacity:0.3);">
+		<img  style="z-index:99;position:fixed;left:35%;top:50%" src="/oil/assets/images/load.gif"/>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	$(".uploadf").click(function(){
+		var file = $(this).prev().val();
+		if(file.length==0){
+			alert("请先选择文件!")
+			return false;
+		}
+		$("#load").show();
+		$(this).parent().submit();
+	});
+	
+	
+	$("#changejibie").click(function(){
+		var event_level = $(this).parent().find("select[name=event_level]").val();
+		/* alert(event_level+"-----"+[[${e.id}]]); */
+		$.ajax({
+   			url : [[@{/admin/event/update_jibie}]],
+   			data : {
+   				id: [[${e.id}]],
+   				event_level: event_level
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				alert("修改级别成功!");
+   			}
+   		});
+		
+	});
+	
+	$("#delayButton").click(function(){
+		$.ajax({
+   			url : [[@{/admin/event/update_delay}]],
+   			data : {
+   				id: [[${e.id}]]
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) { 
+ 				alert("取消标红成功!");
+   			}
+   		});
+	});
+	
+	$("#updatefile").click(function(){
+		var files = $("input[name=moon_file]").val();
+		if(files.length==0){
+			alert("请选择文件")
+			return;
+		}
+		$(".loadpicture").css("display","inline");
+		var pa = "/admin/event/"+[[${e.id}]]+"/uploadFile"
+		 $.ajaxFileUpload({
+	            url: [[@{/}]]+pa,
+	            secureuri: true,
+	            fileElementId: 'file2',
+	            type: 'POST',
+	            dataType: 'xml',
+	            success: function (result) {
+	                //alert(result);
+	                $(".loadpicture").css("display","none");
+	                // to do something
+	                result=$(result).text();
+	                if(result!='false'){
+	                	$("#moon").attr("src", [[${application.baseThumbUrl}]] + result);
+	                	//$("#moon").next().attr("href",[[${application.baseFileUrl}]] + result);
+	                } else {
+	                	alert("图片上传失败");
+	                }
+	            }
+	        });
+	});
+	
+	$(".imgClick").each(function(index){
+		$(this).click(function(){
+			$("#lapic").attr("src",$(this).attr('src'));
+			var formboduWidth=$(".formbody").css("width");
+			var divWidth=$(".largepicture").css("width");
+			var picWidthNum=parseInt(formboduWidth)/2-parseInt(divWidth)/2;
+			$(".largepicture").css("left",picWidthNum + 'px');
+			$(".largePic0").css("display","block");
+			$(".largepicture").css("display","block");
+		})
+	})
+	$("#largeClose").click(function(){
+		$(".largePic0").css("display","none");
+		$(".largepicture").css("display","none");
+	})
+	
+	$("#saveReplyButton").click(function() {
+		var content = $.trim($("textarea[name=msg_content]").val());
+		if (content.length == 0 || content.length > 500) {
+			alert("回复内容不能为空且长度不能大于500!");
+			return;
+		}
+		if(confirm("是否确认回复？")){
+			$("#saveReplyForm").submit();
+		}
+	});
+	
+	$("#saveButton").click(function() {
+		var close = $("input[name='close']:checked").val();
+		//alert(close);
+		//if (close == 0) {
+			var checkUser = new Array();
+			$("select[name=checkedUser] option").each(function() {
+				checkUser.push($(this).val());
+			});
+			/* 获取技术干部 */
+			var str = document.getElementsByName("box");
+			var objarray = str.length;
+			var chestr = "";
+			for (i = 0; i < objarray; i++) {
+				if (str[i].checked == true) {
+					checkUser.push(str[i].value);
+				}
+			}
+			if (checkUser.length > 0) {
+				if($("#subUsers").val().length != 0){
+					$("#users").val(checkUser.join(",") + chestr + "," + $("#subUsers").val());
+				} else {
+					$("#users").val(checkUser.join(",") + chestr);
+				}
+			} else {
+				$("#users").val($("#subUsers").val());
+			}
+		//}
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$("#closeButton").click(function(){
+		if(confirm("是否确认关闭？")){
+			window.location.href="saveWorker?close=1&id="+[[${e.id}]];
+		}
+		
+	});
+	
+	$("#removeUser").click(function() {
+		var ua = $("select[name=checkedUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				$(this).remove();
+			});
+		}
+	});
+	$("#removeAllUser").click(function(){
+		var checkedOption=$("select[name=checkedUser]").find("option");
+		if(checkedOption.size()>0){
+			$("select[name=checkedUser]").empty();
+		}		
+	})
+	
+	
+	
+	$("#addUser").click(function() {
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				var exists = false;
+				for (var i = 0; i < checkUserArr.length; i++) {
+					if (checkUserArr[i] == $(this).val()) {
+						exists = true;
+					}
+				}
+				if (!exists) {
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";
+				}
+				$(this).prop("selected", false);
+			});
+			$("select[name=checkedUser]").append(options);
+		}
+	});
+	$("#addAllUser").click(function(){
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option");
+		var options='';
+		ua.each(function(){
+			var exists = false;
+			for (var i=0; i <checkUserArr.length; i++){
+				if(checkUserArr[i]==$(this).val()){
+					exists = true;
+				}
+			}
+			if(!exists){
+				options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+			}			
+		});
+		$("select[name=checkedUser]").append(options);
+	})
+	
+	
+	var addDbl=$("select[name=allUser] option");	
+	addDbl.each(function(){		
+		$(this).dblclick(function(){
+			
+			var checkUserArrDbl = new Array();
+			$("select[name=checkedUser] option").each(function() {
+				checkUserArrDbl.push($(this).val());
+			});
+			
+			var ua = $("select[name=allUser]").find("option:selected");
+			var options='';
+			ua.each(function(){
+				var exists = false;
+				for (var i=0; i <checkUserArrDbl.length; i++){
+					if(checkUserArrDbl[i]==$(this).val()){
+						exists = true;
+					}
+				}
+				if(!exists){
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+				}
+			});
+			$("select[name=checkedUser]").append(options);
+		});
+	});
+	
+	var removeDbl=$("select[name=checkedUser]");
+	removeDbl.dblclick(function(){
+			//alert(11);
+			var rem=$("select[name=checkedUser]").find("option:selected");
+			rem.remove();
+	});
+
+	$("#searchButton").click(function() {
+		var pl_id = $("select[name=vpl]").val();
+		var section_id = $("select[name=vsection]").val();
+		
+		$.ajax({
+   			url : [[@{/admin/findWorker}]],
+   			data : {
+   				'pl_id': pl_id,
+   				'section_id': section_id
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=allUser]").empty();
+ 				$("select[name=allUser]").trigger("change");
+   				if (data.length > 0) {
+   					var options='';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].user_id + "'>" + data[i].receiver + "</option>";
+   	   				}
+   					$("select[name=allUser]").append(options);
+   				}
+   				$("select[name=allUser]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=vpl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=vsection]").empty();
+ 				$("select[name=vsection]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=vsection]").append(options);
+   				}
+   				$("select[name=vsection]").trigger("change");
+   			}
+   		});
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	$(".select2").uedSelect({
+		width : 168
+	});
+});
+
+
+var sec_level = [[${sec.principal.level}]];
+if(sec_level < 4){
+var rece = [[${receivers}]];
+var check_flag = false;
+for(i in rece){
+	$("input[name=box]").each(function(){
+		if(rece[i].user_id==$(this).val()){
+			$(this).prop("checked","checked");
+			check_flag = true;
+			
+		}
+	});
+	if(!check_flag){
+		if($("#subUsers").val().length != 0){
+			$("#subUsers").val($("#subUsers").val() + "," + rece[i].user_id);
+		} else {
+			$("#subUsers").val(rece[i].user_id);
+		}
+	}
+	check_flag = false;
+}
+}
+
+
+
+var upload_finished = false;
+
+var uploader = new plupload.Uploader({
+	runtimes : 'html5,flash,silverlight,html4',
+	browse_button : 'pickfiles',
+	container: document.getElementById('container'), 
+	url : [[@{/upload/uploadFile}]],
+	flash_swf_url : [[@{/assets/js/Moxie.swf}]],
+	silverlight_xap_url : [[@{/assets/js/Moxie.xap}]],
+	chunk_size: '10mb',
+	max_retries: 5,
+	prevent_duplicates: true,
+	unique_names: true,
+	filters : {
+		max_file_size : '1000MB'
+	},
+
+	init: {
+		PostInit: function() {
+			document.getElementById('filelist').innerHTML = '';
+
+			document.getElementById('uploadfiles').onclick = function() {
+				$("a.class_fileupload").each(function() {
+					$(this).hide();
+				});
+				$("#filename").val('');
+				uploader.start();
+				$("#pickfiles").prop("disabled", true);
+				$("#uploadfiles").prop("disabled", true);
+				upload_finished = false;
+				return false;
+			};
+			
+			$("#clearfiles").click(function() {
+				uploader.splice();
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				$("#filename").val("");
+				upload_finished = false;
+			});
+		},
+
+		FilesAdded: function(up, files) {
+			plupload.each(files, function(file) {
+				var fi = file.id;
+				document.getElementById('filelist').innerHTML += '<div id="' + fi + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <a href="#" class="class_fileupload" onclick="removeFile(' + fi + ')">删除</a>&nbsp;&nbsp;&nbsp;&nbsp;<b></b></div>';
+			});
+		},
+		
+		FileUploaded: function(up, file, response) {
+			var name = $("#filename").val();
+			if (name != '') {
+				name += ";";
+			}
+			$("#filename").val(name + response.response);
+		},
+		
+		UploadComplete: function(up, file) {
+			upload_finished = true;
+		},
+
+		UploadProgress: function(up, file) {
+			document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span style="display:inline;">' + file.percent + "%</span>";
+		},
+
+		Error: function(up, err) {
+			var alt = false;
+			switch(err.code) {
+			case -601:
+				alert("仅支持zip格式的压缩文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -602:
+				alert("不能选择重复的文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -200:
+				alert("网络异常上传失败，请重新上传!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			}
+			if (!alt) {
+				alert("\nError #" + err.code + ": " + err.message);
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);				
+			}
+		},
+		FilesRemoved: function(up, files) {
+			plupload.each(files, function(file) {
+				$("div#" + file.id).remove();
+			});
+		}
+	}
+});
+
+uploader.init();
+
+function removeFile(id) {
+	if (confirm("确认删除？")) {
+		uploader.removeFile(id);
+	}
+}
+/*]]>*/
+</script>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseHazardDao">
+	<insert id="saveHazard"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO hazard (title, createtime,filetype,filesize,filepath) VALUES(#{title}, now(),#{filetype},#{filesize},#{filepath})
+	</insert>
+	
+	<select id="queryHazard" resultType="cn.hm.oil.domain.Hazard">
+		SELECT * FROM hazard WHERE 1=1
+		<if test="title!=null">
+		AND  title like CONCAT('%', #{title},'%')
+		</if>
+		<if test="start_time!=null">
+		AND  createtime between #{start_time} and #{end_time}
+		</if>
+		ORDER BY id DESC
+	</select>
+	
+	<select id="queryHazard_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM hazard WHERE 1=1
+		<if test="title!=null">
+		AND  title like CONCAT('%', #{title},'%')
+		</if>
+		<if test="start_time!=null">
+		AND  createtime between #{start_time} and #{end_time}
+		</if>
+	</select>
+	
+	<select id="queryHazardByid" resultType="cn.hm.oil.domain.Hazard">
+		SELECT * FROM hazard WHERE id=#{id}
+	</select>
+	
+	<delete id="deleteHazardByid">
+		DELETE FROM hazard WHERE id=#{id};
+	</delete>
+</mapper>

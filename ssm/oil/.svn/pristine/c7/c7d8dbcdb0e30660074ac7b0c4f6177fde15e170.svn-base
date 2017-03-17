@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>投资项目</li>
+	    	<li>查看：</li>
+	    </ul>
+    </div>
+    <form id="searchForm" method="post" class="formbody">
+    <div class="rightinfo">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="tableModi">
+			<span th:unless="${inList!=null and not #lists.isEmpty(inList)}" th:utext="暂无数据！"></span>
+			<table class="tablelist mauto" th:if="${inList!=null and not #lists.isEmpty(inList)}">
+				<thead>
+					<tr>
+						<th width="80">序号</th>
+						<th width="200">工程名称</th>
+						<th width="200">工程进度</th>
+						<th width="150">项目负责人</th>
+						<th width="200">创建时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="in,status:${inList}">
+						<td th:text="${status.count}">序号</td>
+						<td th:text="${in.project_name}">工程名称</td>
+						<td>
+							<div style="position: relative; width: 200px;border: 1px solid #B1D632; padding: 1px;">
+								<input type="hidden" th:value="${in.finished_num}"/>
+								<div name="schedule" style=" display: block; position: relative; background:#ff9600; color: #333333; height: 20px; line-height: 20px;width: 20%">
+									<span style=" position: absolute; width: 200px; text-align: center; font-weight: bold;" th:text="${in.finished_num==null?0:in.finished_num}+'/29'"></span>
+								</div>
+							</div>
+						</td>
+						<td th:text="${in.leader}"></td>
+						<td th:text="${beans.dateFormatter.formatDateToStr(in.create_time,'yyyy-MM-dd HH:mm:ss')}"></td>
+						<td>
+							<a th:href="@{/admin/base/invest/show(id=${in.id})}">详情</a>
+							<a th:href="@{/admin/base/invest/edit(id=${in.id})}">修改</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="mt10" th:if="${inList!=null and not #lists.isEmpty(inList)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        </div>
+	</div>
+	</form>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {	
+	var schedule = $("div[name=schedule]");
+	schedule.each(function(index){
+		var finished_num = $(this).parent().find("input[type=hidden]").val();
+		var width = finished_num / 29 * 100;
+		$(this).css("width", width+"%");
+	});
+});       
+/*]]>*/
+</script>
+</html>

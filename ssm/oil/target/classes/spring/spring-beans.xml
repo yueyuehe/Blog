@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:task="http://www.springframework.org/schema/task"  
+    xsi:schemaLocation="  
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+          http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+          
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.hm.oil.dao" />
+	</bean>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 以字节为单位的最大上传文件的大小 -->
+		<property name="maxUploadSize" value="${upload.maxSize}" />
+		<property name="defaultEncoding" value="utf-8" />
+	</bean>
+	
+	
+	<bean id="reminderProcessor" class="cn.hm.oil.timer.AutoTimer">  
+        
+    </bean>  
+  
+    <!-- 配置任务线性池 -->  
+    <task:executor id="executor" pool-size="3" />  
+    <task:scheduler id="scheduler" pool-size="3" />  
+    <!-- 启用annotation方式 -->  
+    <task:annotation-driven scheduler="scheduler"  
+        executor="executor" proxy-target-class="true" />  
+  
+    <task:scheduled-tasks scheduler="scheduler">  
+        <task:scheduled ref="reminderProcessor" method="run" cron="0 20 0 * * ?" />
+        <task:scheduled ref="reminderProcessor" method="check" cron="0 00 12 ? * FRI" />  
+        <!-- <task:scheduled ref="reminderProcessor" method="audit" cron="0 0 0 ? * MON" /> -->  
+        <task:scheduled ref="reminderProcessor" method="audit" cron="0 45 18 * * MON" />  
+    </task:scheduled-tasks>  
+	<!-- <bean id="autoSpiderBackGroundThread" class="cn.hm.oil.timer.AutoTimer" />
+	<bean id="scheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask">
+			<ref bean="autoSpiderBackGroundThread" />
+		</property>
+		任务执行周期 2m 关于一些任务的参数请参考JDK doc文档和Spring相关文档
+		<property name="period">
+			<value>86400000</value>
+		</property>
+		延时1m 执行任务
+		<property name="delay">
+			<value>10000</value>
+		</property>
+	</bean>
+	<bean id="timerBean" class="org.springframework.scheduling.timer.TimerFactoryBean">
+		<property name="scheduledTimerTasks">
+			<list>
+				<ref bean="scheduledTask" />
+			</list>
+		</property>
+	</bean> -->
+</beans>

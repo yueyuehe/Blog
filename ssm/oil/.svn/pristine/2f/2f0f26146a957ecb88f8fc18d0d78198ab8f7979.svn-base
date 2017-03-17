@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.InforDao">
+	<!-- 登录操作 -->
+	<select id="queryAllInfor" resultType="cn.hm.oil.domain.Infor">
+		SELECT * FROM infor
+	</select>
+	
+	
+</mapper>

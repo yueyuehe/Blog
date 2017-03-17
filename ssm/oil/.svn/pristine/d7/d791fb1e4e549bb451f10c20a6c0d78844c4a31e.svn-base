@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>通知和学习 </li>
+	    	<li>内容修改：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+		<form th:action="@{/admin/notice_save}" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfo mauto" style="width:700px;">
+		    <li>
+		    	<label class="labelModi tr"><span class="red">*</span>标题:</label>
+		    	<input type="text" name="title" class="dfinput" th:value="${notice.title}" placeholder="请输入标题" />
+		    </li>
+		    <li>
+		    	<label class="labelModi fl tr"><span class="red">*</span>内容:</label>
+		    	
+		    	<div class="fl">
+		    	<textarea class="textinput " id="editor1" th:text="${notice.content}" rows="10" cols="100" name="content" placeholder="请输入内容"></textarea>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		     <li th:if="${!#strings.isEmpty(notice.path)}" style="margin-top:50px;">
+		    	<label class="fl tr">已上传附件:</label>
+		    	<cite class="pr fl">
+		    		<a class="downA op0" th:href="${application.baseFileUrl + notice.path}" th:text="${notice.path}"></a>
+		    		<input class="downB" type="button" value="点击下载" /> 
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="fl tr">替换附件:</label>
+		    	<input type="file" name="file" id="file" class="fileModi" />
+		    </li>
+		     <li th:if="${!#lists.isEmpty(replies)}">
+				<label class="fl tr">回复内容:</label>
+		    	<table class="backTxtTable backTxtTableModi">
+		    		<tr>
+		    			<th width="112">回复人</th>
+		    			<th width="200">消息内容</th>
+		    			<th width="150">回复时间</th>
+		    			<th width="100">附件</th>
+		    			<th width="100" th:if="${sec!=null and sec.principal!=null and sec.principal.id==1}">操作</th>
+		    		</tr>
+		    		<tr th:each="r : ${replies}">
+		    			<td width="112" class="tl" th:text="${r.replier}"></td>
+		    			<td width="200" style="word-break:break-all" class="tl" th:text="${r.content}"></td>
+		    			<td width="150" th:text="${beans.dateFormatter.formatDateToStr(r.create_time)}"></td>
+		    			<td  width="100">
+		    				<a th:href="${application.baseFileUrl + r.path}" th:if="${!#strings.isEmpty(r.path)}">点击下载</a>
+		    			</td>
+		    			<td th:if="${sec!=null and sec.principal!=null and sec.principal.id==1}">
+		    				<a  th:href="@{/admin/notice_reply_edit(r_id=${r.id},type=0)}">修改</a>
+							<a  th:href="@{/admin/notice_reply_del(r_id=${r.id},type=0)}"  onclick="return confirm('是否确认删除？');">删除</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+			</li>
+		    <li class="tc mb0 ml130" style="clear:both;">
+		    	<input type="hidden" name="id" id="id" th:value="${notice.id}" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	
+	$("#saveButton").click(function() {
+		var title = $.trim($("input[name=title]").val());
+		if (title.length == 0 || title.length > 50) {
+			alertM("标题不能为空且长度不能大于50!",{time:3000});
+			return;
+		}
+		
+		var content = $.trim($("textarea[name=content]").val());
+		if (content.length == 0 || content.length > 6000) {
+			alertM("内容不能为空且长度不能大于6000!",{time:3000});
+			return;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	$('#editor1').ckeditor();
+});
+/*]]>*/
+</script>
+</html>

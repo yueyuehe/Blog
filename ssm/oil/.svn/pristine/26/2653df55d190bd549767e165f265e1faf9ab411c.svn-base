@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<style type="text/css">
+	.newtable td{border: 1px solid #000!important; height: 35px!important;}
+	.mauto1 {position:absolute;top:-136px;}
+	.shenhe-div ,.tc {position:absolute;}
+	.shenhe-div {bottom:-120px;}
+	.tc {bottom:-170px;}
+	.formtext2 {line-height:45px}
+	.formbody {background:#fff;width:1100px;}
+	.no-shuju {padding:8px!important;width:860px!important;}
+	.forminfo {width:998px;margin-left:55px;}
+	.border-none span{font-weight:normal;color:#000;font-size:13px;}
+	.recordTitle0 .border-none input {border:0px;font-size:13px;}
+	.record3+table td {border-color:#000;}
+</style>
+<body style="background:#fdf6fd;">
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{/admin/base/new/pl_patrol/list}">管道巡检工作记录(新)<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a>:</li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+   
+    <div th:if="${pp==null}" class="formbody no-shuju">
+    	暂无数据！
+    </div>
+    
+    
+    <div th:if="${pp!=null}" class="formbody">
+     	<div class="formtext2">
+			<h3 class="new-table-title">管道巡检工作记录</h3>
+		</div>
+        <ul class="forminfo">
+			<li ><!-- class="mauto mauto1" -->
+		    		<div class="usercity">
+					<div class="cityleft">
+						<select name="pl" class="select1" disabled="disabled">
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${pp.pl_id == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}" />
+						</select>
+					</div>
+					<div class="cityleft">
+						<select name="section" class="select1" disabled="disabled">
+							<option th:each="sec:${sectionList}"
+								th:selected="${pp.pl_section_id ==sec.id}" th:value="${sec.id}"
+								th:text="${sec.name}" />
+						</select>
+					</div>
+					<div class="cityright">
+						<select name="spec" class="select1" disabled="disabled">
+							<option th:each="spl:${specList}"
+								th:selected="${pp.pl_spec_id ==spl.id}" th:value="${spl.id}"
+								th:text="${spl.name}" />
+						</select>
+					</div>
+				<div class="cityright" style="padding-left: 10px">
+					<ul class="seachform mauto">
+						<li class="mr20"><span>时间：</span> <input type="text"
+							readonly="readonly" id="r_month" name="r_month"
+							th:value="${r_month==null? '' : r_month}" class="new_input Wdate"
+							onClick="WdatePicker({dateFmt:'yyyy-MM'})" /></li>
+						<li class="fr mr0" th:if="${role!=null and role==2}"><input
+							id="exportButton" name="exportButton" type="button" class="scbtn"
+							value="导出" /></li>
+						<li class="fr mr20"><input id="searchButton" type="button"
+							class="scbtnModi" value="查询" /></li>
+					</ul>
+				</div>
+				</div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="mauto clr">		     	
+		     	<form id="searchForm" method="post">
+		     	<input type="hidden" name="id" th:value="${id}"/>
+		     	<input type="hidden" name="tips_id" th:value="${tips_id}"/>
+		     	<input type="hidden" name="verify" th:value="${verify}"/>
+		     	<input type="hidden" name="up_id" th:value="${pp.up_id}"/>
+		     	<div class="record3"></div>
+		     	<table class="table100">
+		        	<tr class="recordTitle0 lh32">
+		            	<td colspan="19" class="border-none" style="border:0px">
+		            		<div class="fl">
+		                		<span>单位：</span>
+		                    	<input style="width:100px;" type="text" name="jinzhan" th:value="${pp.jinzhan}" readonly="readonly" class="new_input" />
+		                    </div>
+		            		<div class="fl ml20">
+		                		<span>巡检人：</span>
+		                    	<input style="width:100px;" type="text" name="patroler" th:value="${pp.patroler}" readonly="readonly" class="new_input" />
+		                    </div>
+		                    <div  class="fl" style="margin-left:20px;">
+		                    	<span class="ml20">管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div  class="fr mr20">
+		                    	<span>巡线管线(段)：</span>
+		                    	<input style="width:100px;" type="text" name="patroler" th:value="${pp.patrol_no}" readonly="readonly" class="new_input" />
+		                    </div>
+		                </td>
+		            </tr>
+		            <tr>		          
+		            	<td width="98" rowspan="2">日期</td>
+		            	<td colspan="16" style="height:24px">巡检内容</td>
+		            	<td rowspan="2" width="280" >备注</td>
+		            </tr>
+			        <tr style="height:130px;vertical-align:top;">
+		                <td width="48px">管&nbsp;&nbsp;线<br/>“三<br/>桩”、<br/>警&nbsp;&nbsp;示<br/>牌</td>
+		                <td width="38px">管<br/>道<br/>护<br/>&nbsp;&nbsp;坡、<br/>堡<br/>坎</td>
+		                <td width="28px">埋<br/>地<br/>管<br/>道</td>
+		                <td width="38px">明<br/>管<br/>跨<br/>越<br/>管<br/>段</td>
+		                <td width="48px">铁<br/>路、<br/>公路<br/>穿越<br/>段</td>
+		                <td width="38px">隧<br/>道<br/>穿<br/>越<br/>段</td>
+		                <td width="48px">穿&nbsp;&nbsp;越<br/>河&nbsp;&nbsp;<br/>流&nbsp;&nbsp;、<br/>沟&nbsp;&nbsp;渠<br/>管&nbsp;&nbsp;段</td>
+		                <td width="38px">管<br/>道<br/>两<br/>侧<br/>环<br/>境</td>
+		                <td width="48px">管&nbsp;&nbsp;道<br/>沿&nbsp;&nbsp;途<br/>地&nbsp;&nbsp;质<br/>灾害</td>
+		                <td width="48px">管&nbsp;&nbsp;道<br/>高&nbsp;&nbsp;后<br/>果&nbsp;&nbsp;区<br/>及&nbsp;&nbsp;高<br/>风&nbsp;&nbsp;险<br/>段</td>
+		                <td width="38px">管<br/>道<br/>泄<br/>漏<br/>情<br/>况</td>
+		                <td width="38px">站<br/>场<br/>阴<br/>保<br/>装<br/>置</td>
+		                <td width="48px">阴&nbsp;&nbsp;极<br/>保&nbsp;&nbsp;护<br/>测&nbsp;&nbsp;试<br/>桩</td>
+		                <td width="38px">阳<br/>极<br/>线<br/>路</td>
+		                <td width="38px">线<br/>路<br/>阀<br/>室<br/>（<br/>井）</td>
+		                <td width="38px">管<br/>道<br/>保<br/>护<br/>宣<br/>传</td>
+		            </tr>
+		          	<tr th:each="d:${ppd}" >
+		            	<td>
+								<input type="hidden" name="pld_id" th:value="${d.id}"/>
+								<input readonly="readonly" th:value="${beans.dateFormatter.formatDateToStr(d.p_date,'yyyy-MM-dd')}" type="text" style="width:100%;"  placeholder="请选择日期" name="p_date"/>
+						</td>
+						
+						<td  >
+							<input type="text" readonly="readonly"  
+							th:onclick="${d.canEdit}==true?'check_f(this)':''"  name="content_1" th:style="'background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							th:value="${d.content_1}"/>
+						</td>
+
+			            <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+			            	name="content_2"  th:value="${d.content_2}"/>
+			            </td>
+			            
+			             <td >
+			            	<input type="text" readonly="readonly" 
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+			            	 name="content_3" th:value="${d.content_3}"/>
+			            </td>
+			            
+			            <td>
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+			            	name="content_4" th:value="${d.content_4}"/>
+			            </td>
+			            
+			            
+			             <td >
+			            	<input type="text" readonly="readonly"  			          
+			            	 th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                             name="content_5" th:value="${d.content_5}"/>
+			            </td>
+			            
+			             
+			             <td >
+			            	<input type="text" readonly="readonly"  			            	
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_6" th:value="${d.content_6}"/>
+			            </td>
+			             <td >
+			            	<input type="text" readonly="readonly"  			            	
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_7" th:value="${d.content_7}"/>
+			            </td>
+			            
+			            <!--
+			            <td th:if="${d.canEdit==false}">
+			            	<input readonly="readonly" type="text" name="content_8" style="width:100%;" th:value="${d.content_8}"/>
+			            </td>
+			            <td >
+			            	<input type="text" readonly="readonly"  onclick="check_f(this)" name="content_8" th:value="${d.content_8}"/>
+			            </td>
+			             -->
+			             <td >
+			            	<input type="text" readonly="readonly"  			        
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_8" th:value="${d.content_8}"/>
+			            </td>
+			            
+			            
+			            <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_9" th:value="${d.content_9}"/>
+			            </td>
+			             
+			              <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_10" th:value="${d.content_10}"/>
+			            </td>
+			            
+			             <td >
+			            	<input th:readonly="${d.canEdit==false}" type="text" 
+			            	th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+			            	name="content_11"  th:value="${d.content_11}"/>
+			            </td>
+			            
+			             <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_12" th:value="${d.content_12}"/>
+			            </td>
+			            
+			             <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_13" th:value="${d.content_13}"/>
+			            </td>
+			             
+			             
+			             <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                            name="content_14"  th:value="${d.content_14}"/>
+			            </td>
+			            
+			             <td >
+			            	<input type="text" readonly="readonly"  
+			            	th:onclick="${d.canEdit}==true?'check_f(this)':''"  th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+                           name="content_15" th:value="${d.content_15}"/>
+			            </td>
+			             
+			             
+			              <td >
+			            	<input type="text" th:readonly="${d.canEdit==false}" 
+			            	th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+			            	name="content_16" th:value="${d.content_16}"/>
+			            </td>
+
+   
+   
+                        <!--  
+			            <td>
+			               	<input readonly="readonly" type="text" name="status" style="width:100%;" th:if="${d.p_date != null}" th:value="${d.status==1?'通过':d.status==0?'未审核':d.status==-1?'未通过':d.status==-2?'草稿':''}"/>
+			            </td>
+			             -->
+			            <td th:if="${d.status!=-1 and d.status!=-2}">
+							<input readonly="readonly" 
+							th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							type="text" name="remark"  th:value="${d.remark}"/>
+						</td>
+						
+						 
+						<td th:if="${d.status==-1 or d.status==-2}">
+							<input type="text" 
+							th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							class="remark" name="remark" th:value="${d.remark}"/>
+						</td>
+		            </tr>		            
+        		</table>
+        		<div class="mt20" th:if="${ppd!=null and not #lists.isEmpty(ppd)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        		</form>
+			</li>
+			<!-- <li class="mauto20">					  
+					<label class="labelModi">保存井（站）：</label>  
+					<input type="text" name="save_jinzhan" placeholder="请输入保存井（站）" class="new_input" th:value="${pp.save_jinzhan}" disabled="disabled"/>
+					<div class="clr"></div>
+				</li> -->
+			<!--<li  class="mauto mauto-state">
+		    	<label class="labelModi tl"><span class="red">*</span>审核状态：</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == pp.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == pp.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == pp.status}" th:value="-1">不通过</option>
+		            </select> 
+		            <label th:if="${verify != 1}" th:text="${pp.status == 0?'待审核':pp.status == 1?'通过':'不通过'}"></label>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li  class="mauto mauto-dir">
+		    	<label class="labelModi tl"><span class="red">*</span>说明：</label>
+		    	<textarea style="width:830px;" class="textinput" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${pp.verify_desc}"></textarea>
+		    	<div class="clr"></div>
+		    </li>-->
+		    <li th:if="${verify == 1}">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		    <li th:if="${role!=null and role==3}">
+				 <input type="button" value="保存" class="btn" id="saveButton_modify" /> 
+				<input type="button" value="提交审核" class="btn" id="auditingButton" /> 
+				<!--<input type="button" value="保存并审核" class="btn" id="saveSubmitButton" />-->				
+			</li>
+		</ul>
+	</div>								
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+     function check_f(this_t){
+		if($(this_t).val()!=""){
+			$(this_t).val("");
+		} else {
+			$(this_t).val("√");
+			}
+	}
+$(document).ready(function() {
+	//查询
+	$("#searchButton").click(function(){
+		var id = [[${id}]];//规格ID
+		var r_month = $("#r_month").val(); //月份
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/new/pl_patrol/show}]] + "?verify=1&id=" + id + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/new/pl_patrol/show}]] + "?id=" + id + "&r_month=" + r_month;
+		}
+	});
+	
+	//导出
+	$("#exportButton").click(function() {
+		var pl=$("select[name=pl]").val();
+		var section=$("select[name=section]").val();
+		var spec=$("select[name=spec]").val();
+		var r_month=$("input[name=r_month]").val();
+		window.location.href=[[@{/admin/base/new/pl_patrol/exp}]]+"?pl="+pl+"&section="+section+"&spec="+spec+"&p_month="+r_month;
+	});
+	
+	//保存修改
+	$("#saveButton_modify").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/pl_patrol/modify}]]+"");
+		formNode.submit();
+	});
+	
+	//提交审核
+	$("#auditingButton").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/pl_patrol/batch_changestatus}]]+"?oldStatus=-1&oldStatus=-2&newStatus=0");
+		formNode.submit();		
+	});
+	
+	//提交审核
+	$("#saveSubmitButton").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/pl_patrol/modify}]]+"?submit=true");
+		formNode.submit();		
+	});
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var ppid = [[${pp.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/new/pl_patrol/verify_save}]],
+	   			data : {
+	   				'id' : ppid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + specname);
+});
+
+
+/*]]>*/
+</script>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>账户管理 </li>
+	    	<li>维护工账号查看/修改</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+	    <form th:action="@{/admin/user/worker/save}" id="saveform" method="post" class="mauto" style="width:500px;">
+	    <ul class="forminfo">
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>登录名:</label>
+		    	<input type="text" placeholder="请输入登录名" name="username" th:value="${user.username}" class="dfinput" />
+		    	<i style="color: red" id="errorInfo_username" class="dis_non"></i>
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>姓名:</label>
+		    	<input type="text" placeholder="请输入姓名" name="name" th:value="${user.name}" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>邮箱:</label>
+		    	<input type="text" placeholder="请输入邮箱" name="mail_address" th:value="${user.mail_address}" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi">密码:</label>
+		    	<input type="password" name="password" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi">确认密码:</label>
+		    	<input type="password" name="repassword" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">&nbsp;&nbsp;</span>备注:</label>
+		    	<textarea class="textinput" rows="" cols="" name="remark" placeholder="请输入备注信息" th:text="${user != null ? user.remark : ''}"></textarea>
+		    </li>
+		    <li class="tc ml130" style="width:345px;margin-bottom:0;">
+		    	<input type="hidden" name="id" id="id" th:value="${user.id}" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn mt10" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("input[name=username]").blur(function() {
+		$.ajax({
+   			url : [[@{/admin/user/checkUsername}]],
+   			data : {
+   				id:$("#id").val(),
+   				username:$(this).val()
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+   				if (eval(data) == 'exists') {
+   					$("#errorInfo_username").html("用户名已存在！");
+   				} else {
+   					$("#errorInfo_username").html("");
+   				}
+   			}
+   		});
+	});
+	
+	$("#saveButton").click(function() {
+		var username = $.trim($("input[name=username]").val());
+		if (username.length == 0 || username.length > 15) {
+			alert("用户长度不能为空且不能大于15!");
+			return;
+		}
+		
+		var errinfo = $.trim($("#errorInfo_username").html());
+		if (errinfo.length != 0) {
+			alert(errinfo);
+			return;
+		}
+		
+		var name = $.trim($("input[name=name]").val());
+		if (name.length == 0 || name.length > 20) {
+			alert("姓名长度不能为空且不能大于20!");
+			return;
+		}
+		
+		var mail_address = $.trim($("input[name=mail_address]").val());
+		if (mail_address.length == 0 || mail_address.length > 100) {
+			alert("邮箱长度不能为空且不能大于100!");
+			return;
+		}
+		
+		var pwd = $.trim($("input[name=password]").val());
+		var rePwd = $.trim($("input[name=repassword]").val());
+		if (pwd.length != 0 || rePwd.length != 0) {
+			if (pwd != rePwd) {
+				alert("密码不一致！");
+				return;
+			}
+		}
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit()
+		}	
+	});
+});
+/*]]>*/
+</script>
+</html>

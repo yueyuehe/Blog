@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>投资项目</li>
+			<li>详细：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+	<form method="post" id="saveform" th:action="@{/admin/base/invest/save}">
+	<ul class="forminfo">
+	<li>
+	<div class="record3"></div>
+	<table class="addTr table100 mauto">
+		<tr class="recordTitle">
+			<td colspan="9">
+				<div class="fl">
+					<span>工程名称：</span> 
+					<input style="width:250px;" type="text"  readonly="readonly" th:value="${locality.project_name}" name="project_name"/>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td><span>工程概况</span></td>
+			<td colspan="8">
+				<input type="text" name="survey" readonly="readonly" th:value="${locality.survey}" style="width:100%;height: 100%" />
+			</td>
+		</tr>
+		<tr>
+			<td width="80">进度序号</td>
+			<td width="130">进度内容</td>
+			<td width="110">计划时间</td>
+			<td width="110">落实时间</td>
+			<td width="120">单位</td>
+			<td width="100">联系人</td>
+			<td width="100">联系电话</td>
+			<td width="120">相关附件</td>
+			<td>备注</td>
+		</tr>
+		<tr th:each="d:${locality.detailList}">
+			<td><input type="text" name="no" readonly="readonly" th:value="${d.no}" /></td>
+			<td><input type="text" name="content" readonly="readonly" th:value="${d.content}" /></td>
+			<td><input style="border:0;" type="text" th:value="${beans.dateFormatter.formatDateToStr(d.plan_time,'yyyy-MM-dd')}" disabled="disabled" name="create_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			<td><input style="border:0;" type="text" th:value="${beans.dateFormatter.formatDateToStr(d.workable_time,'yyyy-MM-dd')}" disabled="disabled" name="create_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			<td><input type="text" name="workspace" readonly="readonly" th:value="${d.workspace}" /></td>
+			<td><input type="text" name="contacts" readonly="readonly" th:value="${d.contacts}" /></td>
+			<td><input type="text" name="telnum" readonly="readonly" th:value="${d.telnum}" /></td>
+			<td>
+				<cite th:if="${d.annex} != null">
+		    		<a th:href="${application.baseFileUrl + d.annex}" th:text="${d.annex}"></a>
+		    	</cite>
+		   </td>
+		   <td><input type="text" name="remark" readonly="readonly" th:value="${d.remark}" /></td>
+		</tr> 
+	</table>
+	</li>
+	<li class="mauto">
+		<span class="fl lh30">项目负责人：</span>
+		<input  class="fl lh30" type="text" readonly="readonly" name="leader" th:value="${locality.leader}"/>
+		<div class="clr"></div>
+	</li>
+	</ul>
+	</form>
+	</div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+	<body>
+		<div class="place">
+    	<span>位置:</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>管线日常维护工作记录：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<h3 class="new-table-title">管线日常维护工作记录</h3>
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+        <ul class="forminfo">
+        	<li class="record-top">
+        		<div>
+        			<label style="width:50px;">井(站):</label>
+        			<input readonly="readonly" name="jinzhan" th:value="${rc.jinzhan}" placeholder="请输入井(站)" type="text" />
+        		</div>
+        		<div>
+        			<label>管线名称及规格:</label>
+        			<input readonly="readonly" th:value="${rc.pl_name + '/' + rc.pl_section_name + '/' + rc.pl_spec_name}" name="weihu" type="text" />
+        		</div>
+        		<div>
+        			<label>维护管线(段):</label>
+        			<input readonly="readonly" th:value="${rc.weihu}" name="weihu" type="text" />
+        		</div>
+        		<div>
+        			<label style="width:50px;">时间:</label>
+        			<input th:value="${rc.year}" readonly="readonly" name="year" type="text" />
+        		</div>
+        	</li>
+		     <li class="mauto clr">
+		     <form id="searchForm" method="post">
+		     	<input type="hidden" name="pl_id" th:value="${pl_id}" />
+		     	<input type="hidden" name="pl_section_id" th:value="${pl_section_id}" />
+		     	<input type="hidden" name="pl_spec_id" th:value="${pl_spec_id}" />
+		     	<div class="record3"></div>
+		     	<table class="addTr new-table2">
+		            <tr>
+		            	<td width="60">编号</td>
+		                <td width="100">类别</td>
+		                <td width="60">检查头里程桩号</td>
+		                <td width="200">所处地址</td>
+		                <td width="170">现状描述</td>
+		                <td width="80">维护时间</td>
+		                <td width="200">维护工作内容</td>
+		                <td>填报人</td>
+		            </tr>
+		            <tr th:each="d:${radList}">
+		            	<td>
+		            		<input readonly="readonly" type="text" name="no" th:value="${d.no}"/>
+		            	</td>
+		                <td>
+			                <input readonly="readonly" type="text" name="type" th:value="${d.type}"/>
+		                </td>
+		                <td>
+		                	<input readonly="readonly" type="text" name="lczh" th:value="${d.lczh}"/>
+		                </td>
+		                <td>
+		                	<textarea readonly="readonly" name="address" th:text="${d.address}"></textarea>
+		                </td>
+		                <td>
+		                	<textarea readonly="readonly" name="descrip" th:text="${d.descrip}"></textarea>
+		                </td>
+		                <td>
+		                	<input disabled="disabled" type="text" th:value="${d.atten_date}" placeholder="请选择时间" readonly="readonly" name="atten_date" style="width:150px;" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		                </td>
+		                <td>
+		                	<textarea readonly="readonly" name="content" th:text="${d.content}"></textarea>
+		                </td>
+		                <td>
+		                	<input readonly="readonly" type="text" name="person" th:value="${d.person}"/>
+		                </td>
+		            </tr>
+        	 	</table>
+        	 	<div class="mt20" th:if="${radList!=null and not #lists.isEmpty(radList)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        	 	</form>
+		     </li>
+		     <th:block ><!-- th:if="${page.isLast()}" -->
+		     <li class="mauto20">
+		    	<label class="labelModi tl"><span class="red">*</span>当前审核状态:</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1">
+		        		<option value="0">待审核</option>
+		        		<option value="1">通过</option>
+		        		<option value="-1">不通过</option>
+		            </select>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li class="mauto">
+		    	<label class="labelModi tl"><span class="red">*</span>审核说明:</label>
+		    	<textarea style="width:845px;" class="textinput" rows="" cols="" name="verify_desc" placeholder="审核说明" th:text="${rc.verify_desc}"></textarea>
+		    </li>
+		    <li class="mauto20 tc">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		    </th:block>
+		</ul>
+    </div>
+	</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/routine/verify_save}]],
+	   			data : {
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+});
+/*]]>*/
+</script>
+</html>

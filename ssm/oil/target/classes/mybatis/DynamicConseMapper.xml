@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.DynamicConsequenceDao">
+	<insert id="saveDynamicConse" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO dynamic_consequence (pl_id,pl_section_id,pl_spec_id,creater,create_time) 
+		VALUES (#{pl_id},#{pl_section_id},#{pl_spec_id},#{creater},NOW())
+	</insert>
+	
+	<insert id="saveDynamicConseDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO dynamic_consequence_detail (dc_id,unit_name,pipeline_name,section_name,`num`,s_start,s_end,s_length,place_name,description,u_date,recogner,recogner_tel,remark,annex_file) 
+		VALUES (#{dc_id},#{unit_name},#{pipeline_name},#{section_name},#{num},#{s_start},#{s_end},#{s_length},#{place_name},#{description},#{u_date},#{recogner},#{recogner_tel},#{remark},#{annex_file})
+	</insert>
+	
+	<insert id="insertDynamicConsequenceDetailAttachement" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO dynamic_consequence_detail_attachement (dc_id,dcd_id,path,month) 
+		VALUES (#{dc_id},#{dcd_id},#{path},#{month})
+	</insert>
+	
+	<select id="queryDynamicConsequence" resultType="cn.hm.oil.domain.DynamicConsequence">
+		SELECT hc.id,hc.create_time,hc.creater,hc.status,hc.verifier,hc.verify_time,hc.verify_desc,hc.verify_month,
+		p.name AS pl_name,ps.name AS pl_section_name, pps.name AS pl_spec_name 
+		FROM dynamic_consequence hc, base_pipeline p,base_pipeline_section ps,base_pipeline_spec pps 
+		WHERE p.id = hc.pl_id AND ps.id = hc.pl_section_id AND pps.id = hc.pl_spec_id 
+		<if test="pl_id!=null">
+		AND hc.`pl_id`=#{pl_id}
+		</if> 
+		<if test="pl_section_id!=null">
+		AND hc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND hc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="create_time!=null">
+		AND DATE_FORMAT(hc.create_time,'%Y-%m-%d')=#{create_time}
+		</if>
+		<if test="status!=null">
+			AND hc.`status` = #{status} 
+		</if>
+		ORDER BY hc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryDinamicConsequence_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM dynamic_consequence
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="create_time!=null">
+		AND DATE_FORMAT(create_time,'%Y-%m-%d')=#{create_time}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+	</select>
+	
+	<select id="queryDynamicById" resultMap="queryDynamicConsequenceByIdResult">
+		SELECT dc.*,p.name AS pl_name,ps.name AS pl_section_name,pps.name AS pl_spec_name FROM dynamic_consequence dc,base_pipeline p,base_pipeline_section ps,base_pipeline_spec pps WHERE dc.id = #{id} AND p.id = dc.pl_id AND ps.id = dc.pl_section_id AND pps.id = dc.pl_spec_id
+	</select>
+	
+	<select id="queryDynamicAttachementByDetailId" resultType="cn.hm.oil.domain.DynamicConsequenceDetailAttachement">
+		SELECT * FROM dynamic_consequence_detail_attachement WHERE dcd_id = #{id}
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.DynamicConsequence" id="queryDynamicConsequenceByIdResult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		<result column="create_time" property="create_time" />
+		<result column="creater" property="creater" />
+		<result column="status" property="status" />
+		
+		<collection property="detailList" select="queryDynamicConsequenceDetailByDcId" column="id" javaType="List" ofType="cn.hm.oil.domain.DynamicConsequenceDetail"/>
+	</resultMap>
+	
+	<select id="queryDynamicConsequenceDetailByDcId" resultMap="queryDynamicConsequenceAttacheByIdResult" >
+		SELECT * FROM dynamic_consequence_detail WHERE dc_id = #{id}
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.DynamicConsequenceDetail" id="queryDynamicConsequenceAttacheByIdResult">
+		<id column="id" property="id" />
+		
+		
+		<collection property="attachementList" select="queryDynamicConsequenceDetailAttachByDcdId" column="id" javaType="List" ofType="cn.hm.oil.domain.DynamicConsequenceDetailAttachement"/>
+	</resultMap>
+	
+	<select id="queryDynamicConsequenceDetailAttachByDcdId" resultType="cn.hm.oil.domain.DynamicConsequenceDetailAttachement" >
+		SELECT * FROM dynamic_consequence_detail_attachement WHERE dcd_id = #{id}
+	</select>
+	
+	<select id="queryVerifyMonthByDcId" resultType="java.lang.Integer" >	
+	SELECT 	IFNULL(MAX(MONTH),0) 
+	FROM oil.dynamic_consequence_detail_attachement 
+	WHERE path IS NOT NULL AND dc_id=#{id}
+	</select>
+	
+	<update id="saveDynamicVerify">
+		UPDATE dynamic_consequence SET verifier = #{verifier}, verify_desc = #{verify_desc}, verify_time = NOW(),`status` = #{status}
+		<if test="status==1">
+		,verify_month=#{verify_month} 
+		</if>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateDynamic">
+		UPDATE dynamic_consequence SET pl_id = #{pl_id},pl_section_id = #{pl_section_id},pl_spec_id=#{pl_spec_id},creater = #{creater},status=0 WHERE id = #{id}
+	</update>
+	
+	<update id="updateDynamicVerifyStatus">
+		UPDATE dynamic_consequence SET `status` = #{status}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateDynamicAttachement">
+		UPDATE dynamic_consequence_detail_attachement SET path = #{path} WHERE dcd_id = #{dcd_id} AND month=#{month}
+	</update>
+	
+	<delete id="deleteDynamicConseDetailByDcId">
+		DELETE FROM dynamic_consequence_detail WHERE dc_id = #{dc_id}
+	</delete>
+	
+	<delete id="deleteDynamicConseDetailAttachementByDetailId">
+		DELETE FROM dynamic_consequence_detail_attachement WHERE dcd_id = #{dcd_id}
+	</delete>
+</mapper>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link th:href="@{/assets/css/thickbox.css}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" th:src="@{/assets/js/thickbox.js}"></script>
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>高后果区管理</li>
+			<li>动态高后果区资料创建1：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<!-- <div class="formtext" th:if="${prompt.describe!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div> -->
+		<form method="post" id="saveform" enctype="multipart/form-data" th:action="@{/admin/base/d_sequel/save}">
+			<ul class="forminfo">
+				<li class="mauto">
+					<div class="usercity">
+						<div class="cityleft">
+							<select name="pl" class="select1">
+								<option value="0">请选择管线</option>
+								<option th:each="pll:${pipeLineList}"
+									th:selected="${pl == pll.id}" th:value="${pll.id}"
+									th:text="${pll.name}"></option>
+							</select>
+						</div>
+						<div class="cityleft">
+							<select name="section" class="select1">
+								<option value="0">请选择起止段落</option>
+								<option th:each="sec:${sectionList}"
+									th:selected="${section ==sec.id}" th:value="${sec.id}"
+									th:text="${sec.name}"></option>
+							</select>
+						</div>
+						<div class="cityright">
+							<select name="spec" class="select1">
+								<option value="0">请选择规格</option>
+								<option th:each="sec:${specList}" th:selected="${spec ==sec.id}"
+									th:value="${sec.id}" th:text="${sec.name}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="pr">
+					<div class="record3"></div>
+					<table class="addTr table100 mauto">
+						<tr class="recordTitle lh32">
+							<td colspan="18">
+								<div class="fl">
+									<span class="ml30">管线名称及规格：</span>
+									<a id="pl_name"></a>
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+						<tr>
+							<td width="90">管理单位</td>
+							<td width="90">管线名称</td>
+							<td width="90">管段名称</td>
+							<td width="90">高后果区编号</td>
+							<td width="90">高后果区起点(m)</td>
+							<td width="90">高后果区终点(m)</td>
+							<td width="90">高后果区长度(m)</td>
+							<td width="100">地名</td>
+							<td width="150">高后果区特征描述</td>
+							<td width="120">识别或更新时间</td>
+							<td width="100">管理人员</td>
+							<td width="150">管理人员电话</td>
+							<td width="130">备注</td>
+							<td width="130">附件</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="1"/>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="2"/>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="3" />
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="4"/>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="5"/>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="6"/>
+							</td>
+						</tr>
+						<tr>
+							<td><input type="text" name="unit_name" /></td>
+							<td><input type="text" name="pipeline_name" /></td>
+							<td><input type="text" name="section_name" /></td>
+							<td><input type="text" name="num" /></td>
+							<td><input type="text" name="s_start" /></td>
+							<td><input type="text" name="s_end" /></td>
+							<td><input type="text" name="s_length" /></td>
+							<td><input type="text" name="place_name" /></td>
+							<td><input type="text" name="description" /></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" name="recogner" /></td>
+							<td><input type="text" name="recogner_tel" /></td>
+							<td><input type="text" name="remark" /></td>
+							<td>
+								<input class="file_input" type="button" value="上传附件"/>
+								<input type="hidden" name="annex_file" id="7"/>
+							</td>
+						</tr>
+					</table>
+					<div id="addLine" class="addLine"></div>
+				</li>
+				<li class="tc">
+		     		<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     	</li>
+			</ul>
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+       function add_click(size){    
+           $("input[class=file_input]:gt("+size+")").click(function() {
+		var ids = $(this).next().attr("id");
+		var path = [[@{'/admin/base/d_sequel/attachement/'}]]+ids+"!"+0;
+		//alert(path)
+		TB_show('附件',path+'?KeepThis=true&TB_iframe=true&height=300&width=1000&modal=true',false);
+	});
+}
+$(document).ready(function() {
+	//添加
+	$("input[class=file_input]").click(function() {
+		var ids = $(this).next().attr("id");
+		var path = [[@{'/admin/base/d_sequel/attachement/'}]]+ids+"!"+0;
+		//alert(path)
+		TB_show('附件',path+'?KeepThis=true&TB_iframe=true&height=300&width=1000&modal=true',false);
+	});
+	//添加行加好按钮
+	var trNum = $("tr").length;
+	var assLineTop=parseInt((trNum)*25+15);
+	$("#addLine").css({"left":1000+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		var addTr = $(".addTr").append("<tr><td><input type='text' name='unit_name' /></td><td><input type='text' name='pipeline_name' /></td><td><input type='text' name='section_name' /></td><td><input type='text' name='num' /></td><td><input type='text' name='s_start' /></td><td><input type='text' name='s_end' /></td><td><input type='text' name='s_length' /></td><td><input type='text' name='place_name' /></td><td><input type='text' name='description' /></td><td><input type='text' placeholder='请选择日期' readonly='readonly' name='u_date' onClick='WdatePicker({dateFmt:" + '"yyyy-MM-dd"' + "})' /></td><td><input type='text' name='recogner' /></td><td><input type='text' name='recogner_tel' /></td><td><input type='text' name='remark' /></td><td><input class='file_input' type='button' value='上传附件'/><input type='hidden' name='annex_file' id='"+(times+7)+"'/></td></tr><tr><td><input type='text' name='unit_name' /></td><td><input type='text' name='pipeline_name' /></td><td><input type='text' name='section_name' /></td><td><input type='text' name='num' /></td><td><input type='text' name='s_start' /></td><td><input type='text' name='s_end' /></td><td><input type='text' name='s_length' /></td><td><input type='text' name='place_name' /></td><td><input type='text' name='description' /></td><td><input type='text' placeholder='请选择日期' readonly='readonly' name='u_date' onClick='WdatePicker({dateFmt:" + '"yyyy-MM-dd"' + "})' /></td><td><input type='text' name='recogner' /></td><td><input type='text' name='recogner_tel' /></td><td><input type='text' name='remark' /></td><td><input class='file_input' type='button' value='上传附件'/><input type='hidden' name='annex_file'  id='"+(times+8)+"'/></td></tr><tr><td><input type='text' name='unit_name' /></td><td><input type='text' name='pipeline_name' /></td><td><input type='text' name='section_name' /></td><td><input type='text' name='num' /></td><td><input type='text' name='s_start' /></td><td><input type='text' name='s_end' /></td><td><input type='text' name='s_length' /></td><td><input type='text' name='place_name' /></td><td><input type='text' name='description' /></td><td><input type='text' placeholder='请选择日期' readonly='readonly' name='u_date' onClick='WdatePicker({dateFmt:" + '"yyyy-MM-dd"' + "})' /></td><td><input type='text' name='recogner' /></td><td><input type='text' name='recogner_tel' /></td><td><input type='text' name='remark' /></td><td><input class='file_input' type='button' value='上传附件'/><input type='hidden' name='annex_file'  id='"+(times+9)+"'/></td></tr>");
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		add_click(times+5);
+		times=times+3;
+		
+	})
+	
+	
+	$("#saveButton").click(function() {
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return;
+		}
+		var bool = true;
+		$('input[name=unit_name]').each(function(){
+			var unit_name = $(this).val();
+			if(unit_name.length>0){
+				if(unit_name.length>50){
+					alertM('管理单位字数不能超过50',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=pipeline_name]').each(function(){
+			var pipeline_name = $(this).val();
+			if(pipeline_name.length>0){
+				if(pipeline_name.length>20){
+					alertM('管线名称字数不能超过20',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=section_name]').each(function(){
+			var section_name = $(this).val();
+			if(section_name.length>0){
+				if(section_name.length>20){
+					alertM('管段名称字数不能超过20',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		var intNum = /^\d*$/;
+		$('input[name=num]').each(function(){
+			var num = $(this).val();
+			if(!intNum.test(num)){
+				alertM('编号必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=s_start]').each(function(){
+			var s_start = $(this).val();
+			if(!intNum.test(s_start)){
+				alertM('起点必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=s_end]').each(function(){
+			var s_end = $(this).val();
+			if(!intNum.test(s_end)){
+				alertM('终点必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		var num = /^\d*(\.\d+)?$/;
+		$('input[name=s_length]').each(function(){
+			var s_length = $(this).val();
+			if(!num.test(s_length)){
+				alertM('长度必须为数字',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=place_name]').each(function(){
+			var place_name = $(this).val();
+			if(place_name.length>0){
+				if(place_name.length>100){
+					alertM('地名字数不能超过100',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=description]').each(function(){
+			var description = $(this).val();
+			if(description.length>0){
+				if(description.length>255){
+					alertM('特征描述字数不能超过255',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=recogner]').each(function(){
+			var recogner = $(this).val();
+			if(recogner.length>0){
+				if(recogner.length>20){
+					alertM('管理人员字数不能超过20',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=recogner_tel]').each(function(){
+			var recogner_tel = $(this).val();
+			if(recogner_tel.length>0){
+				if(recogner_tel.length>20){
+					alertM('管理人员电话字数不能超过20',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=remark]').each(function(){
+			var remark = $(this).val();
+			if(remark.length>0){
+				if(remark.length>255){
+					alertM('备注字数不能超过255',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		if(!bool){
+			return false;
+		}
+		
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+		
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + specname);
+	});
+	
+	$("input[name=pic_list]").click(function() {
+		art.dialog.open('http://www.connect.renren.com/igadget/renren/index.html',  
+			    {title: '人人网', width: 320, height: 400});
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>

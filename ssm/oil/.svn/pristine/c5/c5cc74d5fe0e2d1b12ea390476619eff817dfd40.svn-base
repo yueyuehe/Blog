@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>阀室、阀井维护保养工作记录创建</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+        <form method="post" id="saveform" th:action="@{/admin/base/v_patrol/save}">
+        <ul class="forminfo">
+			<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1">
+			            	<option value="0">请选择管线</option>
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1">
+			            	<option value="0">请选择起止段落</option>
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1">
+			            	<option value="0">请选择规格</option>
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="mauto clr">
+		     	<div class="record3"></div>
+		     	<table class="addTr table100">
+		        	<tr class="recordTitle lh32">
+		            	<td colspan="11">
+		                    <div class="fl">
+		                    	<span>管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                </td>
+		            </tr>
+		            <tr class="recordTitle lh32">
+		            	<td colspan="11">
+		            		<div class="fl">
+		                		<span>阀室名称</span>
+		                    	<input style="width:150px;" type="text" name="valve_name" placeholder="请输入阀室名称" class="new_input" />
+		                    </div>
+		                    <div class="fl ml95">
+		                    	<span>检查日期：</span>
+		                    	<input style="width:150px;" type="text" placeholder="请选择时间" readonly="readonly" name="check_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />	
+		                    </div>
+		                    <div class="fr">
+		                    	<span class="ml30">检查人：</span>
+		                    	<input style="width:150px;" type="text" name="checker" placeholder="请输入检查人" class="new_input" />
+		                	</div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="2">项目<br/>类别</td>
+		            	<td rowspan="2"  colspan="2">检查项目</td>
+		            	<td colspan="2">检查结果</td>
+		            	<td>备注</td>
+		            </tr>
+		            <tr>
+		            	<td>正常（完好）</td>
+		            	<td>异常及处理情况</td>
+		            	<td></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="8">阀室</td>
+		            	<td rowspan="3">设备检查</td>
+		            	<td>阀室流程检查</td>
+		            	<td><input type="checkbox" name="normal1" value="1"/></td>
+		            	<td><input type="text" name="handle1"/></td>
+		            	<td><input type="text" name="remark1"/></td>
+		            </tr>
+		            <tr>
+		            	<td>压力表、执行机构引压开关开启</td>
+		            	<td><input type="checkbox" name="normal2" value="1"/></td>
+		            	<td><input type="text" name="handle2"/></td>
+		            	<td><input type="text" name="remark2"/></td>
+		            </tr>
+		            <tr>
+		            	<td>设备验漏</td>
+		            	<td><input type="checkbox" name="normal3" value="1"/></td>
+		            	<td><input type="text" name="handle3"/></td>
+		            	<td><input type="text" name="remark3"/></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="5">基础设施检查</td>
+		            	<td>阀室上墙资料是否齐全</td>
+		            	<td><input type="checkbox" name="normal4" value="1"/></td>
+		            	<td><input type="text" name="handle4"/></td>
+		            	<td><input type="text" name="remark4"/></td>
+		            </tr>
+		            <tr>
+		            	<td>阀室是否通风，阀室内是否有沉降</td>
+		            	<td><input type="checkbox" name="normal5" value="1"/></td>
+		            	<td><input type="text" name="handle5"/></td>
+		            	<td><input type="text" name="remark5"/></td>
+		            </tr>
+		            <tr>
+		            	<td>工用具、材料配置齐备，灭火器配置并有效</td>
+		            	<td><input type="checkbox" name="normal6" value="1"/></td>
+		            	<td><input type="text" name="handle6"/></td>
+		            	<td><input type="text" name="remark6"/></td>
+		            </tr>
+		            <tr>
+		            	<td>外墙标识、标语完好，门窗是否完好</td>
+		            	<td><input type="checkbox" name="normal7" value="1"/></td>
+		            	<td><input type="text" name="handle7"/></td>
+		            	<td><input type="text" name="remark7"/></td>
+		            </tr>
+		            <tr>
+		            	<td>阀室、放空区清洁卫生</td>
+		            	<td><input type="checkbox" name="normal8" value="1"/></td>
+		            	<td><input type="text" name="handle8"/></td>
+		            	<td><input type="text" name="remark8"/></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="3" colspan="2">放空区</td>
+		            	<td>拉锁是否紧固</td>
+		            	<td><input type="checkbox" name="normal9" value="1"/></td>
+		            	<td><input type="text" name="handle9"/></td>
+		            	<td><input type="text" name="remark9"/></td>
+		            </tr>
+		            <tr>
+		            	<td>阀室、放空区、阀室至放空区管线是否标识齐全，周边建构筑物是否满足安全距离</td>
+		            	<td><input type="checkbox" name="normal10" value="1"/></td>
+		            	<td><input type="text" name="handle10"/></td>
+		            	<td><input type="text" name="remark10"/></td>
+		            </tr>
+		            <tr>
+		            	<td>放空区除草、清洁</td>
+		            	<td><input type="checkbox" name="normal11" value="1"/></td>
+		            	<td><input type="text" name="handle11"/></td>
+		            	<td><input type="text" name="remark11"/></td>
+		            </tr>
+		            <tr>
+		            	<td rowspan="2" colspan="2">阀井</td>
+		            	<td>标志桩、盖板是否完好</td>
+		            	<td><input type="checkbox" name="normal12" value="1"/></td>
+		            	<td><input type="text" name="handle12"/></td>
+		            	<td><input type="text" name="remark12"/></td>
+		            </tr>
+		            <tr>
+		            	<td>泄漏及锈蚀检查</td>
+		            	<td><input type="checkbox" name="normal13" value="1"/></td>
+		            	<td><input type="text" name="handle13"/></td>
+		            	<td><input type="text" name="remark13"/></td>
+		            </tr>
+        	 	</table>
+		     </li>
+		     <div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" th:checked="${b.leader_id==up_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+					</div>
+		     <li class="tc mauto20">
+		     	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     	<input type="hidden" name="up_id"/>
+		     </li>
+		</ul>
+        </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#saveButton").click(function() {
+		var valve_nameTxt=$("input[name=valve_name]").val();
+		if(valve_nameTxt.length==0){
+			alertM("请输入阀室名称",{time:3000});
+			return false;
+		}
+		var checkerTxt=$("input[name=checker]").val();
+		if(checkerTxt.length==0){
+			alertM("请输入检查人",{time:3000});
+			return false;
+		}
+		var check_dateTxt=$("input[name=check_date]").val();
+		if(check_dateTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return false;
+		}
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return false;
+		}
+		var bool = true;
+		for(var i=1;i<13;i++){
+			var handle = $('input[name=handle'+i+']').val();
+			if(handle.length>0){
+				if(handle.length>255){
+					alertM('异常及处理情况字数不能超过255',{time:3000});
+					return;
+				}
+			}
+		}
+		for(var i=1;i<13;i++){
+			var remark = $('input[name=remark'+i+']').val();
+			if(remark.length>0){
+				if(remark.length>200){
+					alertM('备注字数不能超过200',{time:3000});
+					return;
+				}
+			}
+		}
+		if(!bool){
+			return false;
+		}
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$("#exportButton").click(function(){
+		var pl=$("select[name=pl]").val();
+		var section=$("select[name=section]").val();
+		var spec=$("select[name=spec]").val();
+		var create_date=$("input[name=create_date]").val();
+		window.location.href="exp?pl="+pl+"&section="+section+"&spec="+spec+"&create_date="+create_date;
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">全部起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">全部规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + specname);
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>

@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script type="text/javascript">
+$(function(){	
+	//顶部导航切换
+	$(".nav li a").click(function(){
+		$(".nav li a.selected").removeClass("selected")
+		$(this).addClass("selected");
+	})	
+})	
+</script>
+<body style="background:#ed8571;">
+	<div>
+	    <div class="topright">    
+		    <ul>
+		    	<li><div><a class='userNameIc' href="javascript:void(0);" th:text="${sec.principal.name}">登录用户名</a></div></li>
+		    	<li><div><a class="exitIc" href="javascript:void(0);" th:onclick="'javascript:exit(\'' + @{/logout} + '\');'">退出</a></div></li>
+		    </ul>
+	    </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>高后果区管理</li>
+	    	<li>高后果区资料<th:block th:text="${verify==1?'审核':'查看'}"></th:block>：</li>
+	    </ul>
+    </div>
+    <form id="searchForm" method="post" class="formbody">
+    <div class="rightinfo">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<ul class="seachform mauto">
+			<li class="mr20">
+				<select name="pl" class="select1">
+					<option value="0">全部管线</option>
+				    <option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			    </select>
+			</li>
+			<li class="mr20">
+				<select name="section" class="select1">
+					<option value="0">全部起止段落</option>
+				    <option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			    </select>
+			</li>
+			<li class="mr20">
+				<select name="spec" class="select1">
+					<option value="0">全部规格</option>
+				    <option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			    </select>
+			</li>
+			<li class="mr20"><label>时间：</label>
+				<input type="text" readonly="readonly" th:value="${create_time==null? '' : create_time}" name="create_time" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+			</li>
+		    <li class="fr mr0"><input id="searchButton" name="searchButton" type="submit" class="scbtn" value="查询"/></li>
+		    <li class="fr mr20" th:if="${role!=null and role==2}"><input id="exportButton" name="exportButton" type="button" class="scbtn" value="导出"/></li>
+		</ul>
+		<div class="tableModi">
+			<span th:unless="${hcList!=null and not #lists.isEmpty(hcList)}" th:utext="暂无数据！"></span>
+			<table class="tablelist mauto" th:if="${hcList!=null and not #lists.isEmpty(hcList)}">
+				<thead>
+					<tr>
+						<th width="80">序号</th>
+						<th width="130">所属管线</th>
+						<th width="170">起止段落</th>
+						<th width="150">管线规格</th>
+						<th width="180">创建时间</th>
+						<th width="120">状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="hc,status:${hcList}">
+						<td th:text="${status.count}">序号</td>
+						<td th:text="${hc.pl_name}">名称</td>
+						<td th:text="${hc.pl_section_name}"></td>
+						<td th:text="${hc.pl_spec_name}"></td>
+						<td th:text="${beans.dateFormatter.formatDateToStr(hc.create_time,'yyyy-MM-dd HH:mm:ss')}"></td>
+						<td th:text="${hc.status==0?'待审核':hc.status==1?'通过':'不通过'}"></td>
+						<td>
+							<a th:href="@{/admin/base/h_sequel/show_verify(id=${hc.id})}" th:if="${verify==1}">审核</a>
+							<a th:href="@{/admin/base/h_sequel/edit(id=${hc.id})}" th:if="${hc.status==-1 and sec.principal.id==hc.creater}">修改</a>
+							<a th:href="@{/admin/base/h_sequel/show(id=${hc.id})}" th:if="${verify!=1}">详情</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="mt10" th:if="${hcList!=null and not #lists.isEmpty(hcList)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        </div>
+	</div>
+	</form>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#exportButton").click(function(){
+		var pl=$("select[name=pl]").val();
+		var section=$("select[name=section]").val();
+		var spec=$("select[name=spec]").val();
+		var create_date=$("input[name=create_date]").val();
+		window.location.href="exp?pl="+pl+"&section="+section+"&spec="+spec+"&create_time="+create_date;
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">全部起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">全部规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + specname);
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>

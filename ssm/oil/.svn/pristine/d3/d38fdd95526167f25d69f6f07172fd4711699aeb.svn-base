@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>反馈管理</li>
+	    	<li>反馈查看：</li>
+	    </ul>
+    </div>
+    <form id="searchForm" method="post" class="formbody">
+    <div class="rightinfo">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="mt10">
+		<!-- <ul class="seachform mauto">
+			<li class="mr20">
+				<label>标题：</label>
+				<input type="text" name="s_title" th:value="${s_title}" class="new_input"/>
+			</li>
+			<li class="mr20"><label>时间从：</label>
+				<input type="text" readonly="readonly" th:value="${f_time==null? '' : f_time}" name="f_time" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+			</li>
+			<li class="mr20"><label>到：</label>
+				<input type="text" readonly="readonly" th:value="${t_time==null? '' : t_time}" name="t_time" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+			</li>
+		    <li class="fr mr0"><input id="searchButton" name="searchButton" type="button" class="scbtn" value="查询"/></li>
+		</ul> -->
+			<span th:unless="${bs!=null and not #lists.isEmpty(bs)}" th:utext="暂无数据！"></span>
+			<table class="tablelist mauto" th:if="${bs!=null and not #lists.isEmpty(bs)}">
+				<thead>
+					<tr>
+						<th width="100">序号</th>
+						<th width="200">标题</th>
+						<th width="200">日期</th>
+						<th width="100">发布人</th>
+						<th width="100">状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="u,status:${bs}">
+						<td th:text="${status.count}">序号</td>
+						<td><div class="mesgDiv" style="width:400px" th:text="${u.title}">标题</div></td>
+						<td th:text="${beans.dateFormatter.formatDateToStr(u.create_time)}"></td>
+						<td th:text="${u.name}"></td>
+						<td th:text="${u.close==1?'关闭':'正常'}"></td>
+						<td>
+							<a th:href="'feedback_detail?id='+${u.id}">查看</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="mt10" th:if="${bs!=null and not #lists.isEmpty(bs)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        </div>
+	</div>
+	</form>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+   /* $("#searchButton").click(function(){
+	    var f_t=$("input[name=f_time]").val();
+		var t_t=$("input[name=t_time]").val();
+		if(f_t.length!=0){
+			if(t_t.length==0){
+				alert("请输入截止日期！");
+				return false;
+			}
+		}
+		if(t_t.length!=0){
+			if(f_t.length==0){
+				alert("请选择起始日期！");
+				return false;
+			}
+		}
+		if(f_t.length!=0&&t_t.length!=0){
+			var f = f_t.split("-");
+			var t = t_t.split("-");
+			if(new Date(f[0],f[1],f[2]) > new Date(t[0],t[1],t[2])){
+				alert("开始时间必须小于结束时间");
+				return false;
+			}
+		}
+		$("#searchForm").submit();
+   })  */
+});
+/*]]>*/
+</script>
+</html>

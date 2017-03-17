@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePipelinePatrolDAO_2016">
+	
+	<resultMap type="cn.hm.oil.domain.PipelinePatrol_2016" id="queryPipelinePatrolByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="name" property="name" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="p_month" property="p_month" />
+		<result column="save_jinzhan" property="save_jinzhan" />
+
+		<collection property="detailList" select="queryPipelinePatrolDetailByPpId"
+			column="id" javaType="List" ofType="cn.hm.oil.domain.PipelinePatrolDetail" />
+	</resultMap>
+
+	<select id="queryPipelinePatrolDetailByPpId" resultType="cn.hm.oil.domain.PipelinePatrolDetail">
+		SELECT *
+		FROM pipeline_patrol_detail_2016 WHERE pp_id=#{id}
+	</select>
+	
+	<select id="queryBasePipelineByAdminPatrol" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM pipeline_patrol_2016 pp, base_pipeline p, sys_users us
+		WHERE us.id = pp.creater AND pp.`pl_id` = p.`id`
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="queryUsers" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT DISTINCT us.name,us.id
+		FROM pipeline_patrol_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="p_month">
+		AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	
+	<update id="updatePipelinePatro">
+		UPDATE pipeline_patrol_2016 SET
+		pl_id=#{pl_id},name=#{name},jinzhan=#{jinzhan},
+		p_month=#{p_month},save_jinzhan=#{save_jinzhan},`status`=0,up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+
+	<delete id="deletePipelinePatrolDetailById">
+		DELETE FROM pipeline_patrol_detail_2016 WHERE `pp_id`= #{pp_id}
+	</delete>
+
+	<insert id="insertPipelinePatrol" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO
+		pipeline_patrol_2016(pl_id,name,jinzhan,p_month,save_jinzhan,create_time,creater,
+		patroler, patrol_no,up_id,status)
+		VALUES(#{pl_id},#{name},#{jinzhan},#{p_month},#{save_jinzhan},now(),#{creater},
+		#{patroler}, #{patrol_no},#{up_id},#{status})
+	</insert>
+
+	<insert id="insertPipelinePatrolDetail" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO
+		pipeline_patrol_detail_2016(pp_id,p_date,work_place,content,question,voice_record,worker,auditor,annex,content_1,content_2,content_3,content_4
+		,content_5,content_6,content_7,content_8,content_9,content_10,content_11,content_12,content_13,content_14,content_15,content_16,remark,status)
+		VALUES(#{pp_id},#{p_date},#{work_place},#{content},#{question},#{voice_record},#{worker},#{auditor},#{annex},#{content_1},#{content_2},#{content_3},#{content_4}
+		,#{content_5},#{content_6},#{content_7},#{content_8},#{content_9},#{content_10},#{content_11},#{content_12},#{content_13},#{content_14},#{content_15},#{content_16},#{remark},#{status})
+	</insert>
+	
+	<select id="queryLastPatrolByUserId" resultMap="queryPipelinePatrolByIdRusult">
+		select * FROM pipeline_patrol_2016
+		WHERE creater = #{id}
+		<if test="pl_id != null">
+			AND pl_id=#{pl_id}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	
+	<select id="queryPatrols" resultMap="queryPipelinePatrolByIdRusult">
+		SELECT pp.*
+		FROM pipeline_patrol_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	<select id="queryPatrols_count" resultType="int">
+		SELECT COUNT(pp.id)
+		FROM pipeline_patrol_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="p_month">
+		AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<select id="queryPatrolById" resultMap="queryPipelinePatrolByIdRusult">
+		SELECT * FROM pipeline_patrol_2016 WHERE id=#{id}
+	</select>
+	
+	<update id="updatePipelinePatrolVerifyStatus">
+		UPDATE pipeline_patrol_2016 pp LEFT JOIN pipeline_patrol_detail_2016 pd ON pp.`id` = pd.`pp_id` SET
+		pp.status=#{status},pp.verify_desc=#{verify_desc},pp.verify_time=now(),pp.verifier=#{verifier},pd.status=#{status}
+		WHERE pp.id=#{id} AND pp.status=0
+	</update>
+</mapper>

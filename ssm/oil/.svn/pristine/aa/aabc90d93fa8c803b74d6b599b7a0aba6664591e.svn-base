@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.UpgradeDao">
+	
+	<select id="selectUpgradeByos" resultType="cn.hm.oil.domain.Upgrade">
+		SELECT * FROM upgrade WHERE os=#{os}
+	</select>
+	
+	<select id="selectAllUpgrade" resultType="cn.hm.oil.domain.Upgrade">
+		SELECT * FROM upgrade
+	</select>
+	
+	<insert id="insertUpgrade" parameterType="cn.hm.oil.domain.Upgrade" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO upgrade(os, version, update_path) VALUES(#{os}, #{version}, #{update_path});
+	</insert>
+	
+	<update id="updateUpgrade" parameterType="cn.hm.oil.domain.Upgrade">
+		UPDATE upgrade SET version=#{version}, update_path=#{update_path} WHERE id=#{id}
+	</update>
+</mapper>

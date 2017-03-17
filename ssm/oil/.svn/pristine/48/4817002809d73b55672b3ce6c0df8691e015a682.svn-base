@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>高后果区管理</li>
+			<li>静态高后果区资料创建：</li>
+		</ul>
+	</div>
+	<div class="formbody" style="width:1250px;">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt.describe!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+		<form method="post" id="saveform" enctype="multipart/form-data" th:action="@{/admin/base/h_sequel/save}">
+			<ul class="forminfo">
+				<li class="mauto" style="width:1230px">
+					<div class="usercity">
+						<div class="cityleft">
+							<select name="pl" class="select1">
+								<option value="0">请选择管线</option>
+								<option th:each="pll:${pipeLineList}"
+									th:selected="${pl == pll.id}" th:value="${pll.id}"
+									th:text="${pll.name}"></option>
+							</select>
+						</div>
+						<div class="cityleft">
+							<select name="section" class="select1">
+								<option value="0">请选择起止段落</option>
+								<option th:each="sec:${sectionList}"
+									th:selected="${section ==sec.id}" th:value="${sec.id}"
+									th:text="${sec.name}"></option>
+							</select>
+						</div>
+						<div class="cityright">
+							<select name="spec" class="select1">
+								<option value="0">请选择规格</option>
+								<option th:each="sec:${specList}" th:selected="${spec ==sec.id}"
+									th:value="${sec.id}" th:text="${sec.name}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="pr">
+					<div class="record3"></div>
+					<table class="addTr mauto" style="width:1210px">
+						<tr class="recordTitle lh32">
+							<td colspan="18">
+								<div class="fl">
+									<span class="ml30">管线名称及规格：</span>
+									<a id="pl_name"></a>
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+						<tr>
+							<td width="50">高后果区编号</td>
+							<td width="50">起点经度</td>
+							<td width="50">起点纬度</td>
+							<td width="50">终点经度</td>
+							<td width="50">终点纬度</td>
+							<td width="50">高后果区起点(m)</td>
+							<td width="50">高后果区终点(m)</td>
+							<td width="50">高后果区长度(m)</td>
+							<td width="50">高后果区得分</td>
+							<td width="100">地名</td>
+							<td width="100">高后果区特征描述</td>
+							<td width="100">识别或更新时间</td>
+							<td width="60">识别人</td>
+							<td width="80">现场照片1</td>
+							<td width="80">现场照片2</td>
+							<td width="80">现场照片3</td>
+							<td width="80">现场照片4</td>
+							<td width="80">现场照片5</td>
+						</tr>
+						<tr>
+							<td><input style="width:50px;" type="text" name="num" /></td>
+							<td><input style="width:50px;" type="text" name="start_lat" /></td>
+							<td><input style="width:50px;" type="text" name="start_lon" /></td>
+							<td><input style="width:50px;" type="text" name="end_lat" /></td>
+							<td><input style="width:50px;" type="text" name="end_lon" /></td>
+							<td><input style="width:50px;" type="text" name="s_start" /></td>
+							<td><input style="width:50px;" type="text" name="s_end" /></td>
+							<td><input style="width:50px;" type="text" name="s_length" /></td>
+							<td><input style="width:50px;" type="text" name="s_soure" /></td>
+							<td><input style="width:100px;" type="text" name="place_name" /></td>
+							<td><input style="width:100px;" type="text" name="description" /></td>
+							<td><input style="width:100px;" type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input style="width:60px;" type="text" name="recogner" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic1" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic2" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic3" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic4" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic5" /></td>
+						</tr>
+						<tr>
+							<td><input style="width:50px;" type="text" name="num" /></td>
+							<td><input style="width:50px;" type="text" name="start_lat" /></td>
+							<td><input style="width:50px;" type="text" name="start_lon" /></td>
+							<td><input style="width:50px;" type="text" name="end_lat" /></td>
+							<td><input style="width:50px;" type="text" name="end_lon" /></td>
+							<td><input style="width:50px;" type="text" name="s_start" /></td>
+							<td><input style="width:50px;" type="text" name="s_end" /></td>
+							<td><input style="width:50px;" type="text" name="s_length" /></td>
+							<td><input style="width:50px;" type="text" name="s_soure" /></td>
+							<td><input style="width:100px;" type="text" name="place_name" /></td>
+							<td><input style="width:100px;" type="text" name="description" /></td>
+							<td><input style="width:100px;" type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input style="width:60px;" type="text" name="recogner" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic1" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic2" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic3" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic4" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic5" /></td>
+						</tr>
+						<tr>
+							<td><input style="width:50px;" type="text" name="num" /></td>
+							<td><input style="width:50px;" type="text" name="start_lat" /></td>
+							<td><input style="width:50px;" type="text" name="start_lon" /></td>
+							<td><input style="width:50px;" type="text" name="end_lat" /></td>
+							<td><input style="width:50px;" type="text" name="end_lon" /></td>
+							<td><input style="width:50px;" type="text" name="s_start" /></td>
+							<td><input style="width:50px;" type="text" name="s_end" /></td>
+							<td><input style="width:50px;" type="text" name="s_length" /></td>
+							<td><input style="width:50px;" type="text" name="s_soure" /></td>
+							<td><input style="width:100px;" type="text" name="place_name" /></td>
+							<td><input style="width:100px;" type="text" name="description" /></td>
+							<td><input style="width:100px;" type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input style="width:60px;" type="text" name="recogner" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic1" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic2" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic3" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic4" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic5" /></td>
+						</tr>
+						<tr>
+							<td><input style="width:50px;" type="text" name="num" /></td>
+							<td><input style="width:50px;" type="text" name="start_lat" /></td>
+							<td><input style="width:50px;" type="text" name="start_lon" /></td>
+							<td><input style="width:50px;" type="text" name="end_lat" /></td>
+							<td><input style="width:50px;" type="text" name="end_lon" /></td>
+							<td><input style="width:50px;" type="text" name="s_start" /></td>
+							<td><input style="width:50px;" type="text" name="s_end" /></td>
+							<td><input style="width:50px;" type="text" name="s_length" /></td>
+							<td><input style="width:50px;" type="text" name="s_soure" /></td>
+							<td><input style="width:100px;" type="text" name="place_name" /></td>
+							<td><input style="width:100px;" type="text" name="description" /></td>
+							<td><input style="width:100px;" type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input style="width:60px;" type="text" name="recogner" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic1" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic2" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic3" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic4" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic5" /></td>
+						</tr>
+						<tr>
+							<td><input style="width:50px;" type="text" name="num" /></td>
+							<td><input style="width:50px;" type="text" name="start_lat" /></td>
+							<td><input style="width:50px;" type="text" name="start_lon" /></td>
+							<td><input style="width:50px;" type="text" name="end_lat" /></td>
+							<td><input style="width:50px;" type="text" name="end_lon" /></td>
+							<td><input style="width:50px;" type="text" name="s_start" /></td>
+							<td><input style="width:50px;" type="text" name="s_end" /></td>
+							<td><input style="width:50px;" type="text" name="s_length" /></td>
+							<td><input style="width:50px;" type="text" name="s_soure" /></td>
+							<td><input style="width:100px;" type="text" name="place_name" /></td>
+							<td><input style="width:100px;" type="text" name="description" /></td>
+							<td><input style="width:100px;" type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input style="width:60px;" type="text" name="recogner" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic1" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic2" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic3" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic4" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic5" /></td>
+						</tr>
+						<tr>
+							<td><input style="width:50px;" type="text" name="num" /></td>
+							<td><input style="width:50px;" type="text" name="start_lat" /></td>
+							<td><input style="width:50px;" type="text" name="start_lon" /></td>
+							<td><input style="width:50px;" type="text" name="end_lat" /></td>
+							<td><input style="width:50px;" type="text" name="end_lon" /></td>
+							<td><input style="width:50px;" type="text" name="s_start" /></td>
+							<td><input style="width:50px;" type="text" name="s_end" /></td>
+							<td><input style="width:50px;" type="text" name="s_length" /></td>
+							<td><input style="width:50px;" type="text" name="s_soure" /></td>
+							<td><input style="width:100px;" type="text" name="place_name" /></td>
+							<td><input style="width:100px;" type="text" name="description" /></td>
+							<td><input style="width:100px;" type="text" placeholder="请选择日期" readonly="readonly" name="u_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input style="width:60px;" type="text" name="recogner" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic1" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic2" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic3" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic4" /></td>
+							<td><input style="width:80px;" class="file_input" type="file" name="pic5" /></td>
+						</tr>
+					</table>
+					<div id="addLine" class="addLine"></div>
+				</li>
+				<li class="tc">
+		     		<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     	</li>
+			</ul>
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	//添加行加好按钮
+	var trNum = $("tr").length;
+	var assLineTop=parseInt((trNum)*25+35);
+	$("#addLine").css({"left":1240+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		$(".addTr").append("<tr><td><input style='width:50px;' type='text' name='num' /></td><td><input style='width:50px;' type='text' name='start_lat' /></td><td><input style='width:50px;' type='text' name='start_lon' /></td><td><input style='width:50px;' type='text' name='end_lat' /></td><td><input style='width:50px;' type='text' name='end_lon' /></td><td><input style='width:50px;' type='text' name='s_start' /></td><td><input style='width:50px;' type='text' name='s_end' /></td><td><input style='width:50px;' type='text' name='s_length' /></td><td><input style='width:50px;' type='text' name='s_soure' /></td><td><input style='width:100px;' type='text' name='place_name' /></td><td><input style='width:100px;' type='text' name='description' /></td><td><input style='width:100px;' type='text' placeholder='请选择日期' readonly='readonly' name='u_date' onClick='WdatePicker({dateFmt:"+'"yyyy-MM-dd"'+"})' /></td><td><input style='width:60px;' type='text' name='recogner' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic1' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic2' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic3' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic4' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic5' /></td></tr><tr><td><input style='width:50px;' type='text' name='num' /></td><td><input style='width:50px;' type='text' name='start_lat' /></td><td><input style='width:50px;' type='text' name='start_lon' /></td><td><input style='width:50px;' type='text' name='end_lat' /></td><td><input style='width:50px;' type='text' name='end_lon' /></td><td><input style='width:50px;' type='text' name='s_start' /></td><td><input style='width:50px;' type='text' name='s_end' /></td><td><input style='width:50px;' type='text' name='s_length' /></td><td><input style='width:50px;' type='text' name='s_soure' /></td><td><input style='width:100px;' type='text' name='place_name' /></td><td><input style='width:100px;' type='text' name='description' /></td><td><input style='width:100px;' type='text' placeholder='请选择日期' readonly='readonly' name='u_date' onClick='WdatePicker({dateFmt:"+'"yyyy-MM-dd"'+"})' /></td><td><input style='width:60px;' type='text' name='recogner' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic1' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic2' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic3' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic4' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic5' /></td></tr><tr><td><input style='width:50px;' type='text' name='num' /></td><td><input style='width:50px;' type='text' name='start_lat' /></td><td><input style='width:50px;' type='text' name='start_lon' /></td><td><input style='width:50px;' type='text' name='end_lat' /></td><td><input style='width:50px;' type='text' name='end_lon' /></td><td><input style='width:50px;' type='text' name='s_start' /></td><td><input style='width:50px;' type='text' name='s_end' /></td><td><input style='width:50px;' type='text' name='s_length' /></td><td><input style='width:50px;' type='text' name='s_soure' /></td><td><input style='width:100px;' type='text' name='place_name' /></td><td><input style='width:100px;' type='text' name='description' /></td><td><input style='width:100px;' type='text' placeholder='请选择日期' readonly='readonly' name='u_date' onClick='WdatePicker({dateFmt:"+'"yyyy-MM-dd"'+"})' /></td><td><input style='width:60px;' type='text' name='recogner' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic1' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic2' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic3' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic4' /></td><td><input style='width:80px;' class='file_input' type='file' name='pic5' /></td></tr>");
+		times=times+3;
+		
+	})
+							
+	$("#saveButton").click(function() {
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return;
+		}
+		var bool = true;
+		var intNum = /^\d*$/;
+		var numFloat = /^\d*(\.\d+)?$/
+		$('input[name=num]').each(function(){
+			var num = $(this).val();
+			if(!intNum.test(num)){
+				alertM('编号必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		
+		$('input[name=start_lat]').each(function(){
+			var start_lat = $(this).val();
+			if(!numFloat.test(start_lat)){
+				alertM('起点经度必须为数字',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=start_lon]').each(function(){
+			var start_lon = $(this).val();
+			if(!numFloat.test(start_lon)){
+				alertM('起点纬度必须为数字',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=end_lat]').each(function(){
+			var end_lat = $(this).val();
+			if(!numFloat.test(end_lat)){
+				alertM('终点经度必须为数字',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=end_lon]').each(function(){
+			var end_lon = $(this).val();
+			if(!numFloat.test(end_lon)){
+				alertM('终点纬度必须为数字',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=s_start]').each(function(){
+			var s_start = $(this).val();
+			if(!intNum.test(s_start)){
+				alertM('高后果区起点必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=s_end]').each(function(){
+			var s_end = $(this).val();
+			if(!intNum.test(s_end)){
+				alertM('高后果区终点必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=s_length]').each(function(){
+			var s_length = $(this).val();
+			if(!numFloat.test(s_length)){
+				alertM('高后果区长度必须为数字',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=s_soure]').each(function(){
+			var s_soure = $(this).val();
+			if(!intNum.test(s_soure)){
+				alertM('高后果区得分必须为整数',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=place_name]').each(function(){
+			var place_name = $(this).val();
+			if(place_name.length>0){
+				if(place_name.length>200){
+					alertM('地名字数不能超过200',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=description]').each(function(){
+			var description = $(this).val();
+			if(description.length>0){
+				if(description.length>200){
+					alertM('高后果区特征描述字数不能超过200',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=recogner]').each(function(){
+			var recogner = $(this).val();
+			if(recogner.length>0){
+				if(recogner.length>50){
+					alertM('识别人字数不能超过50',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		if(!bool){
+			return false;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + specname);
+	});
+	
+	$("input[name=pic_list]").click(function() {
+		art.dialog.open('http://www.connect.renren.com/igadget/renren/index.html',  
+			    {title: '人人网', width: 320, height: 400});
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>

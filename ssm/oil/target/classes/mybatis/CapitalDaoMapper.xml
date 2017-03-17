@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.CapitalDao">
+	<insert id="saveCapital" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO capital (project_name,survey,progress,leader,creater,create_time) 
+		VALUES(#{project_name},#{survey},#{progress},#{leader},#{creater},now())
+	</insert>
+	
+	<insert id="saveCapitalDetail">
+		INSERT INTO capital_detail (ca_id,`no`,content,plan_time,workable_time,workspace,contacts,telnum,annex,remark,operate_num
+		<if test="operator != null">
+		,operator,operate_time
+		</if>
+		) 
+		VALUES(#{ca_id},#{no},#{content},#{plan_time},#{workable_time},#{workspace},#{contacts},#{telnum},#{annex},#{remark}
+		<if test="operate_num != null">
+		,#{operate_num}
+		</if>
+		<if test="operate_num == null">
+		,0
+		</if>
+		<if test="operator != null">
+		,#{operator},now()
+		</if>
+		)
+	</insert>
+	
+	<select id="queryCapital" resultType="cn.hm.oil.domain.Capital">
+		SELECT c.*,(SELECT MAX(id)-(SELECT MIN(id) FROM capital_detail WHERE ca_id = c.id)+1 AS num FROM capital_detail WHERE ca_id = c.id AND workable_time IS NOT NULL ) AS finished_num FROM capital c 
+		ORDER BY c.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryCapital_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM capital
+		WHERE 1 = 1
+	</select>
+	
+	<select id="queryCapitalById" resultMap="queryCapitalByIdRusult">
+		SELECT * FROM capital WHERE `id` = #{id}
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.Capital" id="queryCapitalByIdRusult">
+		<id column="id" property="id" />
+		<result column="project_name" property="project_name" />
+		<result column="survey" property="survey" />
+		<result column="progress" property="progress" />
+		<result column="leader" property="leader" />
+		<result column="creater" property="creater" />
+		<result column="create_time" property="create_time" />
+		
+		<collection property="detailList" select="queryCapitalDetailByPpId" column="id" javaType="List" ofType="cn.hm.oil.domain.CapitalDetail"/>
+	</resultMap>
+	
+	<select id="queryCapitalDetailByPpId" resultType="cn.hm.oil.domain.CapitalDetail">
+		SELECT cad.* FROM capital_detail cad, capital ca WHERE cad.ca_id = #{ca_id} AND cad.operate_num = ca.operate_num AND ca.id = cad.ca_id
+	</select>
+	
+	<select id="queryOperate_num" resultType="java.lang.Integer">
+		SELECT operate_num FROM capital WHERE id = #{id}
+	</select>
+	
+	<update id="updateCapital">
+		UPDATE capital SET operate_num = operate_num + 1 WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteCapitalDetail">
+		DELETE FROM capital_detail WHERE ca_id = #{ca_id}
+	</delete>
+</mapper>

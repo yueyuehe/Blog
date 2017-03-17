@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{'/admin/base/p_measure/' + ${verify==1?'verify':'list'}}">绝缘接头(法兰)性能测量记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a></li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div>
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+	</div>
+	<div class="formbody">
+        <form class="webForm">
+        
+    	    <ul class="forminfo">
+        	<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1" disabled="disabled">
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1" disabled="disabled" >
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1" disabled="disabled" >
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>		            
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+			 <li style="clear:both;">
+    	<div class="record0"></div>
+        <table class="mauto table100" style="width:100%;">
+       		<tr class="recordTitle0 lh40">
+            	<td colspan="14">
+            		<div class="fl ml20">
+                		<span>井（站）</span>
+                    	<input type="text" name="jinzhan" th:value="${pm.jinzhan}" readonly="readonly" class="new_input" style="width:150px;" />
+                    </div>
+                    <div class="fl" style="margin-left:230px;">
+                    	<span>管线名称及规格：</span>
+                    	<a id="pl_name"></a>
+                    </div>
+                    <div class="fr mr20">
+                    	<span class="ml30">年：</span>
+		            	<input type="text" th:value="${pm.m_year}" disabled="disabled" name="m_year" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy'})" style="width:130px;" />
+                	</div>
+                	<div class="clr"></div>
+                </td>
+            </tr>
+            <tr>
+            	<td width="70" rowspan="2">位置</td>
+                <td width="130">类别</td>
+                <td width="65">1月</td>
+                <td width="65">2月</td>
+                <td width="65">3月</td>
+                <td width="65">4月</td>
+                <td width="65">5月</td>
+                <td width="65">6月</td>
+                <td width="65">7月</td>
+                <td width="65">8月</td>
+                <td width="65">9月</td>
+                <td width="65">10月</td>
+                <td width="65">11月</td>
+                <td width="65">12月</td>
+            </tr>
+            <tr th:each="d ,status:${pm.detailList}">
+                <td th:if="${d.type==1}">通电点电位(-V)</td>
+            	<td th:if="${status.count%2==0}" rowspan="2"><input type="text" th:value="${d.position}" readonly="true" name="position" style="width:60px"/></td>
+                <td th:if="${d.type==2}">保护端(-V)</td>
+                <td th:if="${d.type==3}">未保护端(-V)</td>
+                <td><input type="text" name="month_1" readonly="readonly" th:value="${d.month_1}"/></td>
+                <td><input type="text" name="month_2" readonly="readonly" th:value="${d.month_2}"/></td>
+                <td><input type="text" name="month_3" readonly="readonly" th:value="${d.month_3}"/></td>
+                <td><input type="text" name="month_4" readonly="readonly" th:value="${d.month_4}"/></td>
+                <td><input type="text" name="month_5" readonly="readonly" th:value="${d.month_5}"/></td>
+                <td><input type="text" name="month_6" readonly="readonly" th:value="${d.month_6}"/></td>
+                <td><input type="text" name="month_7" readonly="readonly" th:value="${d.month_7}"/></td>
+                <td><input type="text" name="month_8" readonly="readonly" th:value="${d.month_8}"/></td>
+                <td><input type="text" name="month_9" readonly="readonly" th:value="${d.month_9}"/></td>
+                <td><input type="text" name="month_10" readonly="readonly" th:value="${d.month_10}"/></td>
+                <td><input type="text" name="month_11" readonly="readonly" th:value="${d.month_11}"/></td>
+                <td><input type="text" name="month_12" readonly="readonly" th:value="${d.month_12}"/></td>
+            </tr>
+        </table>
+        </li>	              
+        <li class="analyzeFooter">
+        	<div class="fl tl" style="width:300px;">
+	        	<label class="fl tr">填报人：</label>
+	        	<label class="fl tl" name="created_by" th:text="${pm.created_by}"></label>
+	        	<div class="clr"></div>
+        	</div>
+            <div class="fr" style="width:300px;">
+            	<label class="fl tr">审核人：</label>
+            	<label class="fl tl" name="auditor"  th:text="${pm.auditor}"></label>
+            	<div class="clr"></div>
+            </div>
+            <div class="clr"></div>
+        </li>
+         <li class="mauto">
+		    	<label class="labelModi tl"><span class="red">*</span>当前审核状态:</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == pm.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == pm.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == pm.status}" th:value="-1">不通过</option>
+		            </select>
+		            <label th:if="${verify != 1}" th:text="${pm.status == 0?'待审核':pm.status == 1?'通过':'不通过'}"></label>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li class="mauto">
+		    	<label class="labelModi tl"><span class="red">*</span>审核说明:</label>
+		    	<textarea style="width:830px;" class="textinput" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${pm.verify_desc}"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="mauto20 tc" th:if="${verify == 1}">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		    </ul>
+        </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var pmid = [[${pm.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/p_measure/verify_save}]],
+	   			data : {
+	   				'id' : pmid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("div.formbody").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+	
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + specname);
+});
+/*]]>*/
+</script>
+</html>

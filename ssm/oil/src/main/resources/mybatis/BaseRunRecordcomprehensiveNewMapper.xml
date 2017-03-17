@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseRunRecordcomprehensiveNewDao">
+
+	<update id="updateRunRecordcomprehensiveVerifyStatus">
+		UPDATE run_record_comprehensive_new rc JOIN run_record_comprehensive_detail_new rcd ON rc.id=rcd.`c_id`
+		SET rc.status=#{status},rcd.status=#{status},rc.verify_desc=#{verify_desc},rc.verify_time=now(),rc.verifier=#{verifier}
+		WHERE rc.id=#{id}
+	</update>
+
+	<select id="queryRunRecordcomprehensiveDetailById" resultType="cn.hm.oil.domain.RunRecordcomprehensiveDetail">
+		SELECT * FROM run_record_comprehensive_detail_new WHERE c_id=#{id}
+	</select>
+	
+	<select id="queryRunRecordcomprehensiveById" resultType="cn.hm.oil.domain.RunRecordcomprehensive">
+		SELECT * FROM run_record_comprehensive_new WHERE id=#{id}
+	</select>
+	
+	<select id="queryRunRecordcomprehensive" resultType="cn.hm.oil.domain.RunRecordcomprehensive">
+		SELECT rc.*,p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM run_record_comprehensive_new rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id` 
+		<if test="id!=null">
+		AND rc.`pl_spec_id`=#{id}
+		</if>
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="r_month">
+		AND rc.`r_month`=#{r_month}
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		ORDER BY rc.create_time ASC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRunRecordcomprehensive_count" resultType="int">
+		SELECT count(1) 
+		FROM run_record_comprehensive_new rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="id!=null">
+		AND rc.`pl_spec_id`=#{id}
+		</if>
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="r_month">
+		AND `r_month`=#{r_month}
+		</if>
+		<if test="status!=null">
+		AND rc.`status` = #{status} 
+		</if>
+	</select>
+	
+	<update id="updateRunRecordcomprehensive">
+		UPDATE run_record_comprehensive_new SET pl_id=#{pl_id},pl_spec_id=#{pl_spec_id},pl_section_id=#{pl_section_id},
+		jinzhan=#{jinzhan},created_by=#{created_by},r_month=#{r_month},auditor=#{auditor},status=#{status}
+		WHERE id=#{id}
+	</update>
+	
+	<update id="updateRunRecordcomprehensiveDetail">
+		UPDATE run_record_comprehensive_detail_new 
+		SET estimated=#{estimated},actual=#{actual},wdtd=#{wdtd},jztd=#{jztd},ljtd=#{ljtd},jcgxtd=#{jcgxtd},fljctd=#{fljctd},qttd=#{qttd}
+		,`o_max_a`=#{o_max_a},`o_min_a`=#{o_min_a},`o_avg_a`=#{o_avg_a},`o_max_v`=#{o_max_v},`o_min_v`=#{o_min_v},`o_avg_v`=#{o_avg_v},`tdd_v_max`=#{tdd_v_max},`tdd_v_min`=#{tdd_v_min}
+		,sdl=#{sdl},bhl=#{bhl},comment=#{comment},sbwhl=#{sbwhl},status=#{status}
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="insertRunRecordcomprehensive" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO run_record_comprehensive_new(pl_id,pl_spec_id,pl_section_id,jinzhan,r_month,created_by,auditor,create_time,creater,status,up_id) 
+		VALUES(#{pl_id},#{pl_spec_id},#{pl_section_id},#{jinzhan},#{r_month},#{created_by},#{auditor},now(),#{creater},#{status},#{up_id})
+	</insert>
+	
+	<delete id="deleteRunRecordcomprehensiveDetailByCid">
+		DELETE FROM run_record_comprehensive_detail_new WHERE c_id=#{c_id}
+	</delete>
+	
+	<delete id="deleteRunRecordcomprehensiveById">
+		DELETE FROM run_record_comprehensive_new WHERE id=#{id}
+	</delete>
+	
+	<insert id="insertRunRecordcomprehensiveDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO run_record_comprehensive_detail_new(c_id,estimated,actual,wdtd,jztd,ljtd,jcgxtd,fljctd,qttd,o_max_a,o_min_a,o_avg_a,o_max_v,o_min_v,o_avg_v,tdd_v_max,tdd_v_min,sdl,bhl,sbwhl,comment,status)
+		VALUES(#{c_id},#{estimated},#{actual},#{wdtd},#{jztd},#{ljtd},#{jcgxtd},#{fljctd},#{qttd},#{o_max_a},#{o_min_a},#{o_avg_a},#{o_max_v},
+		#{o_min_v},#{o_avg_v},#{tdd_v_max},#{tdd_v_min},#{sdl},#{bhl},#{sbwhl},#{comment},#{status})
+	</insert>
+	
+	<!-- 4444 -->
+	<update id="updateResetDetailStatus">
+		UPDATE run_record_comprehensive_detail_new ppd JOIN run_record_comprehensive_new pp ON ppd.`c_id`=pp.`id`
+		SET ppd.status = pp.status
+		WHERE ppd.`id`=#{id}
+	</update>
+	
+	<select id="queryDetailStatus" resultType="int">
+		SELECT status FROM run_record_comprehensive_detail_new
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateChangeDetailStatus">
+		UPDATE run_record_comprehensive_detail_new ppd JOIN run_record_comprehensive_new pp ON ppd.`c_id`=pp.`id`
+		SET ppd.status = #{status},pp.status=#{status}
+		WHERE ppd.`id`=#{id}
+	</update>
+	
+	<select id="queryRunRecordcomprehensiveAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM run_record_comprehensive_new rc
+		LEFT JOIN base_pipeline bp ON rc.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON rc.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON rc.pl_spec_id = bps.id
+		<where>
+			rc.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY rc.pl_spec_id
+	</select>
+	
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE run_record_comprehensive_detail_new pmd JOIN run_record_comprehensive_new pm ON pmd.`c_id`=pm.`id`
+		SET pmd.status = 0,pm.status=0
+		WHERE pmd.status = -2 OR pm.status = -2
+	</update>
+	
+	<select id="queryBasePipelineByAdminRcComp" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM run_record_comprehensive_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, run_record_comprehensive_detail_new ppd
+		WHERE ppd.`c_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`	
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="querySpecListNewByAdminRcComp" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN run_record_comprehensive_new pp ON pp.`pl_spec_id`=bpsc.id
+		    JOIN run_record_comprehensive_detail_new ppd ON ppd.`c_id`=pp.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="status !=null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminRcComp" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM run_record_comprehensive_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, run_record_comprehensive_detail_new ppd
+		WHERE ppd.`c_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select>
+</mapper>

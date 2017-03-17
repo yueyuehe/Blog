@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.PromptDao">
+	<select id="queryPromptType" resultType="cn.hm.oil.domain.PromptType">
+		SELECT * FROM prompt_type
+	</select>
+	
+	<select id="quertPromptByType" resultType="cn.hm.oil.domain.Prompt">
+		SELECT * FROM prompt WHERE type_id = #{type_id}
+	</select>
+	
+	<insert id="insertPrompt">
+		INSERT INTO prompt (type_id,`describe`) VALUES(#{type_id},#{describe})
+	</insert>
+	
+	<update id="updatePrompt">
+		UPDATE prompt SET `describe` = #{describe} WHERE type_id = #{type_id}
+	</update>
+</mapper>

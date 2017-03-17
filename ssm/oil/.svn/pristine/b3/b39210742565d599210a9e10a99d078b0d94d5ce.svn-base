@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.ConstructionDao">
+	
+	
+	<select id="queryConstructionAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM construction vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY vp.pl_spec_id
+	</select>  
+
+	<select id="queryConstructionByParam" resultType="cn.hm.oil.domain.Construction">
+		SELECT pm.*, p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM construction pm
+		LEFT JOIN base_pipeline p ON pm.`pl_id` = p.`id`
+		LEFT JOIN base_pipeline_section pse ON pm.`pl_section_id` = pse.`id`
+		LEFT JOIN base_pipeline_spec psp ON pm.`pl_spec_id` = psp.`id`
+		WHERE pm.pl_spec_id=#{param.id}  
+		<if test="param.r_month!=null">
+			AND con_date = #{param.r_month}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT #{param.offset},#{param.pageSize} 
+	</select>
+	<select id="queryConstructionByParamTotal" resultType="int">
+		SELECT COUNT(1)
+		FROM construction pm
+		LEFT JOIN base_pipeline p ON pm.`pl_id` = p.`id`
+		LEFT JOIN base_pipeline_section pse ON pm.`pl_section_id` = pse.`id`
+		LEFT JOIN base_pipeline_spec psp ON pm.`pl_spec_id` = psp.`id`
+		WHERE pm.pl_spec_id=#{param.id}  
+		<if test="param.r_month!=null">
+			AND con_date = #{param.r_month}
+		</if>
+	</select>
+	
+	<update id="updateConstructionVerify">
+		UPDATE construction SET
+		status=#{status},verify_desc=#{verify_desc},verify_time=now(),verifier=#{verifier}
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryConstructionById" resultType="cn.hm.oil.domain.Construction">
+		SELECT rc.*,p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name FROM construction rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id` AND rc.id=#{id}
+	</select>
+	
+	<update id="updateConstructionTime">
+		UPDATE construction SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryConstruction" resultType="cn.hm.oil.domain.Construction">
+		SELECT rc.`id`,rc.`jingzhan`, rc.`con_date`, rc.`address`, rc.`create_time`, rc.`creater`,rc.`status` ,p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM construction rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, rc.up_id) OR rc.up_id is NULL OR rc.creater = #{user_id}) 
+		</if>
+		<if test="whCreater!=null">
+			AND rc.creater = #{whCreater}
+		</if>
+		 ORDER BY rc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryConstruction_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM construction
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+		<if test="whCreater!=null">
+			AND creater = #{whCreater}
+		</if>
+	</select>
+	
+	<update id="updateConstruction">
+		UPDATE `construction` 
+		SET `pl_id` = #{pl_id},`pl_section_id` = #{pl_section_id},`pl_spec_id` = #{pl_spec_id},`con_date` = #{con_date},
+		`lczh` = #{lczh},`address` = #{address},`reason` = #{reason},`partic` = #{partic},`descrip` = #{descrip},
+		`result` = #{result},`acquainted` = #{acquainted},`promoter` = #{promoter},`reporter` = #{reporter},
+		`getporter` = #{getporter},`remethod` = #{remethod},`reply` = #{reply},`owner` = #{owner},`chiefer` = #{chiefer},
+		`ministry` = #{ministry},`recorder` = #{recorder},`creater` = #{creater},`status` = #{status},`jingzhan` = #{jingzhan},up_id=#{up_id}
+		WHERE `id` = #{id}
+	</update>
+	
+	<insert id="insertConstruction" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `construction` (`pl_id`,`pl_section_id`,`pl_spec_id`,`con_date`,`lczh`,`address`,`reason`,`partic`,`descrip`,`result`,`acquainted`,`promoter`,`reporter`,`getporter`,`remethod`,`reply`,`owner`,`chiefer`,`ministry`,`recorder`,`creater`,`status`,`create_time`,`jingzhan`,up_id) 
+		VALUES(#{pl_id},#{pl_section_id},#{pl_spec_id},#{con_date},#{lczh},#{address},#{reason},#{partic},#{descrip},#{result},#{acquainted},#{promoter},#{reporter},#{getporter},#{remethod},#{reply},#{owner},#{chiefer},#{ministry},#{recorder},#{creater},#{status},NOW(),#{jingzhan},#{up_id})
+	</insert>
+	
+	<delete id="deleteConstructionById">
+		DELETE FROM construction WHERE id=#{id}
+	</delete>
+
+	<select id="queryConstruction_new" resultType="cn.hm.oil.domain.Construction">
+		SELECT rc.*,p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name 
+		FROM construction rc,base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="id!= null">
+			AND rc.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND rc.`status` = #{status}
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(rc.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND rc.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND rc.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND rc.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND rc.`pl_section_id`=#{section}
+		</if>	
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<update id="updateChangeStatus">
+		UPDATE construction
+		SET status=#{status}
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryConstruction_new_count" resultType="int">
+		SELECT COUNT(*) 
+		FROM construction rc,base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="id!= null">
+			AND rc.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND rc.`status` = #{status}
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(rc.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND rc.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND rc.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND rc.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND rc.`pl_section_id`=#{section}
+		</if>	
+	</select>
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE construction pm
+		SET pm.status=0
+		WHERE pm.status = -2
+	</update>
+	
+	<select id="queryBasePipelineByAdminConstruction" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM construction pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp
+		WHERE pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`	
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="querySpecListNewByAdminConstruction" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN construction pp ON pp.`pl_spec_id`=bpsc.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="status !=null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminConstruction" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM construction pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp
+		WHERE pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select>
+</mapper>

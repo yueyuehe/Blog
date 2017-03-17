@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>账户管理 </li>
+	    	<li th:text="${user==null ? '干部账号创建：' : '干部账号查看/修改：'}"></li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+	    <form th:action="@{/admin/user/leader/save}" id="saveform" method="post" class="mauto" style="width:500px;">
+	    <ul class="forminfo">
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>登录名:</label>
+		    	<input type="text" placeholder="请输入登录名" name="username" th:value="${user != null ? user.username : ''}" class="dfinput" />
+		    	<i style="color: red" id="errorInfo_username" class="dis_non"></i>
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>姓名:</label>
+		    	<input type="text" placeholder="请输入姓名" name="name" th:value="${user != null ? user.name : ''}" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>邮箱:</label>
+		    	<input type="text" placeholder="请输入邮箱" name="mail_address" th:value="${user != null ? user.mail_address : ''}" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>密码:</label>
+		    	<input type="password" name="password" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">*</span>确认密码:</label>
+		    	<input type="password" name="repassword" class="dfinput" />
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">&nbsp;&nbsp;</span>备注:</label>
+		    	<textarea class="textinput" rows="" cols="" name="remark" placeholder="请输入备注信息" th:text="${user != null ? user.remark : ''}"></textarea>
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">&nbsp;&nbsp;</span>权限设置:</label>
+		    	<div class="vocation" style="padding: 5px;OVERFLOW-Y:auto; width: 335px; height: 300px; border-color: #a7b5bc #ced9df #ced9df #a7b5bc; border-style: solid; border-width: 1px;">
+			    	<ul th:each="menu : ${menus}">
+			    		<li style="margin-bottom: 5px;" class="menu">
+			    			<input type="checkbox" name="menu" th:attr="pid=0,spid=0" th:id="${menu.id}" th:value="${menu.id}" th:checked="${menu.disable == 0}" />
+			    			<cite th:text="${menu.name}" style="display: inline;"></cite>
+			    			<ul th:each="sm : ${menu.subMenus}" style="margin-left: 25px; margin-top: 5px;">
+					    		<li style="margin-bottom: 5px;">
+					    			<input type="checkbox" name="menu" class="sonMenu" th:attr="pid=${menu.id},spid=0" th:id="${sm.id}" th:value="${sm.id}" th:checked="${sm.disable == 0}" />
+					    			<cite th:text="${sm.name}" style="display: inline;"></cite>
+					    			<ul style="margin-left: 25px; margin-top: 5px;">
+							    		<li style="margin-bottom: 5px;" th:each="gsm : ${sm.subMenus}">
+							    			<input type="checkbox" name="menu" th:attr="pid=${sm.id},spid=${menu.id}" th:id="${gsm.id}" th:value="${gsm.id}" th:checked="${gsm.disable == 0}" />
+							    			<cite th:text="${gsm.name}" style="display: inline;"></cite>
+							    			
+							    		</li>
+							    	</ul>
+					    		</li>
+					    	</ul>
+			    		</li>
+			    	</ul>
+		    	</div>
+		    </li>
+		    <li style="clear:both;">
+		    	<label>&nbsp;</label>
+		    	<input type="hidden" name="id" id="id" th:value="${user != null ? user.id : 0}" />
+		    	<input type="hidden" name="removeMenuId" id="removeMenuId" />		    	
+		    </li>
+		    <li class="tc ml130" style="width:345px;margin-bottom:0;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn mt10" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("input[name=username]").blur(function() {
+		$.ajax({
+   			url : [[@{/admin/user/checkUsername}]],
+   			data : {
+   				id:$("#id").val(),
+   				username:$(this).val()
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+   				if (eval(data) == 'exists') {
+   					$("#errorInfo_username").html("用户名已存在！");
+   				} else {
+   					$("#errorInfo_username").html("");
+   				}
+   			}
+   		});
+	});
+	
+	$("#saveButton").click(function() {
+		var username = $.trim($("input[name=username]").val());
+		if (username.length == 0 || username.length > 15) {
+			alert("用户长度不能为空且不能大于15!");
+			return;
+		}
+		
+		var errinfo = $.trim($("#errorInfo_username").html());
+		if (errinfo.length != 0) {
+			alert(errinfo);
+			return;
+		}
+		
+		var name = $.trim($("input[name=name]").val());
+		if (name.length == 0 || name.length > 20) {
+			alert("姓名长度不能为空且不能大于20!");
+			return;
+		}
+		
+		var mail_address = $.trim($("input[name=mail_address]").val());
+		if (mail_address.length == 0 || mail_address.length > 100) {
+			alert("邮箱长度不能为空且不能大于100!");
+			return;
+		}
+		
+		var id = $("#id").val();
+		
+		var pwd = $.trim($("input[name=password]").val());
+		var rePwd = $.trim($("input[name=repassword]").val());
+		if(id==0){
+			if (pwd != rePwd) {
+				alert("密码不一致!");
+				return;
+			} else if (pwd == '' || rePwd == '') {
+				alert("密码不能为空!");
+				return;
+			}
+		}
+		else{
+			if(pwd.length!=0){
+				if(pwd != rePwd){
+					alert("密码不一致！");
+					return;
+				}
+			}
+		}
+		var removeIdArr = new Array();
+		$("input[name=menu]").each(function() {
+			var checked = $(this).prop("checked");
+			if (!checked) {
+				removeIdArr.push($(this).val());
+			}
+		});
+		
+		$("#removeMenuId").val(removeIdArr.join(","));
+		if (removeIdArr.length == 0) {
+			$("#removeMenuId").val('');
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit()
+		}	
+	});
+	
+	$("input[name=menu]").click(function() {
+		var pid = $(this).attr("pid");
+		var spid = $(this).attr("spid");
+		var id = $(this).val();
+		var checked = $(this).prop("checked");
+		if (pid == 0) {
+			$(this).parents("li.menu").find("input[name=menu]").each(function() {
+				$(this).prop("checked", checked);
+			});
+		} else {
+			var nca = false;
+			$("input[pid=" + pid + "]").each(function() {
+				if ($(this).prop("checked")) {
+					nca = true;
+					return;
+				}
+			});
+			
+			$("input[id=" + pid + "]").prop("checked", nca);
+			
+			if (spid > 0) {
+				nca = false;
+				$("input[id=" + spid + "]").parents("li.menu").find("input.sonMenu").each(function() {
+					if ($(this).prop("checked")) {
+						nca = true;
+						return;
+					}
+				});
+				$("input[id=" + spid + "]").prop("checked", nca);
+			} else {
+				$(this).nextAll("ul").find("input[name=menu]").each(function() {
+					$(this).prop("checked", checked);
+				});
+			}
+		}
+	});
+});
+/*]]>*/
+</script>
+</html>

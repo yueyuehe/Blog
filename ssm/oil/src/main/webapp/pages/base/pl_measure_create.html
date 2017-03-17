@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>管道保护电位测量记录创建：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+        <form method="post" id="saveform" th:action="@{/admin/base/pl_measure/save}">
+        <ul class="forminfo">
+			<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft mr30">
+			        	<select name="pl" class="select1">
+			            	<option value="0">请选择管线</option>
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft mr30">
+			            <select name="section" class="select1">
+			            	<option value="0">请选择起止段落</option>
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1">
+			            	<option value="0">请选择规格</option>
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="mauto clr">
+		     	<div class="recordBox"></div>
+		     	<table>
+		        	<tr class="recordTitle lh32">
+		            	<td colspan="2">
+		            		<div class="fl">
+		                		<span>井（站）</span>
+		                     	<input type="text" name="jinzhan" placeholder="请输入井(站)" style="width:120px;"  />
+		                    </div>
+		                    <div class="fl ml95">
+		                    	<span>管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div class="fr">
+		                    	<span>时间：</span>
+		                    	<input type="text" placeholder="请选择时间" readonly="readonly" name="c_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+		                	</div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td class="tableLeft">
+		                	<table class="addTr">
+		                    	<tr class="bg">
+		                        	<td width="120">测试桩编号</td>
+		                            <td width="150">测量日期</td>
+		                            <td width="120">电位（-V）</td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td colspan="3">阴极保护站输出</td>
+		                                    </tr>
+		                                	<tr>
+		                                    	<td width="70">A</td>
+		                                        <td width="70">V</td>
+		                                        <td width="120">通电点（-V）</td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td width="170">测量人</td>
+		                            <td width="170">备注</td>
+		                        </tr>
+		                        <tr>
+		                        	<td><input name="no" style="width:100%" type="text" /></td>
+		                            <td><input  placeholder="请选择日期" readonly="readonly" name="m_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100%;" type="text" /></td>
+		                            <td><input name="potential" style="width:100%;" type="text" /></td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td width="70"><input name="a" style="width:100%;" type="text" /></td>
+		                                        <td width="70"><input name="v" style="width:100%;" type="text" /></td>
+		                                        <td width="120"><input name="tongdian" style="width:100%;" type="text" /></td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td><input name="measurer" style="width:100%;" type="text" /></td>
+		                            <td><textarea name="remark" style="width:100%;"></textarea></td>
+		                        </tr>
+		                        <tr>
+		                        	<td><input name="no" style="width:100%;" type="text" /></td>
+		                            <td><input  placeholder="请选择日期" readonly="readonly" name="m_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100%;" type="text" /></td>
+		                            <td><input name="potential" style="width:100%;" type="text" /></td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td width="70"><input name="a" style="width:100%;" type="text" /></td>
+		                                        <td width="70"><input name="v" style="width:100%;" type="text" /></td>
+		                                        <td width="120"><input name="tongdian" style="width:100%;" type="text" /></td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td><input name="measurer" style="width:100%;" type="text" /></td>
+		                            <td><textarea name="remark" style="width:100%;" type="text"></textarea></td>
+		                        </tr>
+		                        <tr>
+		                        	<td><input name="no" style="width:100%;" type="text" /></td>
+		                            <td><input  placeholder="请选择日期" readonly="readonly" name="m_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100%;" type="text" /></td>
+		                            <td><input name="potential" style="width:100%;" type="text" /></td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td width="70"><input name="a" style="width:100%;" type="text" /></td>
+		                                        <td width="70"><input name="v" style="width:100%;" type="text" /></td>
+		                                        <td width="120"><input name="tongdian" style="width:100%;" type="text" /></td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td><input name="measurer" style="width:100%;" type="text" /></td>
+		                            <td><textarea name="remark" style="width:100%;" type="text"></textarea></td>
+		                        </tr>
+		                        <tr>
+		                        	<td><input name="no" style="width:100%;" type="text" /></td>
+		                            <td><input  placeholder="请选择日期" readonly="readonly" name="m_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100%;" type="text" /></td>
+		                            <td><input name="potential" style="width:100%;" type="text" /></td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td width="70"><input name="a" style="width:100%;" type="text" /></td>
+		                                        <td width="70"><input name="v" style="width:100%;" type="text" /></td>
+		                                        <td width="120"><input name="tongdian" style="width:100%;" type="text" /></td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td><input name="measurer" style="width:100%;" type="text" /></td>
+		                            <td><textarea name="remark" style="width:100%;" type="text"></textarea></td>
+		                        </tr>
+		                        <tr>
+		                        	<td><input name="no" style="width:100%;" type="text" /></td>
+		                            <td><input  placeholder="请选择日期" readonly="readonly" name="m_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100%;" type="text" /></td>
+		                            <td><input name="potential" style="width:100%;" type="text" /></td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td width="70"><input name="a" style="width:100%;" type="text" /></td>
+		                                        <td width="70"><input name="v" style="width:100%;" type="text" /></td>
+		                                        <td width="120"><input name="tongdian" style="width:100%;" type="text" /></td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td><input name="measurer" style="width:100%;" type="text" /></td>
+		                            <td><textarea name="remark" style="width:100%;" type="text"></textarea></td>
+		                        </tr>
+		                      </table>
+		                      
+		                            
+		                </td>		                
+            		</tr>
+            		<tr>
+            			<td class="tableFooter">
+            				<div class="fl ml20">保存单位：<input type="text" name="unit" placeholder="请输入保存单位"/></div>
+		                    <div class="fr mr20">
+		                                                  保存期限：
+		                    <input type="text" name="save_date" placeholder="请输入保存期限" />
+		                    <span>年</span>
+		                    </div>
+		                    <div class="clr"></div>
+            			</td>
+            		</tr>
+        		</table>
+		     </li>
+		     <li class="mauto20 tc">
+		     	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     </li>
+		</ul>
+		<div id="addLine" class="addLine"></div>
+        </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	var addLineLeft=parseInt($(".recordTitle").css("width")) + 2;
+	//alert(addLineLeft);
+	var assLineTop=parseInt($(".recordTitle").css("height"))+138+23*4;
+	//alert(assLineTop);
+	$("#addLine").css({"left":addLineLeft+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		var trHtml = "<tr><td><input name='no' style='width:120px' type='text' /></td>";
+		trHtml = trHtml + "<td><input  placeholder='请选择日期' readonly='readonly' name='m_date' onClick=\"WdatePicker({dateFmt:'yyyy-MM-dd'})\" style='width:150px' type='text' /></td>";
+		trHtml = trHtml + "<td><input name='potential' style='width:120px' type='text' /></td>";
+		trHtml = trHtml + "<td><table><tr><td width='70'><input name='a' style='width:70px' type='text' /></td>";
+		trHtml = trHtml + "<td width='70'><input name='v' style='width:70px' type='text' /></td>";
+		trHtml = trHtml + "<td width='120'><input name='tongdian' style='width:120px' type='text' /></td></tr></table></td>";
+		trHtml = trHtml + "<td><input name='measurer' style='width:170px' type='text' /></td>";
+		trHtml = trHtml + "<td><textarea name='remark' style='width:170px' type='text'></textarea></td></tr>";
+		trHtml = trHtml +trHtml + trHtml;
+		$(".addTr").append(trHtml);
+		 $(this).css("top",(assLineTop+(times+2)*28)+'px');
+		times=times+3;
+	})
+	$("#saveButton").click(function() {
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0||jinzhanTxt.length>50){
+			alertM('井站名称不能为空且不能超过50个字！',{time:3000});
+			return;
+		}
+		var p_monthTxt=$("input[name=c_month]").val();
+		if(p_monthTxt.length==0){
+			alertM('请选择时间!',{time:3000});
+			return;
+		}
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM('请选择管线名称及规格!',{time:3000});
+			return;
+		}
+		var unitTxt=$("input[name=unit]").val();
+		if(unitTxt.length==0){
+			alertM('请输入保存单位!',{time:3000});
+			return;
+		}
+		var save_dateTxt=$("input[name=save_date]").val();
+		var save_dateNum = /^\d*$/;
+		if(save_dateTxt.length==0){
+			alertM('请输入保存期限!',{time:3000});
+			return;
+		}
+		if(!save_dateNum.test(save_dateTxt)){
+			alertM('保存期限必须输入数字!',{time:3000});
+			return;
+		}
+		var bool = true;
+		$('input[name=no]').each(function(){
+			var no = $(this).val();
+			if(no.length>10){
+				alertM('测试桩编号不能大于10个字!',{time:3000});
+				bool = false;
+				return false;
+			}
+		})
+		var num = /^\d+(\.\d+)?$/;
+		$('input[name=potential]').each(function(){
+			var potential = $(this).val();
+			if(potential.length>0){
+				if(!num.test(potential)){
+					alertM('电位必须为数字!',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=a]').each(function(){
+			var a = $(this).val();
+			if(a.length>0){
+				if(!num.test(a)){
+					alertM('阴极保护电流输出（A）必须为数字！',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=v]').each(function(){
+			var v = $(this).val();
+			if(v.length>0){
+				if(!num.test(v)){
+					alertM('阴极保护电流输出（V）必须为数字！',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=tongdian]').each(function(){
+			var tongdian = $(this).val();
+			if(tongdian.length>0){
+				if(!num.test(tongdian)){
+					alertM('阴极保护电流输出（通电点电位）必须为数字！',{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=measurer]').each(function(){
+			var measurer = $(this).val();
+			if(measurer.length>10){
+				alertM('测量人字数不能大于10！',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		
+		$('textarea[name=remark]').each(function(){
+			var remark = $(this).val();
+			if(remark.length>200){
+				alertM('备注字数不能大于200！',{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		if(!bool){
+			return false;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+	//跳备注框
+	$('textarea[name=remark]').each(function(){
+		$(this).focus(function(){
+			//$(this).css('position','absolute');
+			$('textarea[name=remark]').css({'height':'100%'});
+			$(this).addClass('inputAdd');
+			$(this).animate({'height':'200px'});
+		})
+		$(this).blur(function(){
+			$('textarea[name=remark]').css({'height':'100%'});
+		})
+	})
+});
+
+
+/*]]>*/
+</script>
+</html>

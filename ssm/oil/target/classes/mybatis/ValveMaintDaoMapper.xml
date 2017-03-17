@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.ValveMaintDao">
+
+	<select id="queryValveMaintAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id,
+		CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM valve_maint vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN
+		base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN
+		base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where>
+		GROUP BY vp.pl_spec_id
+	</select>
+
+	<select id="queryValveMaintByList" resultMap="queryValveMaintByIdRusult">
+		SELECT * FROM valve_maint
+		WHERE pl_spec_id=#{param.id}
+		<if test="param.r_month!=null">
+			AND check_date = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT #{param.offset},#{param.pageSize}
+	</select>
+	<select id="queryValveMaintByListTotal" resultType="int">
+		SELECT COUNT(1) FROM valve_maint
+		WHERE pl_spec_id=#{param.id}
+		<if test="param.r_month!=null">
+			AND check_date = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+	</select>
+
+	<select id="queryValveMaintById" resultMap="queryValveMaintByIdRusult">
+		SELECT * FROM
+		valve_maint WHERE id=#{id}
+	</select>
+
+	<insert id="saveValveMaint" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO valve_maint
+		(pl_id,pl_section_id,pl_spec_id,valve_name,check_date,create_time,creater,`status`,up_id)
+		VALUES
+		(#{pl_id},#{pl_section_id},#{pl_spec_id},#{valve_name},#{check_date},now(),#{creater},#{status},#{up_id})
+	</insert>
+
+	<insert id="saveValveMaintDetail">
+		INSERT INTO valve_maint_detail
+		(vm_id,particips,content,question,status)
+		VALUES
+		(#{vm_id},#{particips},#{content},#{question},#{status})
+	</insert>
+
+	<select id="queryValveMaint" resultType="cn.hm.oil.domain.ValveMaint">
+		SELECT
+		vm.id,vm.valve_name,vm.creater,vm.check_date,vm.create_time,vm.status,p.name
+		AS pl_name,ps.name AS pl_section_name,psp.name AS pl_spec_name FROM
+		valve_maint vm,base_pipeline p,base_pipeline_section
+		ps,base_pipeline_spec psp
+		WHERE p.id = vm.pl_id AND ps.id =
+		vm.pl_section_id AND psp.id =
+		vm.pl_spec_id
+		<if test="pl_id!=null">
+			AND vm.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+			AND vm.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+			AND vm.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="check_date">
+			AND vm.`check_date`=#{check_date}
+		</if>
+		<if test="status!=null">
+			AND vm.`status` = #{status}
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, vm.up_id) OR vm.up_id is NULL
+			OR vm.creater = #{user_id})
+		</if>
+		ORDER BY vm.create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+
+	<select id="queryValveMaint_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM valve_maint
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+			AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+			AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+			AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="check_date">
+			AND `check_date`=#{check_date}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status}
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR
+			creater = #{user_id})
+		</if>
+		ORDER BY create_time DESC
+	</select>
+
+	<resultMap type="cn.hm.oil.domain.ValveMaint" id="queryValveMaintByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+
+		<collection property="vmd" select="queryValveMaintDetailByPpId"
+			column="id" ofType="cn.hm.oil.domain.ValveMaintDetail" />
+	</resultMap>
+
+	<select id="queryValveMaintDetailByPpId" resultType="cn.hm.oil.domain.ValveMaintDetail">
+		SELECT *
+		FROM valve_maint_detail WHERE vm_id=#{id}
+	</select>
+
+	<update id="saveVerify">
+		UPDATE valve_maint SET verifier =
+		#{verifier},`status` = #{status},verify_time = NOW(), verify_desc =
+		#{verify_desc} WHERE id=#{id}
+	</update>
+
+	<update id="updateValveMaintTime">
+		UPDATE valve_maint SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+			,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+
+	<update id="updateValueMaint">
+		UPDATE valve_maint SET
+		pl_id=#{pl_id},pl_section_id=#{pl_section_id},pl_spec_id=#{pl_spec_id},valve_name=#{valve_name},check_date=#{check_date},`status`=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+
+	<delete id="deleteValueMaintByVMId">
+		DELETE FROM valve_maint_detail WHERE vm_id = #{vm_id}
+	</delete>
+
+	<delete id="deleteValveMaintById">
+		DELETE FROM valve_maint WHERE id = #{id}
+	</delete>
+
+</mapper>

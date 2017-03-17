@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{/admin/base/pl_patrol/list}">管道巡检工作记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a>:</li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+        <ul class="forminfo">
+			<li class="mauto mauto1">
+		    		<div class="usercity">
+					<div class="cityleft">
+						<select name="pl" class="select1" disabled="disabled">
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${pp.pl_id == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}" />
+						</select>
+					</div>
+					<div class="cityleft">
+						<select name="section" class="select1" disabled="disabled">
+							<option th:each="sec:${sectionList}"
+								th:selected="${pp.pl_section_id ==sec.id}" th:value="${sec.id}"
+								th:text="${sec.name}" />
+						</select>
+					</div>
+					<div class="cityright">
+						<select name="spec" class="select1" disabled="disabled">
+							<option th:each="spl:${specList}"
+								th:selected="${pp.pl_spec_id ==spl.id}" th:value="${spl.id}"
+								th:text="${spl.name}" />
+						</select>
+					</div>
+				<div class="cityright" style="padding-left: 10px">
+					<ul class="seachform mauto">
+						<li class="mr20"><span>时间：</span> <input type="text"
+							readonly="readonly" id="r_month" name="r_month"
+							th:value="${r_month==null? '' : r_month}" class="new_input Wdate"
+							onClick="WdatePicker({dateFmt:'yyyy-MM'})" /></li>
+						<li class="fr mr0" th:if="${role!=null and role==2}"><input
+							id="exportButton" name="exportButton" type="button" class="scbtn"
+							value="导出" /></li>
+						<li class="fr mr20"><input id="searchButton" type="button"
+							class="scbtnModi" value="查询" /></li>
+					</ul>
+				</div>
+				</div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="mauto clr">
+		     	<div class="record3"></div>
+		     	<table class="table100">
+		        	<tr class="recordTitle0 lh32">
+		            	<td colspan="9">
+		            		<div class="fl ml20">
+		                		<span>井（站）</span>
+		                    	<input style="width:150px;" type="text" name="jinzhan" th:value="${pp.jinzhan}" readonly="readonly" class="new_input" />
+		                    </div>
+		                    <div  class="fl" style="margin-left:130px;">
+		                    	<span class="ml30">管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div  class="fr mr20">
+		                    	<span>时间：</span>
+		                    	<input style="width:150px;" type="text" th:value="${#strings.substring(pp.p_month,0,4) + '-' + #strings.substring(pp.p_month,4,6)}" disabled="disabled" name="p_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+		                	</div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td width="80">日期</td>
+		                <td width="100">工作地段（点）</td>
+		                <td width="100">工作内容</td>
+		                <td width="120">发现问题及处理情况</td>
+		                <td width="100">语音记录栏</td>
+		                <td width="80">工作人</td>
+		                <td width="80">审核</td>
+		                <td width="80">图片</td>
+		            </tr>
+		            <tr th:each="d:${pp.detailList}">
+		            	<td><input th:value="${beans.dateFormatter.formatDateToStr(d.p_date,'yyyy-MM-dd')}" disabled="disabled" type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+		                <td><input readonly="readonly" th:value="${d.work_place}" type="text" name="work_place" /></td>
+		                <td><input readonly="readonly" th:value="${d.content}" type="text" name="content" /></td>
+		                <td><input readonly="readonly" th:value="${d.question}" type="text" name="question"  /></td>
+		                <td><input readonly="readonly" th:value="${d.voice_record}" type="text" name="voice_record" /></td>
+		                <td><input readonly="readonly" th:value="${d.worker}" type="text" name="worker" /></td>
+		                <td><input readonly="readonly" th:value="${d.auditor}" type="text" name="auditor" /></td>
+		                <td><img th:if="${d.annex!=null}" th:src="${application.baseImageUrl + d.annex}" width="80" height="40" /></td>
+		            </tr>		            
+        		</table>
+			</li>
+			<li class="mauto20">					  
+					<label class="labelModi">保存井（站）：</label>  
+					<input type="text" name="save_jinzhan" placeholder="请输入保存井（站）" class="new_input" th:value="${pp.save_jinzhan}" disabled="disabled"/>
+					<div class="clr"></div>
+				</li>
+			<li  class="mauto">
+		    	<label class="labelModi tl"><span class="red">*</span>审核状态：</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == pp.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == pp.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == pp.status}" th:value="-1">不通过</option>
+		            </select>
+		            <label th:if="${verify != 1}" th:text="${pp.status == 0?'待审核':pp.status == 1?'通过':'不通过'}"></label>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li  class="mauto">
+		    	<label class="labelModi tl"><span class="red">*</span>说明：</label>
+		    	<textarea style="width:830px;" class="textinput" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${pp.verify_desc}"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="mauto20 tc" th:if="${verify == 1}">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		</ul>
+	</div>								
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var ppid = [[${pp.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/pl_patrol/verify_save}]],
+	   			data : {
+	   				'id' : ppid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + specname);
+});
+
+
+/*]]>*/
+</script>
+</html>

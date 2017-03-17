@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>其他管理 </li>
+	    	<li>反馈信息：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+		<form action="feedback_save" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfo mauto" style="width:800px;">
+		    <li>
+		    	<label class="labelModi w70"><span class="red">*</span>标题:</label>
+		    	<input type="text" name="title" class="dfinput" placeholder="请输入标题" />
+		    </li>
+		    <li>
+		    	<label class="labelModi fl w70"><span class="red">*</span>内容:</label>
+		    	
+		    	<div class="fl">
+		    	<textarea class="textinput " rows="10" cols="100" name="content" placeholder="请输入内容"></textarea>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi w70"><span class="red">*</span>反馈人:</label>
+		    	<input type="text" name="name" class="dfinput" placeholder="请输入反馈人" />
+		    </li>
+		    <li>
+		    	<label class="labelModi w70"><span class="red">*</span>电话:</label>
+		    	<input type="text" name="phone" class="dfinput" placeholder="请输入联系电话" />
+		    </li>
+		    <li>
+		    	<label class="labelModi w80">附件:</label>
+		    	<input type="file" name="file" id="file" class="fileModi" />
+		    </li>
+		    <li class="tc mb0" style="clear:both;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认提交"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	
+	$("#saveButton").click(function() {
+		var title = $.trim($("input[name=title]").val());
+		if (title.length == 0 || title.length > 50) {
+			alertM("标题不能为空且长度不能大于50!",{time:3000});
+			return;
+		}
+		
+		var content = $.trim($("textarea[name=content]").val());
+		if (content.length == 0 || content.length > 1000) {
+			alertM("内容不能为空且长度不能大于1000!",{time:3000});
+			return;
+		}
+		var name = $.trim($("input[name=name]").val());
+		if (name.length == 0 || name.length > 20) {
+			alertM("反馈人不能为空且长度不能大于20!",{time:3000});
+			return;
+		}
+		var phone = $.trim($("input[name=phone]").val());
+		if (phone.length == 0 || phone.length > 20) {
+			alertM("电话不能为空且长度不能大于20!",{time:3000});
+			return;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+});
+/*]]>*/
+</script>
+</html>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.ValvePatrolDao">
+
+	<select id="queryValvePatrolAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM valve_patrol vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY vp.pl_spec_id
+	</select>
+
+	<select id="queryValvePatrolByList" resultMap="queryValvePatrolByIdRusult">
+		SELECT * FROM valve_patrol 
+		WHERE pl_spec_id=#{param.id} 
+		<if test="param.r_month!=null">
+			AND check_date = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT #{param.offset},#{param.pageSize} 
+	</select>
+	<select id="queryValvePatrolByListTotal" resultType="int">
+		SELECT COUNT(1) FROM valve_patrol 
+		WHERE pl_spec_id=#{param.id} 
+		<if test="param.r_month!=null">
+			AND check_date = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+	</select>
+	
+	<select id="queryValvePatrolById" resultMap="queryValvePatrolByIdRusult">
+		SELECT * FROM valve_patrol WHERE id=#{id}
+	</select>
+
+	<insert id="saveValvePatrol" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO valve_patrol (pl_id,pl_section_id,pl_spec_id,valve_name,check_date,checker,create_time,creater,`status`,up_id) 
+		VALUES (#{pl_id},#{pl_section_id},#{pl_spec_id},#{valve_name},#{check_date},#{checker},now(),#{creater},0,#{up_id})
+	</insert>
+	
+	<insert id="saveValvePatrolDetail">
+		INSERT INTO valve_patrol_detail (vp_id,normal1,normal2,normal3,normal4,normal5,normal6,normal7,normal8,normal9,normal10,normal11,normal12,normal13,
+		handle1,handle2,handle3,handle4,handle5,handle6,handle7,handle8,handle9,handle10,handle11,handle12,handle13,
+		remark1,remark2,remark3,remark4,remark5,remark6,remark7,remark8,remark9,remark10,remark11,remark12,remark13) 
+		VALUES (#{vp_id},#{normal1},#{normal2},#{normal3},#{normal4},#{normal5},#{normal6},#{normal7},#{normal8},#{normal9},#{normal10},#{normal11},#{normal12},#{normal13},
+		#{handle1},#{handle2},#{handle3},#{handle4},#{handle5},#{handle6},#{handle7},#{handle8},#{handle9},#{handle10},#{handle11},#{handle12},#{handle13},
+		#{remark1},#{remark2},#{remark3},#{remark4},#{remark5},#{remark6},#{remark7},#{remark8},#{remark9},#{remark10},#{remark11},#{remark12},#{remark13})
+	</insert>
+	
+	<update id="updateValvePatrol">
+		UPDATE valve_patrol SET pl_id=#{pl_id},pl_section_id=#{pl_section_id},pl_spec_id=#{pl_spec_id},valve_name=#{valve_name},check_date=#{check_date},checker=#{checker},`status`=0,up_id=#{up_id} WHERE id=#{id}
+	</update>
+	
+	<update id="updateValvePatrolTime">
+		UPDATE valve_patrol SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryValvePatrol" resultType="cn.hm.oil.domain.ValvePatrol">
+		SELECT vp.id,vp.valve_name,vp.checker,vp.creater,vp.check_date,vp.create_time,vp.status,p.name AS pl_name,ps.name AS pl_section_name,psp.name AS pl_spec_name FROM valve_patrol vp,base_pipeline p,base_pipeline_section ps,base_pipeline_spec psp 
+		WHERE p.id = vp.pl_id AND ps.id = vp.pl_section_id AND psp.id = vp.pl_spec_id
+		<if test="pl_id!=null">
+		AND vp.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND vp.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND vp.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="check_date">
+		AND vp.`check_date`=#{check_date} 
+		</if>
+		<if test="status!=null">
+			AND vp.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, vp.up_id) OR vp.up_id is NULL OR vp.creater = #{user_id}) 
+		</if>
+		ORDER BY vp.create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryValvePatrol_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM valve_patrol
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="check_date">
+		AND `check_date`=#{check_date}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+		ORDER BY `create_time` DESC
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.ValvePatrol" id="queryValvePatrolByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		
+		<collection property="vpd" select="queryValvePatrolDetailByVpId" column="id" ofType="cn.hm.oil.domain.ValvePatrolDetail"/>
+	</resultMap>
+	
+	<select id="queryValvePatrolDetailByVpId" resultType="cn.hm.oil.domain.ValvePatrolDetail">
+		SELECT * FROM valve_patrol_detail WHERE vp_id=#{id}
+	</select>
+	
+	<update id="saveValveVerify">
+		UPDATE valve_patrol SET `status`=#{status},verifier=#{verifier},verify_time=NOW(),verify_desc=#{verify_desc} WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteValvePatrolDetailByVPId">
+		DELETE FROM valve_patrol_detail WHERE vp_id =#{vp_id}
+	</delete>
+	
+	<delete id="deleteValvePatrolById">
+		DELETE FROM valve_patrol WHERE id =#{id}
+	</delete>
+	
+</mapper>

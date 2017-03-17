@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseRoutineAttentionDao_2016">
+	<resultMap type="cn.hm.oil.domain.RoutineAttention_2016" id="queryRoutineAttentionByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="name" property="name" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="weihu" property="weihu" />
+		<result column="year" property="year" />
+		<result column="create_time" property="create_time"/>
+		
+		<collection property="detaillist" select="queryRoutineAttentionDetailByPpId" column="id" javaType="List" ofType="cn.hm.oil.domain.RoutineAttentionDetail"/>
+	</resultMap>
+	
+	<select id="queryRoutineAttentionDetailByPpId" resultType="cn.hm.oil.domain.RoutineAttentionDetail">
+		SELECT * FROM routine_attention_detail_2016 WHERE ra_id=#{id}
+	</select>
+	
+	<select id="queryBasePipelineByAdminRoutine" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM routine_attention_2016 pp, base_pipeline p, routine_attention_detail_2016 ppd
+		WHERE ppd.`ra_id`=pp.id AND pp.`pl_id` = p.`id`
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="queryUsers" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT DISTINCT us.name,us.id
+		FROM routine_attention_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+		AND pp.`year`=#{year}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+
+	<select id="queryLastRoutineAttentionByUserId" resultMap="queryRoutineAttentionByIdRusult">
+		select * FROM routine_attention_2016
+		WHERE creater = #{id}
+		<if test="pl_id != null">
+			AND pl_id=#{pl_id}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	
+	<update id="updateRoutineAttention">
+		UPDATE routine_attention_2016 SET pl_id=#{pl_id},name=#{name},
+		jinzhan=#{jinzhan},weihu=#{weihu},year=#{year},status=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+
+	<delete id="deleteRoutineAttentionDetailByRaid">
+		DELETE FROM routine_attention_detail_2016 WHERE ra_id=#{ra_id}
+	</delete>
+	
+	<insert id="insertRoutineAttention" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO routine_attention_2016(pl_id,name,jinzhan,weihu,year,create_time,creater,up_id) 
+		VALUES(#{pl_id},#{name},#{jinzhan},#{weihu},#{year},now(),#{creater},#{up_id})
+	</insert>
+	
+	<insert id="insertRoutineAttentionDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO routine_attention_detail_2016(ra_id,no,type,lczh,address,descrip,atten_date,content,person,status) 
+		VALUES(#{ra_id},#{no},#{type},#{lczh},#{address},#{descrip},#{atten_date},#{content},#{person},#{status})
+	</insert>
+	
+	<update id="updateRoutineAttentionVerifyStatus">
+		UPDATE routine_attention_2016 ra JOIN routine_attention_detail_2016 rad ON ra.id=rad.`ra_id`
+		SET	ra.status=#{status},rad.status=#{status},verify_desc=#{verify_desc},verify_time=now(),verifier=#{verifier}
+		WHERE ra.id=#{id}
+	</update>
+	
+	<select id="queryPipeLineByAdminRoutineAttention" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM routine_attention_2016 pp, base_pipeline p, sys_users us
+		WHERE us.id = pp.creater AND pp.`pl_id` = p.`id`
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+			AND pp.`year`=#{year}
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="queryRoutineAttentions" resultMap="queryRoutineAttentionByIdRusult">
+		SELECT pp.*
+		FROM routine_attention_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+			AND pp.`year`=#{year}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	<select id="queryRoutineAttentions_count" resultType="int">
+		SELECT COUNT(pp.id)
+		FROM routine_attention_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="year">
+		AND pp.`year`=#{year}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<select id="queryRoutineAttentionById" resultMap="queryRoutineAttentionByIdRusult">
+		SELECT rc.*, p.`name` AS pl_name
+		FROM routine_attention_2016 rc, base_pipeline p
+		WHERE rc.id=#{id} AND rc.`pl_id` = p.`id`
+	</select>
+	
+	<!-- 
+	<select id="queryRoutineAttentionDetailVerifyMerge" resultType="cn.hm.oil.domain.RoutineAttentionDetail">
+		SELECT rad.* FROM routine_attention_detail rad, routine_attention ra 
+		WHERE rad.`ra_id` = ra.`id` 
+		AND ra.`pl_id` = #{pl_id} AND ra.`pl_section_id` = #{pl_section_id} AND ra.`pl_spec_id` = #{pl_spec_id}
+		<if test="status!=null">
+		AND rad.`status` = #{status}
+		</if>
+		<if test="year!=null">
+		AND ra.`year` LIKE CONCAT('%',#{year},'%')
+		</if>
+		AND (FIND_IN_SET(#{user_id}, ra.up_id) OR ra.up_id IS NULL OR ra.creater = #{user_id})
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRoutineAttentionDetailVerifyMerge_count" resultType="int">
+		SELECT count(1) FROM routine_attention_detail rad, routine_attention ra 
+		WHERE rad.`ra_id` = ra.`id` 
+		AND ra.`pl_id` = #{pl_id} AND ra.`pl_section_id` = #{pl_section_id} AND ra.`pl_spec_id` = #{pl_spec_id}
+		<if test="status!=null">
+		AND rad.`status` = #{status}
+		</if>
+		<if test="year!=null">
+		AND ra.`year` LIKE CONCAT('%',#{year},'%')
+		</if>
+		AND (FIND_IN_SET(#{user_id}, ra.up_id) OR ra.up_id IS NULL OR ra.creater = #{user_id})
+	</select>
+	
+	<select id="queryRoutineAttentionVerifyMerge" resultType="cn.hm.oil.domain.RoutineAttention">
+		SELECT DISTINCT rc.`pl_spec_id`, rc.`pl_id`, rc.`pl_section_id`, p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM routine_attention rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="year!=null">
+		AND rc.`year` LIKE CONCAT('%',#{year},'%')
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		AND (FIND_IN_SET(#{user_id}, rc.up_id) OR rc.up_id IS NULL OR rc.creater = #{user_id})
+	</select>
+	
+	<select id="queryRoutineAttentionMergeInfor" resultType="cn.hm.oil.domain.RoutineAttention">
+		SELECT rc.`jinzhan`, rc.`weihu`, rc.`year`, p.`name` AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name, rc.`status`, rc.`verify_desc`
+		FROM routine_attention rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp 
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		AND rc.`pl_id` = #{pl_id} AND rc.`pl_section_id` = #{pl_section_id} AND rc.`pl_spec_id` = #{pl_spec_id}
+		<if test="year!=null">
+		AND rc.`year` LIKE CONCAT('%',#{year},'%')
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		AND (FIND_IN_SET(#{user_id}, rc.up_id) OR rc.up_id IS NULL OR rc.creater = #{user_id})
+		LIMIT 1
+	</select>
+
+	
+	
+	
+	
+	<update id="updateRoutineAttentionTime">
+		UPDATE routine_attention SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	
+	
+	
+	<select id="queryRoutineAttention" resultType="cn.hm.oil.domain.RoutineAttention">
+		SELECT  rc.pl_id,rc.pl_section_id,rc.pl_spec_id ,rc.`id`, rc.`jinzhan`, rc.`year`, rc.`weihu`, rc.`create_time`,rc.creater, rc.status, p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM routine_attention rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="year!=null">
+		AND rc.`year` LIKE CONCAT('%',#{year},'%')
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		<if test="whCreater!=null">
+			AND rc.creater = #{whCreater}
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, rc.up_id) OR rc.up_id is NULL OR rc.creater = #{user_id}) 
+		</if>
+		ORDER BY rc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRoutineAttention_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM routine_attention
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="year!=null">
+		AND `year` LIKE CONCAT('%',#{year},'%')
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="whCreater!=null">
+			AND creater = #{whCreater}
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	<delete id="deleteRoutineAttentionById">
+		DELETE FROM routine_attention WHERE id=#{id}
+	</delete>
+	
+	
+
+	<select id="queryRoutineAttentionDetailBraId" parameterType="int" resultType="cn.hm.oil.domain.RoutineAttentionDetail">
+		SELECT * FROM `routine_attention_detail`  WHERE ra_id=#{ra_id}
+	</select>
+	
+	
+
+	<select id="queryRoutineAttentionDetail" resultType="cn.hm.oil.domain.RoutineAttentionDetail">
+		SELECT rad.* FROM routine_attention_detail rad join routine_attention ra on rad.ra_id=ra.id
+		WHERE (rad.`no` IS NOT NULL AND rad.`no`!= '')
+		<if test="id!= null">
+			AND ra.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND (ra.`status` = #{status} OR rad.`status` = #{status})
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(ra.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND ra.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND ra.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND ra.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND ra.`pl_section_id`=#{section}
+		</if>	
+		<if test="order!=null">
+			ORDER BY rad.id DESC
+		</if>
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRoutineAttentionDetail_count" resultType="int">
+		SELECT COUNT(*) FROM routine_attention_detail rad join routine_attention ra on rad.ra_id=ra.id
+		WHERE (rad.`no` IS NOT NULL AND rad.`no`!= '')
+		<if test="id!= null">
+			AND ra.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND (ra.`status` = #{status} OR rad.`status` = #{status})
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(ra.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND ra.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND ra.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND ra.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND ra.`pl_section_id`=#{section}
+		</if>
+	</select>
+	
+	<update id="updateResetDetailStatus">
+		UPDATE routine_attention_detail rad JOIN routine_attention ra ON rad.`ra_id`=ra.`id`
+		SET rad.status = ra.status
+		WHERE rad.`id`=#{id}
+	</update>
+	
+	<select id="queryDetailStatus" resultType="int">
+		SELECT status FROM routine_attention_detail
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateChangeDetailStatus">
+		UPDATE routine_attention_detail rad JOIN routine_attention ra ON rad.`ra_id`=ra.`id`
+		SET rad.status = #{status},ra.status=#{status}
+		WHERE rad.`id`=#{id}
+	</update>
+	
+	<update id="updateRoutineAttentionDetail">
+		UPDATE routine_attention_detail rad JOIN routine_attention ra ON rad.`ra_id`=ra.id
+		SET no=#{no},type=#{type},lczh=#{lczh},address=#{address},descrip=#{descrip},atten_date=#{atten_date},content=#{content},person=#{person}
+		<if test="status!=null">
+		,rad.status=#{status}
+		,ra.status=#{status}
+		</if>
+		WHERE rad.id=#{id}
+	</update>
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE routine_attention_detail pmd JOIN routine_attention pm ON pmd.`ra_id`=pm.id
+		SET pmd.status = 0,pm.status=0
+		WHERE pmd.status = -2 OR pm.status = -2
+	</update>
+	
+	
+	
+	<select id="querySpecListNewByAdminRoutine" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN routine_attention pp ON pp.`pl_spec_id`=bpsc.id
+		    JOIN routine_attention_detail ppd ON ppd.`ra_id`=pp.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="status !=null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminRoutine" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM routine_attention pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, routine_attention_detail ppd
+		WHERE ppd.`ra_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select>-->
+</mapper>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{'/admin/base/new/rc_comp/list}">阴极保护站运行记录查看</a></li>
+	    	<li>修改：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="webMain">
+        <form method="post" id="saveform" th:action="@{/admin/base/new/rc/save}" class="webForm">
+    	
+    	    <ul class="forminfo">
+			<li>
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1"  >
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1" >
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1" >
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		     </li>
+		     <li style="clear:both;">
+		     	<div class="record2"></div>
+		        <table>
+		        	<tr class="recordTitle0 lh32">
+		            	<td colspan="8" width="730">
+		            		<div class="fl ml20">
+		                		<span>井（站）</span>
+		                    	<input type="text" th:value="${rc.jinzhan}"  name="jinzhan" style="width:120px;" />
+		                    </div>
+		                    <div  class="fl" style="margin-left:130px;">
+		                    	<span class="ml30">管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div  class="fr mr20">
+		                    	<span class="ml30">时间：</span>
+				            	<input th:value="${#strings.substring(rc.r_month,0,4) + '-' + #strings.substring(rc.r_month,4,6)}"  type="text" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" style="width:130px;" />
+				            </div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td colspan="2">
+		                	<table>
+		                    	<tr>
+		                        	<td colspan="2">时间</td>
+		                        </tr>
+		                        <tr>
+		                        	<td width="70">日</td>
+		                            <td width="70">时</td>
+		                        </tr>
+		                    </table>
+		                </td>
+		                <td width="60">交流电压（-V）</td>
+		                <td colspan="2">
+		                	<table>
+		                    	<tr>
+		                        	<td colspan="2">直流输出</td>
+		                        </tr>
+		                        <tr>
+		                        	<td width="70">A</td>
+		                            <td width="70">V</td>
+		                        </tr>
+		                    </table>
+		                </td>
+		                <td width="70">通电点电位（-V）</td>
+		                <td width="120">记录人</td>
+		                <td width="220">大事记要</td>
+		            </tr>
+		            <tr th:each="d,status:${rc.detailList}">
+		            	<td><input  th:value="${d.day}" type="text" name="day" style="width:70px;" /></td>
+		                <td><input  th:value="${d.time}" type="text" name="time" style="width:70px;" /></td>
+		                <td><input  th:value="${d.jldy}" type="text" name="jldy" style="width:60px;" /></td>
+		                <td><input  th:value="${d.zlsc_a}" type="text" name="zlsc_a" style="width:70px;" /></td>
+		                <td><input  th:value="${d.zlsc_v}" type="text" name="zlsc_v" style="width:70px;" /></td>
+		                <td><input  th:value="${d.tdddw}" type="text" name="tdddw" style="width:70px;" /></td>
+		                <td><input  th:value="${d.recorder}" type="text" name="recorder" style="width:120px;" /></td>
+		                <td rowspan="9999" th:if="${status.count==1}"><input  th:value="${rc.comment}" type="text" name="comment" style="width:220px;" /></td>
+		            </tr>		             
+		        </table>
+        <div class="analyzeFooter">
+            <div class="fr">审核人：<input name="auditor" th:value="${rc.auditor}" type="text" /></div>
+            <div class="clr"></div>
+        </div>        
+        </li>
+        
+        <li class="shenhe-box">
+					<div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+					</div>
+				</li>
+        <li class="tc">
+        	<input type="hidden" name="id" th:value="${rc.id}" />
+        	<input name="saveButton" id="saveButton" type="button" class="scbtnModi" value="确认保存"/>
+        	<input type="hidden" name="up_id"/>
+        </li>
+         <li>
+		    	<label class="labelModi tl">当前审核状态:</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1" disabled="disabled">
+		        		<option th:selected="${0 == rc.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == rc.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == rc.status}" th:value="-1">不通过</option>
+		            </select>
+	            </div>
+		    </li>
+		    <li style="clear: both;">
+		    	<label class="labelModi tl">审核说明:</label>
+		    	<textarea class="textinput" rows="" cols="" name="verify_desc" disabled="disabled" placeholder="审核说明" th:text="${rc.verify_desc}"></textarea>
+		    </li>
+        </ul>
+        </form>
+    </div>
+
+		
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0){
+			alert("请输入井站名称");
+			return;
+		}
+		var p_monthTxt=$("input[name=r_month]").val();
+		if(p_monthTxt.length==0){
+			alert("请选择时间");
+			return;
+		}
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alert("请选择管线名称及规格");
+			return;
+		}
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		$("#saveform").submit();
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+	$("select[name=spec]").trigger("change");
+});
+/*]]>*/
+</script>
+</html>

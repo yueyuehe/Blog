@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link th:href="@{/assets/css/thickbox.css}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" th:src="@{/assets/js/thickbox.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>高后果区管理</li>
+			<li>动态高后果区资料<th:block th:text="${verify==1?'审核':'查看'}"></th:block>：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<!-- <div class="formtext" th:if="${prompt.describe!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div> -->
+		<form method="post" id="saveform" enctype="multipart/form-data">
+			<ul class="forminfo" >
+				<li class="mauto">
+					<div class="usercity">
+						<div class="cityleft">
+							<select name="pl" class="select1" disabled="disabled">
+								<option value="0">请选择管线</option>
+								<option th:each="pll:${pipeLineList}"
+									th:selected="${pl == pll.id}" th:value="${pll.id}"
+									th:text="${pll.name}"></option>
+							</select>
+						</div>
+						<div class="cityleft">
+							<select name="section" class="select1" disabled="disabled">
+								<option value="0">请选择起止段落</option>
+								<option th:each="sec:${sectionList}"
+									th:selected="${section ==sec.id}" th:value="${sec.id}"
+									th:text="${sec.name}"></option>
+							</select>
+						</div>
+						<div class="cityright">
+							<select name="spec" class="select1" disabled="disabled">
+								<option value="0">请选择规格</option>
+								<option th:each="sec:${specList}" th:selected="${spec ==sec.id}"
+									th:value="${sec.id}" th:text="${sec.name}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="pr">
+					<div class="record3"></div>
+					<table class="addTr table100 mauto">
+						<tr class="recordTitle lh32">
+							<td colspan="18">
+								<div class="fl">
+									<span class="ml30">管线名称及规格：</span>
+									<a id="pl_name"></a>
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+						<tr>
+							<td width="60">管理单位</td>
+							<td width="60">管线名称</td>
+							<td width="60">管段名称</td>
+							<td width="60">高后果区编号</td>
+							<td width="60">高后果区起点(m)</td>
+							<td width="60">高后果区终点(m)</td>
+							<td width="60">高后果区长度(m)</td>
+							<td width="100">地名</td>
+							<td width="100">高后果区特征描述</td>
+							<td width="100">识别或更新时间</td>
+							<td width="80">管理人员</td>
+							<td width="80">管理人员电话</td>
+							<td width="80">备注</td>
+							<td width="60">附件</td>
+						</tr>
+						<tr th:each="dcd,status:${dc.detailList}">
+							<td><input type="text" name="unit_name" th:value="${dcd.unit_name}" readonly="readonly"/></td>
+							<td><input type="text" name="pipeline_name" th:value="${dcd.pipeline_name}" readonly="readonly"/></td>
+							<td><input type="text" name="section_name" th:value="${dcd.section_name}" readonly="readonly"/></td>
+							<td><input type="text" name="num" th:value="${dcd.num}" readonly="readonly"/></td>
+							<td><input type="text" name="s_start" th:value="${dcd.s_start}" readonly="readonly"/></td>
+							<td><input type="text" name="s_end" th:value="${dcd.s_end}" readonly="readonly"/></td>
+							<td><input type="text" name="s_length" th:value="${dcd.s_length}" readonly="readonly"/></td>
+							<td><input type="text" name="place_name" th:value="${dcd.place_name}" readonly="readonly"/></td>
+							<td><input type="text" name="description" th:value="${dcd.description}" readonly="readonly"/></td>
+							<td><input type="text" placeholder="请选择日期" readonly="readonly" name="u_date" disabled="disabled" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" th:value="${beans.dateFormatter.formatDateToStr(dcd.u_date,'yyyy-MM-dd')}" /></td>
+							<td><input type="text" name="recogner" th:value="${dcd.recogner}" readonly="readonly"/></td>
+							<td><input type="text" name="recogner_tel" th:value="${dcd.recogner_tel}" readonly="readonly"/></td>
+							<td><input type="text" name="remark" th:value="${dcd.remark}" readonly="readonly"/></td>
+							<td>
+								<input class="file_input" type="button" value="查看附件"/>
+								<input type="hidden" name="annex_file" th:value="${dcd.id}" th:id="${status.count}"/>
+							<!--<cite class="citHid">
+		    						<a th:href="${application.baseFileUrl + dcd.annex_file}" th:text="${dcd.annex_file}"></a>
+					    		</cite> -->
+					    	</td>
+						</tr>
+					</table>
+				</li>
+				<li class="mauto">
+				<label class="labelModi tl" style="width:90px;"><span class="red">*</span>审核状态:</label>
+				<div class="vocation">
+					<select name="status" class="select1" th:disabled="${verify != 1}">
+						<option th:selected="${0 == dc.status}" th:value="0">待审核</option>
+						<option th:selected="${1 == dc.status}" th:value="1">通过</option>
+						<option th:selected="${-1 == dc.status}" th:value="-1">不通过</option>
+					</select>
+				</div>
+				<div class="clr"></div>
+				</li>
+				<li class="mauto">
+					<label class="labelModi tl" style="width:90px;"><span class="red">*</span>说明:</label> 
+					<textarea style="width:850px;" class="textinput" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${dc.verify_desc}"></textarea>
+					<div class="clr"></div>
+				</li>
+				<li class="mauto20" th:if="${verify == 1}">
+					<input name="saveButton" id="saveButton" type="button" class="btn ml110" th:if="${dc.status} != 1" value="确认保存" />
+				</li>
+			</ul>
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("input[class=file_input]").click(function() {
+		var ids = $(this).next().attr("id");
+		var idsd = $(this).next().val();
+		var path = [[@{'/admin/base/d_sequel/attachement_d/'}]]+ids+"!"+idsd;
+		//alert(path)
+		TB_show('附件',path+'?KeepThis=true&TB_iframe=true&height=300&width=1000&modal=true',false);
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var dcid = [[${dc.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/d_sequel/verify_save}]],
+	   			data : {
+	   				'id' : dcid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				alert("审核成功！");
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var sectionname = $("select[name=section] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+});
+/*]]>*/
+</script>
+</html>

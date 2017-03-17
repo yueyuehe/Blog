@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.SysPushDao">
+	<insert id="savePush" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sys_push (user_id, channelId, userId) VALUES (#{user_id}, #{channelId}, #{userId})
+	</insert>
+	
+	<select id="queryPush" resultType="cn.hm.oil.domain.SysPush">
+		SELECT * FROM sys_push WHERE user_id = #{user_id}
+	</select>
+	
+	<update id="updatePush">
+		UPDATE sys_push SET user_id = #{user_id} , channelId = #{channelId} , userId = #{userId} 
+		WHERE id = #{id}
+	</update>
+</mapper>

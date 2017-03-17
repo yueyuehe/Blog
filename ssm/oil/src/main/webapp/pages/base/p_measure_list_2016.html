@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>绝缘接头(法兰)性能测量记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block>：</li>
+	    </ul>
+    </div>
+    <form id="searchForm" method="post" class="formbody" style="width:825px">
+    <div class="rightinfo">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div >
+			<input type="hidden" id="all" th:value="${all}"/>
+		</div>
+			<ul class="seachform mauto" style="width:825px;">
+				<li class="mr10">
+					<select name="s_pl_id" class="select1">
+				        <option value="0">全部管线</option>
+				        <option th:each="pll:${pipeLineList}" th:selected="${s_pl_id == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			        </select>
+				</li>
+				<li  class="mr10">
+					<div class="fl" hidden="hidden">
+						<label>管线名称：</label>
+						<input type="text" name="s_pl_name" id="s_pl_name" class="new_input" th:value="${s_pl_name!=null?s_pl_name:''}"/>
+					</div>
+				</li>
+				<li  class="mr10">
+					<div class="fl">
+						<label>填报人：</label>
+						<input type="text" name="s_user_name" id="s_user_name" class="new_input" th:value="${s_user_name!=null?s_user_name:''}"/>
+					</div>
+				</li>
+				<li class="mr10"><label>时间：</label>
+					<input type="text" readonly="readonly" th:value="${s_year==null? '' : s_year}" name="s_year" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy'})" />
+				</li>
+				<li class=" fl mr10">
+					<input id="searchButton" name="searchButton" type="submit" class="scbtn" value="查询"/>
+				</li>
+				<li  class="fl mr10" th:if="${role!=null and role==2 and (verify == null or verify != 1)}"><input id="exportButton" name="exportButton" type="button" class="scbtnModi" value="导出"/></li>
+			</ul>
+		<div class="clr"></div>
+		<div class="tableModi2">
+         	<div class="list dot" th:if="${ps.id!=null}" th:id="${ps.id}" th:title="${ps.name}" th:text="${ps.name}" th:each="ps:${users}">
+       			重点线
+       		</div>
+         </div>
+	</div>
+	</form>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+    $(function(){
+    	$(".list").on("click",function(){
+    		var params = "?s_id="+$(this).attr("id")+"&all="+[[${all}]];
+    		var s_pl_id=$("select[name=s_pl_id]").val();
+    		if(s_pl_id > 0)
+    			params += "&s_pl_id="+s_pl_id;
+    		var s_pl_name = $("input[name=s_pl_name]").val();
+    		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+    			params += "&s_pl_name="+s_pl_name;
+    		var s_user_name = $("input[name=s_user_name]").val();
+    		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+    			params += "&s_user_name="+s_user_name;
+    		var s_year = $("input[name=s_year]").val();
+    		if(s_year !== null && s_year !== undefined && s_year.length > 0)
+    			params += "&s_year="+s_year;
+    		if([[${verify==1}]])
+    			params += "&verify=1";
+    		window.location.href = [[@{/admin/base/p_measure/2016/show}]] + params;
+    	}); 
+     });   
+$(document).ready(function() {
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#exportButton").click(function(){
+		var params = "?all="+[[${all}]];
+		var s_pl_id=$("select[name=s_pl_id]").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id="+s_pl_id;
+		var s_pl_name = $("input[name=s_pl_name]").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_user_name = $("input[name=s_user_name]").val();
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		var s_year = $("input[name=s_year]").val();
+		if(s_year !== null && s_year !== undefined && s_year.length > 0)
+			params += "&s_year="+s_year;
+		window.location.href=[[@{/admin/base/p_measure/2016/exp}]]+params;
+	});
+});
+/*]]>*/
+</script>
+</html>

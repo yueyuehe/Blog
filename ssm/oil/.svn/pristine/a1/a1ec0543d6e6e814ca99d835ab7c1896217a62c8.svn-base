@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<style>
+.table100 {
+    12px/1.5 arial,"\5b8b\4f53",sans-serif;}
+.formbody {background:#fff;width:860px;}
+.forminfo textarea:focus {border:0px;outline-offset: 0px;outline: 0px;}
+.mauto {position:absolute;top:-158px;}
+.shenhe-div ,.tc {position:absolute;}
+.shenhe-div {bottom:-100px;}
+.tc {bottom:-150px;}
+.webForm,.record1+table {width:750px;}
+.webForm {margin-left:55px;}
+.recordTitle {height:auto;}
+.new-table-title {margin-top:55px;margin-bottom:35px;}
+.recordTitle span {font-weight:normal;text-indent:0px;color:#000;}
+.record1+table td {border-color:#000;height:75px;}
+.analyzeFooter input {border:none;}
+</style>
+<body style="background:#fdf6fd;">
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>阴极保护站运行月综合记录创建：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext2" th:if="${prompt!=null}">
+			<h3 class="new-table-title" th:text="${prompt.describe==null?'':prompt.describe}"></h3>
+		</div>
+        <form method="post" th:action="@{/admin/base/new/rc_comp/save}" id="saveform" class="webForm">
+	        <ul class="forminfo">
+	    		<li class="mauto">
+	    			<div class="usercity">
+						<div class="cityleft">
+							<select name="pl" class="select1">
+						    	<option value="0">请选择管线</option>
+						        <option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						    </select>
+				        </div>
+				        <div class="cityleft">
+					    	<select name="section" class="select1">
+					        	<option value="0">请选择起止段落</option>
+					        	<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+					        </select>
+				        </div>
+				        <div class="cityright">
+					        <select name="spec" class="select1">
+					            <option value="0">请选择规格</option>
+					        	<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+					        </select>
+				        </div>
+				    </div>
+				    <div class="clr"></div>
+				</li> 
+				<li style="clear:both;">   
+					<div class="record1"></div>	
+					
+			        <table class="table100">
+			        	 <tr class="recordTitle lh32"> 
+			            	<td colspan="14" style="border:0px;height:auto;">
+			                	<div class="fl">
+		                			<span>井(站)</span>
+		                    		<input style="width:150px;border:0px;" type="text" name="jinzhan" class="new_input" />
+		                    	</div>
+			                   <div class="fl ml70" style="margin-left:-5px">
+			                    	<span>管线名称及规格：</span>
+			                    	<a id="pl_name" style="font-weight:normal;border-bottom:1px solid #000;"></a>
+			                    </div> 
+			                    <div class="fr">
+			                    	<span style="float:right;">年</span>
+			                    	<input style="width:50px;border:0px;" type="text" readonly="readonly" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy'})" />
+			                    </div>
+			                    <div class="fr">
+			                    	<span style="float:right;">月</span>
+			                    	<input style="width:30px;border:0px;" type="text" readonly="readonly" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'MM'})" />
+			                    </div>
+			                     <div class="clr"></div>
+			                </td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>应送电时间(h)</td>
+			                <td><input type="text" name="estimated"/></td>
+			                <td colspan="2"></td>
+			                <td>实送电(h)</td>
+			                <td><input type="text" name="actual"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>外电停电(h)</td>
+			                <td><input type="text" name="wdtd"/></td>
+			                <td>雷击停电(h)</td>
+			                <td><input type="text" name="ljtd"/></td>
+			                <td>机障停电(h)</td>
+			                <td><input type="text" name="jztd"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>防雷检查停电(h)</td>
+			                <td><input type="text" name="fljctd"/></td>
+			                <td>检测管线停电(h)</td>
+			                <td><input type="text" name="jcgxtd"/></td>
+			                <td>其他停电(h)</td>
+			                <td><input type="text" name="qttd"/></td>
+			            </tr>
+			            <tr>
+			            	<td colspan="6" style="height:20px;"></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>输出最高(A)</td>
+			                <td><input type="text" name="o_max_a"/></td>
+			                <td>输出最低(A)</td>
+			                <td><input type="text" name="o_min_a"/></td>
+			                <td>月平均(A)</td>
+			                <td><input type="text" name="o_avg_a"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>输出最高(V)</td>
+			                <td><input type="text" name="o_max_v"/></td>
+			                <td>输出最低(V)</td>
+			                <td><input type="text" name="o_min_v"/></td>
+			                <td>月平均(V)</td>
+			                <td><input type="text" name="o_avg_v"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>通电点最高(V)</td>
+			                <td><input type="text" name="tdd_v_max"/></td>
+			                <td colspan="2"></td>
+			                <td>通电点最低(V)</td>
+			                <td><input type="text" name="tdd_v_min"/></td>
+			            </tr>
+			            <tr>
+			            	<td colspan="6" style="height:20px;"></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>送电率(％)</td>
+			                <td><input type="text" name="sdl"/></td>
+			                <td>保护率(％)</td>
+			                <td><input type="text" name="bhl"/></td>
+			                <td>设备完好率(％)</td>
+			                <td><input type="text" name="sbwhl"/></td>
+			            </tr>
+			        </table>
+			        <div class="analyze" style="width:749px;border: 1px solid #000;border-top:0px;margin-top:0px;margin-left:0px;margin-right:0px;">
+			        	<p class="fl" style="margin-top:0px;text-align:left;padding-left:10px">运行分析：</p>
+			            <textarea class="fl" name="comment" style="border:0px;width:729px"></textarea>
+			            <div class="clr"></div>
+			        </div>
+			        <div class="analyzeFooter">
+			        	<div class="fl tl">填报人：<input type="text" name="created_by"/></div>
+			            <div class="fr">审核人：<input type="text" name="auditor"/></div>
+			            <div class="clr"></div>
+			        </div>	     
+			        <div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" th:checked="${b.leader_id==up_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+				</div>   		
+	        	</li>	        	
+	        	<li class="tc">
+	        		<!-- <input type="button" value="保存" class="btn" id="saveButton" /> 
+					<input type="button" value="提交审核" class="btn" id="auditingButton" /> -->
+					<input type="button" value="保存并审核" class="btn" id="auditingButton" />
+	        		<input type="hidden" name="up_id"/>
+	        	</li>
+	        </ul>
+        </form>	
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	var buttons = $("input[type=button]");
+	buttons.click(
+		function (){
+		if(	!saveButtonCheck ()){
+			return;
+		}
+			var buttonNode = $(this);
+			var buttonName = buttonNode.attr("id");
+			var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+			var formNode = $("#saveform") 
+			
+			if(buttonNamePrex === null ){
+				return;
+			}
+			if(buttonNamePrex === "save"){
+				//保存到草稿箱
+			formNode.attr("action",[[@{/admin/base/new/rc_comp/save}]]+"?status=-2");
+			}
+			
+			if(buttonNamePrex === "auditing"){
+				//待审核
+				formNode.attr("action",[[@{/admin/base/new/rc_comp/save}]]+"?status=0");
+			
+			}
+			
+				formNode.submit();
+	});
+	
+	function saveButtonCheck()  {
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0||jinzhanTxt.length>50){
+			alertM("井站名称不能为空且不能超过50个字",{time:3000});
+			return false;
+		}
+		var p_monthTxt=$("input[name=r_month]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return false;
+		}
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return false;
+		}
+		var personName=$("input[name=created_by]").val();
+		if(personName.length==0){
+			alertM("请填写填报人姓名",{time:3000});
+			return false;
+		}
+		var auditorName=$("input[name=auditor]").val();
+		if(auditorName.length==0){
+			alertM("请填写审核人姓名",{time:3000});
+			return false;
+		}
+		var comment = $("textarea[name=comment]").val();
+		if(comment.length>200){
+			alertM("运行分析不能大于200个字",{time:3000});
+			return false;
+		}
+		var bool = true;
+		var num = /^\d+(\.\d+)?$/;
+		$('.numExp').each(function(){
+			$(this).find('input[type=text]').each(function(){
+				var numExp = $(this).val();
+				if(numExp.length>0){
+					if(!num.test(numExp)){
+						var text = $(this).parent().prev().text();
+						alertM(text+'必须位数字',{time:3000});
+						bool=false;
+						return;
+					}
+				}
+			})
+		})
+		if(!bool){
+			return false;
+		}
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+			return true;
+		}
+		return false;
+	}
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+});
+/*]]>*/
+</script>
+</html>

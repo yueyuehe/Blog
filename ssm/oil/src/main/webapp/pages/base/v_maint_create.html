@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>阀室、阀井维护保养工作记录创建</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+        <form method="post" th:action="@{/admin/base/v_maint/save}" id="saveform" class="webForm">
+	        <ul class="forminfo">
+	    		<li class="mauto">
+	    			<div class="usercity">
+						<div class="cityleft ml10">
+							<select name="pl" class="select1">
+						    	<option value="0">请选择管线</option>
+						        <option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						    </select>
+				        </div>
+				        <div class="cityleft">
+					    	<select name="section" class="select1">
+					        	<option value="0">请选择起止段落</option>
+					        	<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+					        </select>
+				        </div>
+				        <div class="cityright">
+					        <select name="spec" class="select1">
+					            <option value="0">请选择规格</option>
+					        	<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+					        </select>
+				        </div>
+				    </div>
+				    <div class="clr"></div>
+				</li> 
+				<li>   
+					<div class="record1"></div>	
+			        <table class="table100">
+			        	<tr class="recordTitle">
+			            	<td colspan="2">
+			                    <div class="fl">
+			                    	<span>管线名称及规格：</span>
+			                    	<a id="pl_name"></a>
+			                    </div>
+			                    <div class="clr"></div>
+			                </td>
+			            </tr>
+			        	<tr>
+			            	<td>阀室名称</td>
+		                    <td>
+		                    	<input type="text" name="valve_name" placeholder="请输入阀室名称" />
+		                    </td>
+			            </tr>
+			            <tr>
+			            	<td> 时间：</td>
+			                <td><input type="text" placeholder="请选择时间" readonly="readonly" name="check_date" class="new_input Wdate fl" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			            </tr>
+			            <tr>
+			            	<td width="200">参加人员</td>
+			                <td><input type="text" name="particips"/></td>
+			            </tr>
+			            <tr>
+			            	<td>工作内容</td>
+			                <td><input type="text" name="content"/></td>
+			            </tr>
+			            <tr>
+			            	<td>存在问题说明</td>
+			                <td><input type="text" name="question"/></td>
+			            </tr>
+		            </table>	
+	        	</li>
+	        	<div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" th:checked="${b.leader_id==up_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+					</div>
+	        	<li class="tc mauto20">
+	        		<input name="saveButton" id="saveButton" type="button" class="scbtnModi" value="确认保存"/>
+	        		<input type="button" value="提交审核" class="btn" id="auditingButton" />
+	        		<input type="hidden" name="up_id"/>
+	        	</li>
+	        </ul>
+        </form>	
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	var buttons = $("input[type=button]");
+	buttons.click(
+		function (){
+		if(	!saveButtonCheck ()){
+			return;
+		}
+			var buttonNode = $(this);
+			var buttonName = buttonNode.attr("id");
+			var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+			var formNode = $("#saveform") 
+			
+			if(buttonNamePrex === null ){
+				return;
+			}
+			if(buttonNamePrex === "save"){
+				//保存到草稿箱
+			formNode.attr("action",[[@{/admin/base/v_maint/save}]]+"?status=-2");
+			}
+			
+			if(buttonNamePrex === "auditing"){
+				//待审核
+				formNode.attr("action",[[@{/admin/base/v_maint/save}]]+"?status=0");
+			
+			}
+			
+			formNode.submit();
+		}
+	);
+	
+	function saveButtonCheck() {
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return false;
+		}
+		var valve_nameTxt=$("input[name=valve_name]").val();
+		if(valve_nameTxt.length==0){
+			alertM("请输入阀室名称",{time:3000});
+			return false;
+		}
+		var check_dateTxt=$("input[name=check_date]").val();
+		if(check_dateTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return false;
+		}
+		var particips = $('input[name=particips]').val();
+		if(particips.length>0){
+			if(particips.length>255){
+				alertM("参加人员字数不能超过255",{time:3000});
+				return; false
+			}
+		}
+		var content = $('input[name=content]').val();
+		if(content.length>0){
+			if(content.length>255){
+				alertM("工作内容字数不能超过255",{time:3000});
+				return false;
+			}
+		}
+		var question = $('input[name=question]').val();
+		if(question.length>0){
+			if(question.length>255){
+				alertM("存在问题说明字数不能超过255",{time:3000});
+				return false;
+			}
+		}
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+			return true;
+		}
+		
+		return false;
+	};
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+});
+/*]]>*/
+</script>
+</html>

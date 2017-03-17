@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li><a th:href="@{/admin/base/new/pl_patrol/list}">管道巡检工作记录查看</a></li>
+			<li>修改：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+		<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<form method="post" id="saveform" th:action="@{/admin/base/new/pl_patrol/save}" enctype="multipart/form-data">
+			<ul class="forminfo">
+				<li>
+					<div class="usercity">
+						<div class="cityleft">
+							<select name="pl" class="select1">
+								<option th:each="pll:${pipeLineList}"
+									th:selected="${pl == pll.id}" th:value="${pll.id}"
+									th:text="${pll.name}"></option>
+							</select>
+						</div>
+						<div class="cityleft">
+							<select name="section" class="select1">
+								<option th:each="sec:${sectionList}"
+									th:selected="${section ==sec.id}" th:value="${sec.id}"
+									th:text="${sec.name}"></option>
+							</select>
+						</div>
+						<div class="cityright">
+							<select name="spec" class="select1">
+								<option th:each="sec:${specList}" th:selected="${spec ==sec.id}"
+									th:value="${sec.id}" th:text="${sec.name}"></option>
+							</select>
+						</div>
+					</div>
+				</li>
+				<li style="clear: both;">
+					<div class="record3"></div>
+					<table class="addTr">
+						<tr class="recordTitle lh40">
+							<td colspan="18" width="700">
+								<div class="fl ml20">
+									<span>单位</span> <input type="text" name="jinzhan"
+										placeholder="请输入单位" class="new_input" th:value="${pp.jinzhan}"/>
+								</div>
+			                    <div class="fl ml70">
+			                    	<span>巡检人：</span>
+									<input type="text" name="patroler"
+										placeholder="请输入巡检人" class="new_input" th:value="${pp.patroler}"/>
+			                    </div>
+								<div class="fl" style="margin-left: 70px;">
+									<span class="ml30">管线名称及规格：</span> <a id="pl_name"></a>
+								</div>
+								<div class="fr mr20">
+									<span>巡线管线(段)：</span> <input type="text" name="patroler"
+										placeholder="请输入巡线管线(段)" class="new_input" th:value="${pp.patrol_no}"/>
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+						<tr>		          
+			            	<td width="80" rowspan="2">日<br/>期</td>
+			            	<td colspan="16">巡检内容</td>
+			            	<td rowspan="2" width="600">备注</td>
+			            </tr>
+			            <tr>
+			                <td width="40">管线“三桩”、警示牌</td>
+			                <td width="80">管道护坡、堡坎</td>
+			                <td width="80">埋地管道</td>
+			                <td width="80">明管跨越管段</td>
+			                <td width="80">铁路、公路穿越段</td>
+			                <td width="80">隧道穿越段</td>
+			                <td width="80">穿越河流、沟渠管段</td>
+			                <td width="80">管道两侧环境</td>
+			                <td width="80">管道沿途地址灾害</td>
+			                <td width="80">管道高后果区及高风险段</td>
+			                <td width="80">管道泄漏情况</td>
+			                <td width="80">站场阴保装置</td>
+			                <td width="80">阴极保护测试桩</td>
+			                <td width="80">阳极线路</td>
+			                <td width="80">线路阀室（井）</td>
+			                <td width="80">管道保护宣传</td>
+			            </tr>
+						<tr th:each="ppd:${pp.detailList}">
+							<td>
+								<input type="hidden" name="pld_id" th:value="${ppd.id}"/>
+								<input th:value="${beans.dateFormatter.formatDateToStr(ppd.p_date,'MM-dd')}" type="text" style="width:100%;"  placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+							<td><input type="text" name="content_1" style="width:100%;" th:value="${ppd.content_1}"/></td>
+			                <td><input type="text" name="content_2" style="width:100%;" th:value="${ppd.content_2}" /></td>
+			                <td><input type="text" name="content_3" style="width:100%;" th:value="${ppd.content_3}"/></td>
+			                <td><input type="text" name="content_4" style="width:100%;" th:value="${ppd.content_4}"/></td>
+			                <td><input type="text" name="content_5" style="width:100%;" th:value="${ppd.content_5}"/></td>
+			                <td><input type="text" name="content_6" style="width:100%;" th:value="${ppd.content_6}"/></td>
+			            	<td><input type="text" name="content_7" style="width:100%;" th:value="${ppd.content_7}"/></td>
+			                <td><input type="text" name="content_8" style="width:100%;" th:value="${ppd.content_8}"/></td>
+			                <td><input type="text" name="content_9" style="width:100%;" th:value="${ppd.content_9}"/></td>
+			                <td><input type="text" name="content_10" style="width:100%;" th:value="${ppd.content_10}"/></td>
+			                <td><input type="text" name="content_11" style="width:100%;" th:value="${ppd.content_11}"/></td>
+			                <td><input type="text" name="content_12" style="width:100%;" th:value="${ppd.content_12}"/></td>
+			            	<td><input type="text" name="content_13" style="width:100%;" th:value="${ppd.content_13}"/></td>
+			                <td><input type="text" name="content_14"  style="width:100%;" th:value="${ppd.content_14}"/></td>
+			                <td><input type="text" name="content_15" style="width:100%;" th:value="${ppd.content_15}"/></td>
+			                <td><input type="text" name="content_16" style="width:100%;" th:value="${ppd.content_16}"/></td>
+			                <td><input type="text" name="remark" style="width:100%;" th:value="${ppd.remark}"/></td>
+							<!-- <td><input type="text" name="work_place"
+								style="width:100%;" th:value="${ppd.work_place}"/></td>
+							<td><input type="text" name="content" style="width:100%;" th:value="${ppd.content}"/></td>
+							<td><input type="text" name="question" style="width:100%;" th:value="${ppd.question}"/></td>
+							<td><input type="text" name="voice_record"
+								style="width:100%;" th:value="${ppd.voice_record}"/></td>
+							<td><input type="text" name="worker" style="width:100%;" th:value="${ppd.worker}"/></td>
+							<td><input type="text" name="auditor" style="width:100%;" th:value="${ppd.auditor}"/></td>
+							<td><input type="file" style="width:100%;" name="annex"/></td>
+							<td>
+								<input th:if="${ppd.annex!=null}" type="hidden" name="has_annex_id" th:value="${ppd.id}" />
+								<input th:if="${ppd.annex!=null}" type="hidden" name="has_annex" th:value="${ppd.annex}"/>
+								<img th:if="${ppd.annex!=null}" th:src="${application.baseImageUrl + ppd.annex}" width="60" height="30" />
+							</td> -->
+						</tr>
+						<tr th:each="t:${temp}">
+		            	<td><input type="text"   placeholder="请选择日期" readonly="readonly" name="p_date" onClick="WdatePicker({dateFmt:'MM-dd'})" /></td>
+		                <td><input type="text" name="content_1" /></td>
+		                <td><input type="text" name="content_2"  /></td>
+		                <td><input type="text" name="content_3" /></td>
+		                <td><input type="text" name="content_4" /></td>
+		                <td><input type="text" name="content_5" /></td>
+		                <td><input type="text" name="content_6" /></td>
+		            	<td><input type="text" name="content_7" /></td>
+		                <td><input type="text" name="content_8" /></td>
+		                <td><input type="text" name="content_9" /></td>
+		                <td><input type="text" name="content_10" /></td>
+		                <td><input type="text" name="content_11" /></td>
+		                <td><input type="text" name="content_12" /></td>
+		            	<td><input type="text" name="content_13" /></td>
+		                <td><input type="text" name="content_14"  /></td>
+		                <td><input type="text" name="content_15" /></td>
+		                <td><input type="text" name="content_16" /></td>
+		                <td><input type="text" name="remark" /></td>
+		            </tr>
+					</table>
+				</li>
+				<!-- <li>
+					  保存井（站）：<input type="text" name="save_jinzhan" placeholder="请输入保存井（站）" class="new_input" th:value="${pp.save_jinzhan}"/>
+				</li> -->
+				<li class="shenhe-box">
+					<div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" th:checked="${b.leader_id==up_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+					</div>
+				</li>
+				<li class="tc"><input type="hidden" name="id" th:value="${pp.id}" /> 
+				<input name="saveButton" id="saveButton" type="button" class="btn" style="margin-left: -100px;" value="确认保存" />
+				<input type="hidden" name="up_id"/>
+				</li>
+				<li><label class="labelModi">当前审核状态:</label>
+					<div class="vocation">
+						<select name="status" class="select1" disabled="disabled">
+							<option th:selected="${0 == pp.status}" th:value="0">待审核</option>
+							<option th:selected="${1 == pp.status}" th:value="1">通过</option>
+							<option th:selected="${-1 == pp.status}" th:value="-1">不通过</option>
+						</select>
+					</div></li>
+				<li style="clear: both;"><label class="labelModi">审核说明:</label>
+					<textarea class="textinput" rows="" cols="" name="verify_desc"
+						disabled="disabled" placeholder="审核说明" th:text="${pp.verify_desc}"></textarea>
+				</li>
+			</ul>
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0){
+			alert("请输入井站名称");
+			return;
+		}
+		/* var p_monthTxt=$("input[name=p_month]").val();
+		if(p_monthTxt.length==0){
+			alert("请选择时间");
+			return;
+		} */
+		
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		$("#saveform").submit();
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+	
+	$("select[name=spec]").trigger("change");
+});
+
+
+/*]]>*/
+</script>
+</html>

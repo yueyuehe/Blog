@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{/admin/base/new/pl_measure/verify}">管道保护电位测量记录审核</a></li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div class="formbody" style="width:1200px;">
+    	<h3 class="new-table-title">管道保护电位测量记录</h3>
+        <ul class="forminfo">
+		     <li class="record-top">
+        		<div>
+        			<label style="width:70px;">管线名称：</label>
+        			<input type="text" th:value="${pm.pl_name +'/' + pm.pl_section_name}" readonly="readonly" />
+        		</div>
+        		<div style="margin-left:250px;">
+        			<label style="width:70px;">管线规格：</label>
+        			<input id="pl_name" type="text" th:value="${pm.pl_spec_name}" readonly="readonly" />
+        		</div>
+        		<div style="margin-left:250px;">
+        			<label style="width:50px;">时间：</label>
+        			<input th:value="${#strings.substring(pm.c_month,0,4) + '-' + #strings.substring(pm.c_month,4,6)}" readonly="readonly" name="c_month" type="text" />
+        		</div>
+        	</li>
+		     <li class="mauto">
+		     <form id="searchForm" method="post">
+		     	<input type="hidden" name="pl_id" th:value="${pl_id}" />
+		     	<input type="hidden" name="pl_section_id" th:value="${pl_section_id}" />
+		     	<input type="hidden" name="pl_spec_id" th:value="${pl_spec_id}" />
+		     	<div class="recordBox"></div>
+		     	<table class="mauto new-table">
+		            <tr>
+		            	<td class="tableLeft">
+		                	<table>
+		                    	<tr class="bg">
+		                            <td width="150">测量日期</td>
+		                        	<td width="120">测试桩编号</td>
+		                            <td width="120">电位（-V）</td>
+		                            <td width="170">测量人</td>
+		                            <td width="170">备注</td>
+		                        </tr>
+		                        <tr th:each="d:${oneList}">
+		                        	<td th:text="${beans.dateFormatter.formatDateToStr(d.m_date,'yyyy-MM-dd')}" name="m_date"></td>
+		                            <td th:text="${d.no}" name="no"></td>
+		                            <td th:text="${d.potential}" name="potential"></td>
+		                            <td th:text="${d.measurer}" name="measurer"></td>
+		                            <td><div class="tl" style="width:100%; word-break:break-all;" th:text="${d.remark}" name="remark"></div></td>
+		                        </tr>		                        
+		                    </table>
+		                </td>
+		                <td class="tableLeft">
+		                	<table>
+		                    	<tr class="bg">
+		                            <td width="150">测量日期</td>
+		                        	<td width="120">测试桩编号</td>
+		                            <td width="120">电位（-V）</td>
+		                            <td width="170">测量人</td>
+		                            <td width="170">备注</td>
+		                        </tr>
+		                        <tr th:each="d:${twoList}">
+		                        	<td th:text="${beans.dateFormatter.formatDateToStr(d.m_date,'yyyy-MM-dd')}" name="m_date"></td>
+		                            <td th:text="${d.no}" name="no"></td>
+		                            <td th:text="${d.potential}" name="potential"></td>
+		                            <td th:text="${d.measurer}" name="measurer"></td>
+		                            <td><div class="tl" style="width:100%; word-break:break-all;" th:text="${d.remark}" name="remark"></div></td>
+		                        </tr>		                        
+		                    </table>
+		                </td>
+		                <td class="tableLeft">
+		                	<table>
+		                    	<tr class="bg">
+		                            <td width="150">测量日期</td>
+		                        	<td width="120">测试桩编号</td>
+		                            <td width="120">电位（-V）</td>
+		                            <td width="170">测量人</td>
+		                            <td width="170">备注</td>
+		                        </tr>
+		                        <tr th:each="d:${thrList}">
+		                        	<td th:text="${beans.dateFormatter.formatDateToStr(d.m_date,'yyyy-MM-dd')}" name="m_date"></td>
+		                            <td th:text="${d.no}" name="no"></td>
+		                            <td th:text="${d.potential}" name="potential"></td>
+		                            <td th:text="${d.measurer}" name="measurer"></td>
+		                            <td><div class="tl" style="width:100%; word-break:break-all;" th:text="${d.remark}" name="remark"></div></td>
+		                        </tr>		                        
+		                    </table>
+		                </td>
+            		</tr>
+            		<tr>
+		            	<td class="tableFooter0" colspan="3" style="text-align:left; border:0!important;">
+		                	<div class="fl ml20">填报人：<input th:value="${pm.unit}" readonly="readonly" type="text" name="unit" style="width:150px;" /></div>
+		                    <div class="fr mr20">审核人：<input th:value="${pm.save_date}" readonly="readonly" type="text" name="save_date" style="width:150px;" /></div>
+		                    <div class="clr"></div>
+		                </td>
+		            </tr>
+       		 </table>
+       		 <div class="mt20" th:if="${pmdList!=null and not #lists.isEmpty(pmdList)}" th:include="fragment/paginationbar :: paginationbar"></div>
+		     </form>
+		     </li>
+		    <!-- <th:block th:if="${page.isLast()}"> -->
+		    <li class="mauto20">
+		    	<label class="labelModi tl" style="width:86px;"><span class="red">*</span>审核状态:</label>
+		    	<div class="vocation">
+		    	<select name="status" class="select1">
+		        		<option th:selected="${0 == pm.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == pm.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == pm.status}" th:value="-1">不通过</option>
+		            </select>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li class="mauto">
+		    	<label class="labelModi tl" style="width:86px;"><span class="red">*</span>说明:</label>
+		    	<textarea class="textinputM" rows="" cols="" name="verify_desc" th:text="${pm.verify_desc}" style="line-height:35px; width:890px;"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="tc mt20" style="width:990px;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		   <!-- </th:block> -->
+		</ul>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var pmid = [[${pm.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/new/pl_measure/verify_save_merge}]],
+	   			data : {
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	}
+	
+	);
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+
+});
+
+
+/*]]>*/
+</script>
+</html>

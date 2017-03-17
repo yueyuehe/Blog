@@ -1,0 +1,825 @@
+package cn.hm.oil.controller;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.CellRangeAddress;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.jsoup.helper.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cn.hm.oil.domain.BasePipeline;
+import cn.hm.oil.domain.BasePipelineSection;
+import cn.hm.oil.domain.BasePipelineSpec;
+import cn.hm.oil.domain.BaseReceiver;
+import cn.hm.oil.domain.LoginUserInfo;
+import cn.hm.oil.domain.PipelinePatrol_2016;
+import cn.hm.oil.domain.Prompt;
+import cn.hm.oil.domain.RoutineAttention;
+import cn.hm.oil.domain.RoutineAttentionDetail;
+import cn.hm.oil.domain.RoutineAttention_2016;
+import cn.hm.oil.domain.RunRecordDetail;
+import cn.hm.oil.domain.SysUsers;
+import cn.hm.oil.json.JsonResWrapper;
+import cn.hm.oil.json.ResponseStatus;
+import cn.hm.oil.service.BaseRoutineAttentionService;
+import cn.hm.oil.service.BaseRoutineAttentionService_2016;
+import cn.hm.oil.service.BaseService;
+import cn.hm.oil.service.NewBaseService;
+import cn.hm.oil.service.UserService;
+import cn.hm.oil.util.CommonsMethod;
+import cn.hm.oil.util.DateFormatter;
+import cn.hm.oil.util.FileUtils;
+import cn.hm.oil.util.JsonUtil;
+import cn.hm.oil.util.PageSupport;
+import cn.hm.oil.util.SettingUtils;
+
+@Controller
+@RequestMapping(value = "/admin/base/routine/2016")
+public class RoutineAttentionController_2016 {
+	@Autowired
+	private BaseRoutineAttentionService_2016 baseService;
+	
+	@Autowired
+	private NewBaseService baseService_new;
+	
+	@Autowired
+	private BaseService baseService_old;
+
+	@Autowired
+	private UserService userService;
+
+	@RequestMapping(value = "/create")
+	public String routine_create(Model model
+			,@RequestParam(required=false) Integer pl//管线id
+			,@RequestParam(required=false) String pl_name//管线名字
+			,@RequestParam(required=false) Integer newPage//新开一页
+			) {
+		SysUsers ud = (SysUsers) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		List<BasePipeline> pipeLineList = baseService.queryPipeLineByAdminRoutineAttention(null);
+		//List<BasePipeline> pipeLineList = baseService.queryPipeLineByUser(ud.getId());
+		
+		model.addAttribute("pipeLineList", pipeLineList);
+		List<BaseReceiver> br = baseService.queryLeaderList();
+		model.addAttribute("br", br);
+		
+		Map<Integer, Integer> m = userService.getUsersRef();
+		if (m != null && m.containsKey(ud.getId())) {
+			model.addAttribute("up_id", m.get(ud.getId()));
+		}
+		if(newPage == null || newPage.intValue() != 1)
+		{
+			RoutineAttention_2016 ra = baseService.queryLastRoutineAttentionByUserId(ud.getId(),pl);
+			if(ra != null)
+			{
+				model.addAttribute("ra", ra);
+				model.addAttribute("pl", ra.getPl_id());
+				model.addAttribute("ppLength", ra.getDetaillist().size());
+				model.addAttribute("id", ra.getId());
+				model.addAttribute("pl_name", ra.getName());
+			}
+			else
+			{
+				model.addAttribute("pl", pl==null?0:pl);
+				model.addAttribute("ppLength", 0);
+				model.addAttribute("pl_name", pl_name);
+			}
+		}
+		else
+		{
+			model.addAttribute("pl", pl==null?0:pl);
+			model.addAttribute("ppLength", 0);
+			model.addAttribute("pl_name", pl_name);
+		}
+		return "pages/base/routine_create_2016";
+	}
+
+	/**
+	 * 管线日常维护工作记录保存
+	 * 
+	 * @param model
+	 * @param id
+	 * @param pl
+	 * @param section
+	 * @param spec
+	 * @param jinzhan
+	 * @param weihu
+	 *            维护管线（段）
+	 * @param year
+	 * @param no
+	 *            编号
+	 * @param type
+	 *            类别
+	 * @param lczh
+	 *            检查头里程桩号
+	 * @param address
+	 *            所处地址
+	 * @param descrip
+	 *            现状描述
+	 * @param atten_date
+	 *            维护时间
+	 * @param content
+	 *            工作内容
+	 * @param person
+	 *            填报人
+	 * @return
+	 */
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	public String routine_save(Model model, 
+			@RequestParam(required = false) Integer r_year,
+			@RequestParam(required = false) Integer ra_id, 
+			@RequestParam Integer pl_id, @RequestParam String name, 
+			@RequestParam String jinzhan,
+			@RequestParam String weihu, @RequestParam Integer year, @RequestParam String[] no,
+			@RequestParam String up_id, @RequestParam String[] type, @RequestParam String[] lczh,
+			@RequestParam String[] address, @RequestParam String[] descrip, @RequestParam String[] atten_date,
+			@RequestParam String[] content, @RequestParam String[] person,
+			
+			@RequestParam(required = false) String s_year,
+			@RequestParam(required = false) Boolean all,
+			@RequestParam(required = false) String s_pl_name,//搜索管线名称
+			@RequestParam(required = false) Integer s_id,//搜索人的id
+			@RequestParam(required = false) String s_user_name, // 搜索人的名字
+			@RequestParam(required = false) Integer s_pl_id, //搜索管线id
+			@RequestParam(required = false) Integer s_pp_id, //搜索管线id
+			@RequestParam(required = false) Integer	offset,
+			
+			@RequestParam String status,
+			@RequestParam(required = false) Integer newPage,
+			@RequestParam(required = false) Integer modify) {
+		RoutineAttention_2016 ra = null;
+		if (ra_id != null && ra_id.intValue() > 0)
+		{
+			ra = baseService.queryRoutineAttentionById(ra_id);
+		}
+		else{
+			ra = new RoutineAttention_2016();
+		}
+		ra.setPl_id(pl_id);
+		ra.setJinzhan(jinzhan);
+		ra.setWeihu(weihu);
+		ra.setYear(year);
+		ra.setStatus(Integer.parseInt(status));//添加状态值
+		ra.setUp_id(up_id);
+		ra.setName(name);
+		LoginUserInfo ud = (LoginUserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ra.setCreater(ud.getId());
+
+		List<RoutineAttentionDetail> rcdList = new ArrayList<RoutineAttentionDetail>();
+		int i = 0;
+		for (String n : no) {
+			if (n.equals("") || n == null) {
+				continue;
+			}
+			RoutineAttentionDetail rcd = new RoutineAttentionDetail();
+			rcd.setAddress(address[i]);
+			rcd.setNo(n);
+			rcd.setAtten_date(atten_date[i]);
+			rcd.setContent(content[i]);
+			rcd.setDescrip(descrip[i]);
+			rcd.setLczh(lczh[i]);
+			rcd.setPerson(person[i]);
+			rcd.setType(type[i]);
+			rcd.setStatus(Integer.parseInt(status));//添加状态值
+			rcdList.add(rcd);
+			i++;
+		}		
+		baseService.saveRoutionAttention(ra, rcdList);
+
+		String params = "";
+		if(modify != null && modify.intValue() > 0)
+		{
+			params = CommonsMethod.putUrlParam(params, "s_id", s_id);
+			params = CommonsMethod.putUrlParam(params, "all", all);
+			if(s_pl_id != null && s_pl_id.intValue() > 0)
+				params = CommonsMethod.putUrlParam(params, "s_pl_id", s_pl_id);
+			params = CommonsMethod.putUrlParam(params, "s_year", s_year);
+			params = CommonsMethod.putUrlParam(params, "s_user_name", s_user_name);
+			params = CommonsMethod.putUrlParam(params, "s_pl_name", s_pl_name);
+			params = CommonsMethod.putUrlParam(params, "offset", offset);
+		}
+		else
+		{
+			params = CommonsMethod.putUrlParam(params, "newPage", newPage);
+			params = CommonsMethod.putUrlParam(params, "pl", pl_id);
+		}
+		
+		if(s_pp_id != null && s_pp_id.intValue() > 0)
+			return "redirect:/welcome";
+		return "redirect:/admin/base/routine/2016/" +  ((modify != null && modify.intValue() == 1)?"show":"create") +params;
+	}
+
+	/**
+	 * 阴极保护站运行记录查看
+	 * 
+	 * @param model
+	 * @param request
+	 * @param pl
+	 * @param section
+	 * @param spec
+	 * @param r_month
+	 * @return
+	 */
+	@RequestMapping(value = "/list", method = { RequestMethod.GET, RequestMethod.POST })
+	public String routine_list(Model model, HttpServletRequest request, Authentication authentication,
+			
+			@RequestParam(required=false) Boolean all,
+			@RequestParam(required = false) String s_year,
+			@RequestParam(required = false) String s_pl_name,//搜索管线名称
+			@RequestParam(required = false) Integer s_id,//搜索人的id
+			@RequestParam(required = false) String s_user_name, // 搜索人的名字
+			@RequestParam(required = false) Integer s_pl_id, //搜索管线id
+			@RequestParam(required=false) Integer verify) {
+		LoginUserInfo ud = (LoginUserInfo) authentication.getPrincipal();
+		Map<String, Object> param = new HashMap<String, Object>();
+		Map<String, Object> paramPipeline = new HashMap<String, Object>();
+		Integer role = CommonsMethod.getDataByRole(authentication, userService, param, all);
+		model.addAttribute("role", role);
+		if(role==2)//技术工
+		{
+			if(verify != null && verify.intValue() == 1)
+			{
+				param.put("status", 0);
+				paramPipeline.put("status", 0);
+			}
+			else{
+				param.put("status", "-1,0,1");
+				paramPipeline.put("status", "-1,0,1");
+			}
+			
+			paramPipeline.put("up_id", ud.getId());
+		}
+		else if(role==3)//维护工		
+		{			
+			paramPipeline.put("user_id", ud.getId());
+		}
+		
+		if (s_pl_id != null && s_pl_id.intValue() > 0) {
+			param.put("pl_id", s_pl_id);
+			model.addAttribute("s_pl_id", s_pl_id);
+		}
+		
+		if (!StringUtils.isBlank(s_pl_name)) {
+			param.put("name", s_pl_name);
+			model.addAttribute("s_pl_name", s_pl_name);
+		}
+		
+		if (!StringUtils.isBlank(s_user_name)) {
+			param.put("user_name", s_user_name);
+			model.addAttribute("s_user_name", s_user_name);
+		}
+		
+		if (!StringUtils.isBlank(s_year)) {
+			param.put("year", s_year);
+			model.addAttribute("s_year", s_year);
+		}
+		
+		if(verify != null && verify.intValue() > 0)
+		{
+			param.put("verify", verify);
+			model.addAttribute("verify", verify);
+		}
+		if(all != null)
+		{
+			model.addAttribute("all", all);
+			paramPipeline.put("all", all);
+		}
+		
+		List<BasePipeline> pipeLineList = baseService.queryPipeLineByAdminRoutineAttention(paramPipeline);
+		model.addAttribute("pipeLineList", pipeLineList);
+		
+		List<SysUsers> users = baseService.queryUsers(param);
+		model.addAttribute("users", users);
+		
+		return "pages/base/routine_list_2016";
+	}
+
+	/**
+	 * 阴极保护站运行记录详细查看
+	 * 
+	 * @param model
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/show", method = {RequestMethod.GET,RequestMethod.POST})
+	public String routine_show(Model model, Authentication authentication, 
+			HttpServletRequest request,
+			@RequestParam(required = false) String s_year,
+			@RequestParam(required = false) String s_pl_name,//搜索管线名称
+			@RequestParam(required = false) Integer s_id,//搜索人的id
+			@RequestParam(required = false) String s_user_name, // 搜索人的名字
+			@RequestParam(required = false) Integer s_pl_id, //搜索管线id
+			@RequestParam(required=false) Boolean all,
+			@RequestParam(required = false) Integer s_pp_id, //
+			@RequestParam(required = false) Integer	offset,
+			@RequestParam(required = false) Integer verify) {
+		LoginUserInfo ud = (LoginUserInfo) authentication.getPrincipal();
+		Map<String, Object> param = new HashMap<String, Object>();
+		Map<String, Object> paramPipeline = new HashMap<String, Object>();
+		Integer role = CommonsMethod.getDataByRole(authentication, userService, param);
+		model.addAttribute("role", role);
+		if(role==2)//技术工
+		{
+			if(verify != null && verify.intValue() == 1)
+			{
+				param.put("status", 0);
+				paramPipeline.put("status", 0);
+			}
+			else{
+				param.put("status", "-1,0,1");
+				paramPipeline.put("status", "-1,0,1");
+			}
+			
+			paramPipeline.put("up_id", ud.getId());
+		}
+		else if(role==3)//维护工		
+		{			
+			paramPipeline.put("user_id", ud.getId());
+		}
+		
+		model.addAttribute("remarkWidth", SettingUtils.getCommonSetting("pl_protrol.line.with"));
+		if(!StringUtils.isBlank(s_year)){
+			param.put("year", s_year);
+			model.addAttribute("s_year", s_year);
+		}
+		
+		if(verify != null)
+		{
+			param.put("verify", verify);
+			model.addAttribute("verify", verify);
+		}
+		
+		if(s_id != null && s_id.intValue() > 0)
+		{
+			param.put("user_id", s_id);
+			model.addAttribute("s_id", s_id);
+		}
+		
+		if (s_pl_id != null && s_pl_id.intValue() > 0) {
+			param.put("pl_id", s_pl_id);
+			model.addAttribute("s_pl_id", s_pl_id);
+		}		
+		
+		if (!StringUtils.isBlank(s_pl_name)) {
+			param.put("name", s_pl_name);
+			model.addAttribute("s_pl_name", s_pl_name);
+		}
+		
+		if (!StringUtils.isBlank(s_user_name)) {
+			param.put("user_name", s_user_name);
+			model.addAttribute("s_user_name", s_user_name);
+		}
+		
+		if(all != null)
+		{
+			model.addAttribute("all", all);
+			paramPipeline.put("all", all);
+		}
+		
+		if(s_pp_id != null && s_pp_id.intValue() > 0)
+		{
+			param.put("s_pp_id", s_pp_id);
+			model.addAttribute("s_pp_id", s_pp_id);
+		}
+		
+		List<BasePipeline> pipeLineList = baseService.queryPipeLineByAdminRoutineAttention(paramPipeline);
+		model.addAttribute("pipeLineList", pipeLineList);
+		
+		{
+			Map<String, Object> param1 = new HashMap<String,Object>(param);
+			param1.put("limit", 10000);
+			param1.put("offset", 0);
+			param1.put("order", 1);
+			List<RoutineAttention_2016> raList1 = baseService.queryRoutineAttentions(param1, null);
+			//pp.setDetailList(detailList);
+			
+			List<Integer> ppIdList = null;
+			Object obj = request.getSession().getAttribute(ud.getId() + "radIdList");
+			if (obj != null) {
+				ppIdList = (List<Integer>)obj;
+			} else {
+				request.getSession().removeAttribute(ud.getId() + "radIdList");
+				ppIdList = new ArrayList<Integer>();
+			}
+			if (!CollectionUtils.isEmpty(raList1)) {
+				for (RoutineAttention_2016 ppd : raList1) {
+					if (!ppIdList.contains(ppd.getId())) {
+						ppIdList.add(ppd.getId());
+					}
+				}
+				request.getSession().setAttribute(ud.getId() + "radIdList", ppIdList);
+			}
+		}
+		{
+			PageSupport ps = PageSupport.initPageSupport(request);
+			ps.setPageSize(1);
+			if(offset != null && ps.getIsInit()==false)
+				param.put("offset", offset);
+			List<RoutineAttention_2016> ras = baseService.queryRoutineAttentions(param, ps);
+			if(ras==null || ras.size() == 0){
+				return "pages/base/routine_show_2016";
+			}
+			RoutineAttention_2016 ra = ras.get(0);
+			ra.resetCanEidt(role); 
+			int s = ra.getDetaillist().size();
+			for(RoutineAttentionDetail e : ra.getDetaillist())
+			{
+				e.setStatus(ra.getStatus());
+			}
+			for(int i = s; i < 9; ++i)
+			{
+				RoutineAttentionDetail e = new RoutineAttentionDetail();
+				e.setStatus(-3);
+				ra.getDetaillist().add(e);
+			}
+			model.addAttribute("ra", ra);
+			model.addAttribute("ras", ras);
+			model.addAttribute("offset", ps.getPageOffset());
+		}
+		return "pages/base/routine_show_2016";
+	}
+
+	/**
+	 * 阴极保护站运行记录导出
+	 * 
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/exp", method = RequestMethod.GET)
+	public String routine_export(Model model, HttpServletRequest request, HttpServletResponse response,Authentication authentication,
+			
+			 @RequestParam(required = false) String s_year,
+				@RequestParam(required = false) String s_pl_name,//搜索管线名称
+				@RequestParam(required = false) Integer s_id,//搜索人的id
+				@RequestParam(required = false) Boolean all,
+				@RequestParam(required = false) String s_user_name, // 搜索人的名字
+				@RequestParam(required = false) Integer s_pl_id //搜索管线id
+			) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		Integer role = CommonsMethod.getDataByRole(authentication, userService, param);
+		model.addAttribute("role", role);
+		if(!StringUtils.isBlank(s_year)){
+			param.put("year", s_year);
+		}
+		
+		if(s_id != null && s_id.intValue() > 0)
+		{
+			param.put("user_id", s_id);
+		}
+		
+		if(all != null)
+		{
+			param.put("all", all);
+		}
+		
+		if (s_pl_id != null && s_pl_id.intValue() > 0) {
+			param.put("pl_id", s_pl_id);
+		}		
+		
+		if (!StringUtils.isBlank(s_pl_name)) {
+			param.put("name", s_pl_name);
+		}
+		
+		if (!StringUtils.isBlank(s_user_name)) {
+			param.put("user_name", s_user_name);
+		}
+		
+		List<RoutineAttention_2016> raList = baseService.queryRoutineAttentions(param, null);
+		if(raList.size()==0){
+			return "redirect:/admin/base/routine/2016/list";
+		}
+
+		String sep = System.getProperty("file.separator");
+		String fileDir = SettingUtils.getCommonSetting("upload.file.temp.path");// 存放文件文件夹名称
+		String path = fileDir;
+		String excelPath = path + sep + "excel" + ".xls";
+		File dirPath = new File(path);
+		if (!dirPath.exists()) {
+			dirPath.mkdirs();
+		}
+		try {
+			HSSFWorkbook work = new HSSFWorkbook();
+			FileOutputStream fileOut = new FileOutputStream(path + sep + "excel" + ".xls");
+
+			HSSFSheet sheet1 = work.createSheet("sheet1");
+			sheet1.setMargin(HSSFSheet.TopMargin, 0.5);// 页边距（上）
+			// sheet1.setMargin(HSSFSheet.BottomMargin,);// 页边距（下）
+			sheet1.setMargin(HSSFSheet.LeftMargin, 0.6);// 页边距（左）
+			// sheet1.setMargin(HSSFSheet.RightMargin,20);// 页边距（右
+
+			HSSFPrintSetup ps = sheet1.getPrintSetup();
+			ps.setLandscape(true); // 打印方向，true：横向，false：纵向(默认)
+			ps.setVResolution((short) 600);
+			ps.setPaperSize(HSSFPrintSetup.A4_PAPERSIZE); // 纸张类型
+
+			HSSFCell cell;
+			// 标题格式
+			CellStyle cellStyle = work.createCellStyle();
+			// 表头格式
+			CellStyle titleStyle = work.createCellStyle();
+			// 内容格式
+			CellStyle dataStyle = work.createCellStyle();
+			// 左对齐
+			CellStyle leftStyle = work.createCellStyle();
+			// 左对齐边框
+			CellStyle leftBorder = work.createCellStyle();
+
+			// 内容加上边框
+			dataStyle.setBorderBottom(CellStyle.BORDER_THIN);
+			// dataStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+			dataStyle.setBorderLeft(CellStyle.BORDER_THIN);
+			// dataStyle.setLeftBorderColor(IndexedColors.GREEN.getIndex());
+			dataStyle.setBorderRight(CellStyle.BORDER_THIN);
+			// dataStyle.setRightBorderColor(IndexedColors.BLUE.getIndex());
+			dataStyle.setBorderTop(CellStyle.BORDER_THIN);
+			// dataStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+
+			// 内容加上边框
+			leftBorder.setBorderBottom(CellStyle.BORDER_THIN);
+			leftBorder.setBorderLeft(CellStyle.BORDER_THIN);
+			leftBorder.setBorderRight(CellStyle.BORDER_THIN);
+			leftBorder.setBorderTop(CellStyle.BORDER_THIN);
+			leftBorder.setAlignment(CellStyle.ALIGN_LEFT);
+			leftBorder.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			leftBorder.setWrapText(true);
+
+			// 居中
+			cellStyle.setAlignment(CellStyle.ALIGN_CENTER);
+			cellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+
+			titleStyle.setAlignment(CellStyle.ALIGN_CENTER);
+			titleStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			titleStyle.setWrapText(true);
+
+			dataStyle.setAlignment(CellStyle.ALIGN_CENTER);
+			dataStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			dataStyle.setWrapText(true);
+
+			leftStyle.setAlignment(CellStyle.ALIGN_LEFT);
+			leftStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+			leftStyle.setWrapText(true);
+
+			// 标题字体
+			Font font = work.createFont();
+			// 表头字体
+			Font titlefont = work.createFont();
+			// 内容字体
+			Font datafont = work.createFont();
+
+			font.setFontHeightInPoints((short) 20);
+			font.setFontName("方正大黑简体");
+			font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+			titlefont.setFontHeightInPoints((short) 10);
+			titlefont.setFontName("方正大黑简体");
+			titlefont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+			datafont.setFontHeightInPoints((short) 10);
+			datafont.setFontName("方正仿宋简体");
+			datafont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+			// datafont.setColor(HSSFColor.RED.index);
+
+			// 把字体加入到格式中
+			cellStyle.setFont(font);
+			titleStyle.setFont(titlefont);
+			dataStyle.setFont(datafont);
+			leftBorder.setFont(datafont);
+			leftStyle.setFont(titlefont);
+
+			// 设置列宽度
+			sheet1.setColumnWidth(0, (int) (4.88 * 295));
+			sheet1.setColumnWidth(1, (int) (8.50 * 295));
+			sheet1.setColumnWidth(2, (int) (9.38 * 295));
+			sheet1.setColumnWidth(3, (int) (23.75 * 295));
+			sheet1.setColumnWidth(4, (int) (25.50 * 295));
+			sheet1.setColumnWidth(5, (int) (8.50 * 295));
+			sheet1.setColumnWidth(6, (int) (27.50 * 295));
+			sheet1.setColumnWidth(7, (int) (7.75 * 295));
+
+			int row_index = 0;
+			for (RoutineAttention_2016 ra : raList) {
+				// 合并单元格
+				sheet1.addMergedRegion(new CellRangeAddress(row_index, row_index, 0, 7));
+				sheet1.addMergedRegion(new CellRangeAddress(row_index + 1, row_index + 1, 0, 2));
+				sheet1.addMergedRegion(new CellRangeAddress(row_index + 1, row_index + 1, 3, 4));
+				sheet1.addMergedRegion(new CellRangeAddress(row_index + 1, row_index + 1, 5, 6));
+
+				// 第一行
+				HSSFRow row = sheet1.createRow(row_index);
+				row.setHeightInPoints((float) 36.0);
+				row_index++;
+				// 新建单元格
+				cell = row.createCell(0);
+				// 设置内容
+				cell.setCellValue("管线日常维护工作记录");
+				// 设置单元格格式
+				cell.setCellStyle(cellStyle);
+				// 设置单元格内容类型
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				// 第二行
+				row = sheet1.createRow(row_index);
+				row_index++;
+				// 设置行高度
+				row.setHeightInPoints(25);
+				cell = row.createCell(0);
+				cell.setCellValue("井(站) " + ra.getJinzhan());
+				cell.setCellStyle(leftStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.createCell(3);
+				cell.setCellValue("管线名称及规格 " + ra.getPl_name());
+				cell.setCellStyle(titleStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.createCell(5);
+				cell.setCellValue("维护管线（段） " + ra.getWeihu());
+				cell.setCellStyle(titleStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.createCell(7);
+				cell.setCellValue(ra.getYear() + "年");
+				cell.setCellStyle(titleStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				//RoutineAttention ra = baseRoutineAttentionService.queryRoutineAttentionById(rc.getId());
+
+				Integer sz = 9;
+				if (ra.getDetaillist().size() > 8) {
+					sz = ra.getDetaillist().size();
+				}
+
+				int end_row = 0;
+				// 添加边框线
+				for (int rown = 0; rown < sz + 2; rown++) {
+					row = sheet1.createRow(rown + row_index);
+					row.setHeightInPoints((float) 51.75);
+					for (int celln = 0; celln < 8; celln++) {
+						cell = row.createCell(celln);
+						cell.setCellStyle(dataStyle);
+					}
+				}
+				end_row = sz + row_index + 2;
+				sheet1.addMergedRegion(new CellRangeAddress(end_row - 1, end_row - 1, 0, 7));
+
+				// 审核人行
+				row = sheet1.getRow(row_index);
+				row.setHeightInPoints(33);
+				row_index++;
+				cell = row.getCell(0);
+				cell.setCellValue("编号");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(1);
+				cell.setCellValue("类别");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(2);
+				cell.setCellValue("检查头\n里程桩号");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(3);
+				cell.setCellValue("所处地址");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(4);
+				cell.setCellValue("现状描述");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(5);
+				cell.setCellValue("维护时间");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(6);
+				cell.setCellValue("维护工作内容");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				cell = row.getCell(7);
+				cell.setCellValue("填报人");
+				cell.setCellStyle(dataStyle);
+				cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+
+				DateFormatter df = new DateFormatter();
+
+				// int index = 4;
+				for (RoutineAttentionDetail pd : ra.getDetaillist()) {
+					row = sheet1.getRow(row_index++);
+					// row.setHeightInPoints(18);
+					cell = row.getCell(0);
+					if (pd.getNo() != null) {
+						cell.setCellValue(pd.getNo());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(1);
+					if (pd.getType() != null) {
+						cell.setCellValue(pd.getType());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(2);
+					if (pd.getLczh() != null) {
+						cell.setCellValue(pd.getLczh());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(3);
+					if (pd.getAddress() != null) {
+						cell.setCellValue(pd.getAddress());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(4);
+					if (pd.getDescrip() != null) {
+						cell.setCellValue(pd.getDescrip());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(5);
+					if (pd.getAtten_date() != null) {
+						cell.setCellValue(pd.getAtten_date().replaceAll("-", "."));
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(6);
+					if (pd.getContent() != null) {
+						cell.setCellValue(pd.getContent());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+					cell = row.getCell(7);
+					if (pd.getPerson() != null) {
+						cell.setCellValue(pd.getPerson());
+						cell.setCellStyle(dataStyle);
+						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+					}
+				}
+				row = sheet1.getRow(end_row - 1);
+				row.setHeightInPoints(99);
+				cell = row.getCell(0);
+				cell.setCellValue(
+						"    注：1.根据《西南油气田公司天然气管道保护工工作质量标准》，日常维护工作共分为“管线露管、浮管”、“管线标识、警示标志”、“管线5m范围内深根植物”、“线路阀室（井）”、“护坡堡坎”、“穿跨越管道”、“管道检测与修复”、“阴极保护”、“管道风险等级变化”等9个类别，应按上述类别及相应工作标准填写。2.各项内容不得漏填；该栏内容填满直接在下栏继续填写。");
+				cell.setCellStyle(leftBorder);
+				row_index = end_row + 4;
+			}
+			// 将创建好的excel存到指定文件夹下
+			work.write(fileOut);
+			fileOut.close();
+			// 压缩文件夹并下载，下载后删除文件夹
+			FileUtils.createZip(response, excelPath, DateFormatter.dateToString(new Date(), "yyyy-MM-dd_HH:mm:ss:SSS"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@RequestMapping(value = "/verify_save", method = RequestMethod.POST)
+	public @ResponseBody String routine_verify_save_merge(Model model, HttpServletRequest request,
+			@RequestParam Integer status, @RequestParam String verify_desc) {
+		LoginUserInfo ud = (LoginUserInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Object obj = request.getSession().getAttribute(ud.getId() + "radIdList");
+		if (obj != null) {
+			List<Integer> radIdList = (List<Integer>) obj;
+			for (Integer radId : radIdList)
+				baseService.updateRoutineAttentionVerifyStatus(radId, ud.getId(), status, verify_desc);
+			request.getSession().removeAttribute(ud.getId() + "radIdList");
+		}
+
+		return JsonUtil.toJson("OK");
+	}
+}

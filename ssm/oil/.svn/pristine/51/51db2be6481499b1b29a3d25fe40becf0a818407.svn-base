@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<style type="text/css">
+	.newtable td{border: 1px solid #000!important; height: 35px!important;}
+	.mauto1 {position:absolute;top:-136px;}
+	.shenhe-div ,.tc {position:absolute;}
+	.shenhe-div {bottom:-120px;}
+	.tc {bottom:-170px;}
+	.formtext2 {line-height:45px;margin-top:-10px}
+	.formbodynew1{width:900px;height:625px;padding:60px 50px 55px 60px;margin-top:100px;}
+	.no-shuju {padding:8px!important;width:860px!important;}
+	.forminfo {width:900px;}
+	.border-none span{font-weight:normal;color:#000;font-size:13px;}
+	.recordTitle0 .border-none input {border:0px;font-size:13px;}
+	.record3+table td {border-color:#000;}
+	.mt20{position:relative;top:60px;}
+	.forminfo textarea{height:55px;line-height:55px;text-align:center;resize:none;vertical-align:bottom;}
+	.forminfo li{margin-bottom:0;}
+</style>
+<body style="background:#fdf6fd;">
+	<div class="place">
+    	<span>位置:</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li>管线日常维护工作记录：</li>
+		</ul>
+    </div>
+   
+    <div th:if="${ra==null}" class="formbody no-shuju">
+    	暂无数据！
+    </div>
+    
+    
+    <div th:if="${ra!=null}" class="formbodynew1">
+    	<!-- 图例 -->
+		
+     	<div class="formtext2">
+			<h3 class="new-table-title">管线日常维护工作记录</h3>
+		</div>
+        <ul class="forminfo">
+			<li class="mauto mauto1" style="top:54px;left:30px;">
+		    	<div class="usercity" >
+					<div class="cityleft" >
+						<select name="sh_pl_id" class="select1">
+							<option value="-1" th:text="全部管线段" />
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${s_pl_id != null and s_pl_id == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}" />
+						</select>
+					</div>
+					<div class="fl">
+						<span>管线名称：</span>
+						<input type="text" name="sh_pl_name" class="new_input" th:value="${s_pl_name==null?'':s_pl_name}"/>
+					</div>
+					<div class="cityright" style="padding-left: 10px">
+						<ul class="seachform mauto">
+							<li class="mr20"><span>时间：</span> <input type="text"
+								readonly="readonly" id="s_year" name="sh_year"
+								th:value="${s_year==null? '' : s_year}"
+								class="new_input Wdate"
+								onClick="WdatePicker({dateFmt:'yyyy'})" /></li>
+							<li class="fr mr0" th:if="${role!=null and role==2 and (verify==null or verify != 1)}"><input
+								id="exportButton" name="exportButton" type="button"
+								class="scbtn" value="导出" /></li>
+							<li class="fr mr20"><input id="searchButton" type="button"
+								class="scbtnModi" value="查询" /></li>
+						</ul>
+					</div>
+				</div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="record-top" style="margin-bottom: -10px;">
+		     				<div class="fl">
+								<label style="width: 60px;">井（站）</label> 
+								<input style="width: 100px;" th:readonly="${ra.canEdit==false}" name="h_jinzhan" th:value="${ra.jinzhan}" placeholder="请输入井(站)" type="text" />
+							</div>
+							<div class="fl ml20">
+								<label>管线名称及规格:</label> 
+								<input style="width: 255px;" th:readonly="${ra.canEdit==false}" name="h_name" th:value="${ra.name}" type="text" />
+							</div>
+							<div  class="fl">
+								<label style="width: 95px;">维护管线(段):</label>
+								<input style="width: 150px;" th:readonly="${ra.canEdit==false}" name="h_weihu" th:value="${ra.weihu}" type="text" /> 
+							</div>
+							<div class="fl ml20">
+								<label style="width: 15px; float: right; text-align: right;">年</label>
+								<input name="h_year" th:if="${ra.canEdit==true}" style="width: 35px" th:value="${ra.year}" type="text" onClick="WdatePicker({dateFmt:'yyyy'})"/>
+								<input name="h_year" th:if="${ra.canEdit==false}" style="width: 35px" th:value="${ra.year}" readonly="readonly" type="text" />
+							</div>
+		     </li>
+		     
+		     <li class="mauto clr">		     	
+		     	<form id="searchForm" method="post">
+		     	<input type="hidden" name="s_pp_id" th:value="${s_pp_id}"/>
+		     	<input type="hidden" name="offset" th:value="${offset}"/>
+		     	<input type="hidden" name="jinzhan" id="h_jinzhan" th:value="${ra.jinzhan}"/>
+		     	<input type="hidden" name="name" id="h_name" th:value="${ra.name}"/>
+		     	<input type="hidden" name="weihu" id="h_weihu" th:value="${ra.weihu}"/>
+		     	<input type="hidden" name="year" id="h_year" th:value="${ra.year}"/>
+		     	
+		     	<input type="hidden" name="ra_id" th:value="${ra.id}"/>
+		     	<input type="hidden" name="pl_id" th:value="${ra.pl_id}"/>
+		     	<input type="hidden" name="all" th:value="${all}"/>
+		     	<input type="hidden" name="verify" th:value="${verify}"/>
+		     	<input type="hidden" name="up_id" th:value="${ra.up_id}"/>
+		     	<input type="hidden" name="s_pl_id" id="s_pl_id" th:value="${s_pl_id!=null?s_pl_id:0}"/>
+				<input type="hidden" name="s_pl_name" id="s_pl_name" th:value="${s_pl_name!=null?s_pl_name:''}"/>
+				<input type="hidden" name="s_id" id="s_id" th:value="${s_id!=null?s_id:0}"/>
+				<input type="hidden" name="s_user_name" id="s_user_name" th:value="${s_user_name!=null?s_user_name:''}"/>		     	
+		     	<input type="hidden" name="s_year" id="s_year" th:value="${s_year!=null?s_year:''}"/>
+		     	<div class="record3"></div>
+		     	<table class="table100">		        	
+		            <tr class="routineTr">
+							<td width="48" height="40">编号</td>
+							<td width="72">类别</td>
+							<td width="74">检&nbsp;查&nbsp;头<br />里程桩号</td>
+							<td width="168">所处地址</td>
+							<td width="198">现状描述</td>
+							<td width="68">维护时间</td>
+							<td width="266">维护工作内容</td>
+							<td width="64">填报人</td>
+					</tr>
+					<tr th:each="d:${ra.detaillist}">
+							<td>
+								<input type="hidden" name="rad_id" th:value="${d.id}"/>
+								<input th:readonly="${ra.canEdit==false}" 
+							    th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+								type="text" name="no" th:value="${(d.status==-3 and ra.canEdit==false)?'/':d.no}" />
+							</td>
+							<td>
+							    <input th:readonly="${ra.canEdit==false}" 
+							    th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							    type="text" name="type" th:value="${(d.status==-3 and ra.canEdit==false)?'/':d.type}" />
+							</td>
+							<td>
+							     <input th:readonly="${ra.canEdit==false}" 
+							     th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							     type="text" name="lczh" th:value="${(d.status==-3 and ra.canEdit==false)?'/':d.lczh}" />
+							</td>
+							<td>
+							     <textarea th:readonly="${ra.canEdit==false}" 
+							     th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							     name="address" th:text="${(d.status==-3 and ra.canEdit==false)?'/':d.address}">
+							     </textarea>
+							</td>
+							<td> 
+							     <textarea th:readonly="${ra.canEdit==false}" 
+							     th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							     name="descrip" th:text="${(d.status==-3 and ra.canEdit==false)?'/':d.descrip}">
+							     </textarea>
+							</td>
+							<td th:if="${ra.canEdit}">
+							    <input type="text"
+							    th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+								th:value="${(d.status==-3 and ra.canEdit==false)?'/':d.atten_date}" placeholder="请选择时间"
+								readonly="readonly" name="atten_date" onClick="WdatePicker({dateFmt:'yyyy/MM/dd'})" />
+							</td>
+							<td th:if="${ra.canEdit==false}">
+							     <input type="text" 
+							     th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							     th:value="${(d.status==-3 and ra.canEdit==false)?'/':d.atten_date}" placeholder="请选择时间"
+								readonly="readonly" name="atten_date"/>
+							</td>
+							<td>
+							    <textarea th:readonly="${ra.canEdit==false}"
+							    th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							     name="content" th:text="${d.content}">
+							    </textarea>
+							</td>
+							<td>
+							    <input th:readonly="${ra.canEdit==false}" 
+							    th:style="'width:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+							    type="text" name="person" th:value="${(d.status==-3 and ra.canEdit==false)?'/':d.person}" />
+							</td>
+					</tr>         
+        		</table>
+        		
+        		<div class="tulibox" style="width:600px;margin:auto;margin-top:100px;margin-bottom:20px">
+					<table>
+						<tr>
+							<td><span class="color-box unlook"></span></td>
+							<td>未审核</td>
+							<td><span class="color-box fail"></span></td>
+							<td>审核未通过</td>
+							<td><span class="color-box success"></span></td>
+							<td>审核已通过</td>
+						</tr>
+					</table>
+				</div>
+        		<div class="" th:if="${ras!=null and not #lists.isEmpty(ras)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        		</form>
+			</li>
+		</ul>
+	</div>
+	<div class="forminfo" style="/* margin-top:90px; */width:auto;margin-left:30px;margin-top:140px;">
+		<ul>
+			<li class="mauto20" th:if="${verify == 1}"><label class="labelModi tl"><span class="red">*</span>审核状态:</label>
+				<div class="vocation">
+					<select name="status" class="select1" th:if="${verify == 1}">
+						<option th:selected="${0 == ra.status}" th:value="0">待审核</option>
+						<option th:selected="${1 == ra.status}" th:value="1">通过</option>
+						<option th:selected="${-1 == ra.status}" th:value="-1">不通过</option>
+					</select> <label th:if="${verify != 1}"
+						th:text="${ra.status == 0?'待审核':ra.status == 1?'通过':'不通过'}"></label>
+				</div>
+				<div class="clr"></div></li>
+			<li class="mt25" th:if="${verify == 1}"><label class="labelModi tl fl"
+				><span class="red">*</span>说明:</label> <textarea
+					class="textinputM" rows="" cols="" name="verify_desc"
+					th:readonly="${verify != 1}" th:text="${ra.verify_desc}"
+					style="line-height: 35px; width: 880px;text-align:left;height:100px"></textarea>
+				<div class="clr"></div></li>
+			<li th:if="${verify == 1}" style="width: 990px;text-align:center;margin-top:50px;margin-bottom:90px">
+				<input name="saveButton" id="saveButton" type="button" class="btn"
+				value="确认保存" />
+			</li>
+		    <li style="text-align:center;width:1012px;" th:if="${role!=null and role==3 and ra.canEdit == true}">
+				<!-- <input type="button" value="保存" class="btn" id="saveButton_modify" />
+				<input type="button" value="提交审核" class="btn" id="auditingButton" /> -->
+				<input type="button" value="保存并审核" class="btn" style="margin-bottom:30px"  id="saveSubmitButton" />
+				<input type="hidden" name="up_id" />
+			</li>
+		</ul>
+	</div>								
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+     function check_f(this_t){
+		if($(this_t).val()!=""){
+			$(this_t).val("");
+		} else {
+			$(this_t).val("√");
+			}
+	}
+$(document).ready(function() {
+		
+	/*
+	//保存修改
+	$("#saveButton_modify").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/routine/modify}]]+"");
+		formNode.submit();
+	});
+	
+	//提交审核
+	$("#auditingButton").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/routine/batch_changestatus}]]+"?oldStatus=-1&oldStatus=-2&newStatus=0");
+		formNode.submit();		
+	});*/
+	function resetData()
+	{
+		$("#s_pl_id").val($("select[name=sh_pl_id]").val());
+		$("#s_pl_name").val($("input[name=sh_pl_name]").val());
+		$("#s_year").val($("input[name=sh_year]").val());
+		$("#h_jinzhan").val($("input[name=h_jinzhan]").val());
+		$("#h_name").val($("input[name=h_name]").val());
+		$("#h_weihu").val($("input[name=h_weihu]").val());
+		$("#h_year").val($("input[name=h_year]").val());
+	}
+	
+	//提交审核
+	$("#saveSubmitButton").click(function(){
+		resetData();
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/routine/2016/save}]]+"?status=0&modify=1");
+		formNode.submit();
+	
+	});
+	
+	//查询
+	$("#searchButton").click(function(){
+		resetData();
+		var params = "?";
+		var s_pl_id=$("#s_pl_id").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id=" + s_pl_id;
+		var s_pl_name = $("#s_pl_name").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_year = $("#s_year").val();
+		if(s_year !== null && s_year !== undefined && s_year.length > 0)
+			params += "&s_year="+s_year;
+		var s_user_name = [[${s_user_name}]];
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		if([[${s_id}]] > 0)
+			params += "&s_id="+[[${s_id}]];
+		if([[${verify==1}]])
+			params += "&verify=1";
+		if([[${all!=null}]])
+			params += "&all="+[[${all}]];
+		window.location.href = [[@{/admin/base/routine/2016/show}]] + params;
+	});
+	
+	//导出
+	$("#exportButton").click(function() {
+		resetData();
+		var params = "?";
+		var s_pl_id=$("#s_pl_id").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id=" + s_pl_id;
+		var s_pl_name = $("#s_pl_name").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_year = $("#s_year").val();
+		if(s_year !== null && s_year !== undefined && s_year.length > 0)
+			params += "&s_year="+s_year;
+		var s_user_name = [[${s_user_name}]];
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		var s_id = [[${s_id}]];
+		if(s_id > 0)
+			params += "&s_id="+s_id;
+		if([[${all!=null}]])
+			params += "&all="+[[${all}]];
+		window.location.href=[[@{/admin/base/routine/2016/exp}]]+params;
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		var status = $("select[name=status]").val();
+		if(status==-1 && verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		
+		if (status != 0 && confirm("是否确认保存？")) {
+			var rcid = [[${ra.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/routine/2016/verify_save}]],
+	   			data : {
+	   				'id' : rcid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				/*$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();*/
+	   				alert("审核成功！");
+	   				window.location.href = [[@{/admin/base/routine/2016/list?verify=1&all=false}]];
+	   			}
+	   		});
+		}
+	});
+	
+	$('.popbtn').click(function(){
+		  $('.tulipop').slideToggle(300);
+		})
+});
+
+
+/*]]>*/
+</script>
+</html>

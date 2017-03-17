@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>GPS信息管理 </li>
+	    	<li>GPS上传间隔设置：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+	    <form th:action="@{/admin/user/gps_save}" id="saveform" method="post" class="mauto" style="width:500px;">
+	    <ul class="forminfo">
+		    <li>
+		    	<label class="labelModi">当前设置间隔:</label>
+		    	<label class="red" th:text="${st.time}+'分钟'"></label>
+		    </li>
+		    <li class="clr">
+		    	<label class="labelModi">设置间隔时间:</label>
+		    	<input type="text" id="set_time" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))"  placeholder="请输时间" name="set_time" style="width:100px" class="dfinput" />
+		    	<i>(单位/分钟)</i>
+		    </li>
+		    <li class="clr">
+		    	<label class="labelModi">开始时间:</label>
+		    	<input style="width:100px;" id="start_time" th:value="${st.start_time}" class="dfinput" type="text" placeholder="请选择时间" readonly="readonly" name="start_time" onClick="WdatePicker({dateFmt:'HH:mm'})" />
+		    </li>
+		    <li class="clr">
+		    	<label class="labelModi">结束时间:</label>
+		    	<input style="width:100px;" id="end_time" th:value="${st.end_time}" class="dfinput" type="text" placeholder="请选择时间" readonly="readonly" name="end_time" onClick="WdatePicker({dateFmt:'HH:mm'})" />
+		    </li>
+		    <li class="tc" style="width:345px;margin-bottom:0;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn mt10" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function(){
+		$("#saveform").submit();
+	});
+});
+/*]]>*/
+</script>
+</html>

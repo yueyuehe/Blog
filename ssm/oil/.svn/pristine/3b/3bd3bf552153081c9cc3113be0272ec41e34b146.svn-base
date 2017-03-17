@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{'/admin/base/new/rc/verify'}">阴极保护站运行记录审核</a></li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+   	 <div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+        <ul class="forminfo">
+		     <li class="mauto clr">
+		     <form id="searchForm" method="post">
+		     	<input type="hidden" name="pl_id" th:value="${pl_id}" />
+		     	<input type="hidden" name="pl_section_id" th:value="${pl_section_id}" />
+		     	<input type="hidden" name="pl_spec_id" th:value="${pl_spec_id}" />
+		     	<div class="record2"></div>
+		        <table class="table100 mauto">
+		        	<tr class="recordTitle0 lh32">
+		            	<td colspan="9">
+		            		<div class="fl ml20">
+		                		<span>井（站）</span>
+		                    	<input type="text" th:value="${rc.jinzhan}" readonly="readonly" name="jinzhan" style="width:120px;" />
+		                    </div>
+		                    <div  class="fl">
+		                    	<span class="ml30">管线名称及规格：</span>
+		                    	<a th:text="${rc.pl_name +'/' + rc.pl_spec_name}"></a>
+		                    </div>
+		                    <div  class="fr mr20">
+		                    	<span class="ml30">时间：</span>
+				            	<input style="width:150px;" th:value="${#strings.substring(rc.r_month,0,4) + '-' + #strings.substring(rc.r_month,4,6)}" disabled="disabled" type="text" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+				            </div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td colspan="2">
+		                	<table width="100%">
+		                    	<tr>
+		                        	<td colspan="2">时间</td>
+		                        </tr>
+		                        <tr>
+		                        	<td width="100">日</td>
+		                            <td width="100">时</td>
+		                        </tr>
+		                    </table>
+		                </td>
+		                <td width="110">交流电压（-V）</td>
+		                <td colspan="2">
+		                	<table width="100%">
+		                    	<tr>
+		                        	<td colspan="2">直流输出</td>
+		                        </tr>
+		                        <tr>
+		                        	<td width="100">A</td>
+		                            <td width="100">V</td>
+		                        </tr>
+		                    </table>
+		                </td>
+		                <td width="100">通电点电位（-V）</td>
+		                <td width="120">记录人</td>
+		                <td width="300">大事记要</td>
+		            </tr>
+		            <tr th:each="d,status:${rrdList}">
+		            	<td><input readonly="readonly" th:value="${d.day}" type="text" name="day"  /></td>
+		                <td><input readonly="readonly" th:value="${d.time}" type="text" name="time"  /></td>
+		                <td><input readonly="readonly" th:value="${d.jldy}" type="text" name="jldy" /></td>
+		                <td><input readonly="readonly" th:value="${d.zlsc_a}" type="text" name="zlsc_a" /></td>
+		                <td><input readonly="readonly" th:value="${d.zlsc_v}" type="text" name="zlsc_v" /></td>
+		                <td><input readonly="readonly" th:value="${d.tdddw}" type="text" name="tdddw" /></td>
+		                <td><input readonly="readonly" th:value="${d.recorder}" type="text" name="recorder" /></td>
+		                <td th:text="${d.comment}"></td>
+		            </tr>
+		        </table>
+		        <div class="mt20" th:if="${rrdList!=null and not #lists.isEmpty(rrdList)}" th:include="fragment/paginationbar :: paginationbar"></div>
+				</form>
+			</li>
+			<th:block th:if="${page.isLast()}">
+			<li class="mauto20">
+		    	<label class="labelModi tl"><span class="red">*</span>当前审核状态:</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1">
+		        		<option th:value="0">待审核</option>
+		        		<option th:value="1">通过</option>
+		        		<option th:value="-1">不通过</option>
+		            </select>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li class="mauto">
+		    	<label class="labelModi tl"><span class="red">*</span>审核说明:</label>
+		    	<textarea style="width:845px;" class="textinput" rows="" cols="" name="verify_desc" placeholder="审核说明" th:text="${rc.verify_desc}"></textarea>
+		    </li>
+		    <li class="mauto20 tc">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		    </th:block>
+		</ul>
+	</div>								
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/new/rc/verify_save}]],
+	   			data : {
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>

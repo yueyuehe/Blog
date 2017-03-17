@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>投资项目</li>
+			<li>详细：</li>
+		</ul>
+	</div>
+	<div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+	<form class="mauto" method="post" id="saveform" th:action="@{/admin/base/invest/save}" enctype="multipart/form-data" >
+	<ul class="forminfo">
+	<li>
+	<div class="record3"></div>
+	<table class="addTr table100 mauto">
+		<tr class="recordTitle lh32">
+			<td colspan="10">
+				<div class="fl">
+					<span>工程名称：</span>
+					<input style="width:250px;" type="text" th:value="${invest.project_name}" name="project_name"/>
+				</div>
+			</td>
+		</tr>
+		<tr height="50">
+			<td><span>工程概况</span></td>
+			<td colspan="9">
+				<input type="text" name="survey" th:value="${invest.survey}" style="height:100%;" />
+			</td>
+		</tr>
+		<tr>
+			<td width="80">进度序号</td>
+			<td width="150">进度内容</td>
+			<td width="90">计划时间</td>
+			<td width="90">落实时间</td>
+			<td width="120">单位</td>
+			<td width="90">联系人</td>
+			<td width="100">联系电话</td>
+			<td width="80">相关附件</td>
+			<td width="100">备注</td>
+			<td>已上传附件</td>
+		</tr>
+		<tr th:each="d:${invest.detailList}">
+			<td><input type="text" name="no" th:value="${d.no}" /></td>
+			<td><input class="mesgDiv" type="text" name="content" th:value="${d.content}" /></td>
+			<td><input style="border:0;" type="text" name="plan_time" placeholder='请选择日期' readonly="readonly" th:value="${beans.dateFormatter.formatDateToStr(d.plan_time,'yyyy-MM-dd')}" class="new_input " onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			<td><input style="border:0;" type="text" name="workable_time" placeholder='请选择日期' readonly="readonly" th:value="${beans.dateFormatter.formatDateToStr(d.workable_time,'yyyy-MM-dd')}" class="new_input " onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+			<td><input type="text" name="workspace" th:value="${d.workspace}" /></td>
+			<td><input type="text" name="contacts" th:value="${d.contacts}" /></td>
+			<td><input type="text" name="telnum" th:value="${d.telnum}" /></td>
+			<td><input type="file" name="annex" /></td>
+			<td><input type="text" name="remark" th:value="${d.remark}" /></td>
+			<td>
+				<input type="hidden" name="has_annex" th:value="${d.annex}"/>
+				<input type="hidden" name="has_annex_no" th:value="${d.no}"/>
+				<cite th:if="${d.annex} != null" style="width:70px;" class="mesgDiv">
+		    		<a th:href="${application.baseFileUrl + d.annex}" th:text="${d.annex}"></a>
+		    	</cite>
+			</td>
+		</tr> 
+	</table>
+	</li>
+	<li class="mauto lh32">
+		<span class="fl">项目负责人：</span>
+		<input class="fl lh32 h32 ml10" type="text" name="leader" th:value="${invest.leader}"/>
+		<div class="clr"></div>
+	</li>
+	<input type="hidden" name="id" id="id" th:value="${invest.id}" />
+	<li class="tc mauto20 w730">
+		<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+	</li>
+	</ul>
+	</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	var addLineLeft=parseInt($(".recordTitle").css("width"))+1;
+	//alert(addLineLeft);
+	var assLineTop=parseInt($(".recordTitle").css("height"))+65+26*2;
+	//alert(assLineTop);
+	$("#addLine").css({"left":addLineLeft+'px',"top":assLineTop+'px'});
+	var times=1
+	$("#addLine").click(function(){
+		$(".addTr").append("<tr><td><input type='text' name='no' style='width: 80px;' /></td><td><input type='text name='content' style='width: 80px;' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='plan_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='workable_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input type='text' name='workspace' style='width: 80px;' /></td><td><input type='text' name='contacts' style='width: 80px;'' /></td><td><input type='text' name='telnum' style='width: 100px;'' /></td><td><input type='text' name='annex' style='width: 70px;' /></td><td><input type='text' name='remark' style='width: 100px;' /></td></tr><tr><td><input type='text' name='no' style='width: 80px;' /></td><td><input type='text name='content' style='width: 80px;' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='plan_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='workable_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input type='text' name='workspace' style='width: 80px;' /></td><td><input type='text' name='contacts' style='width: 80px;'' /></td><td><input type='text' name='telnum' style='width: 100px;'' /></td><td><input type='text' name='annex' style='width: 70px;' /></td><td><input type='text' name='remark' style='width: 100px;' /></td></tr><tr><td><input type='text' name='no' style='width: 80px;' /></td><td><input type='text name='content' style='width: 80px;' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='plan_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input  placeholder='请选择日期' readonly='readonly' name='workable_time' onClick='WdatePicker({dateFmt:&quot;yyyy-MM-dd&quot;})' style='width:80px' type='text' /></td><td><input type='text' name='workspace' style='width: 80px;' /></td><td><input type='text' name='contacts' style='width: 80px;'' /></td><td><input type='text' name='telnum' style='width: 100px;'' /></td><td><input type='text' name='annex' style='width: 70px;' /></td><td><input type='text' name='remark' style='width: 100px;' /></td></tr>");		
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		times=times+3;
+	})
+	$("#saveButton").click(function() {
+		var project_nameTxt=$("input[name=project_name]").val();
+		if(project_nameTxt.length==0||project_nameTxt.length>50){
+			alertM("工程名称不能为空且不能超过50个字",{time:3000});
+			return;
+		}
+		var surveyTxt=$("input[name=survey]").val();
+		if(surveyTxt.length==0||surveyTxt.length>200){
+			alertM("工程概况不能为空且不能超过200个字",{time:3000});
+			return;
+		}
+		var leaderTxt=$("input[name=leader]").val();
+		if(leaderTxt.length==0||leaderTxt.length>50){
+			alertM("项目负责人不能为空且不能超过50个字",{time:3000});
+			return;
+		}
+		var bool = true;
+		var intNum = /^\d*$/;
+		$('input[name=no]').each(function(){
+			var noTxt = $(this).val();
+			if(!intNum.test(noTxt)){
+				alertM("进度序号必须位数字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=content]').each(function(){
+			var contentTxt = $(this).val();
+			if(contentTxt.length>50){
+				alertM("进度内容不能大于50个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		
+		$('input[name=workspace]').each(function(){
+			var workspaceTxt = $(this).val();
+			if(workspaceTxt.length>50){
+				alertM("单位不能大于50个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=contacts]').each(function(){
+			var contactsTxt = $(this).val();
+			if(contactsTxt.length>20){
+				alertM("联系人不能大于20个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=telnum]').each(function(){
+			var telnumTxt = $(this).val();
+			if(telnumTxt.length>20){
+				alertM("联系电话不能大于20个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		$('input[name=remark]').each(function(){
+			var remarkTxt = $(this).val();
+			if(remarkTxt.length>200){
+				alertM("备注不能大于200个字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		
+		if(!bool){
+			return false;
+		}
+		else{
+			if(confirm("是否确认保存？")){
+				$("#saveform").submit();
+			}
+		}
+	});
+	
+});
+
+
+/*]]>*/
+</script>
+</html>

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/plupload.full.min.js}"></script>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/jquery-ui-1.9.2/jquery-ui.min.js}"></script>
+<script type="text/javascript" th:src="@{/assets/js/thickbox.js}"></script>
+<link th:href="@{/assets/css/thickbox.css}" rel="stylesheet" type="text/css" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>一事一案 </li>
+	    	<li>修改：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+    	<form th:action="@{/admin/event/save}" id="saveform" method="post" enctype="multipart/form-data">
+    	<fieldset class="ulFieldset">
+			<legend>管道基本信息</legend>
+	    	<ul class="forminfo mauto" style="width:500px;">
+	    	<li>
+	    		<label class="labelModi">管线段落规格：</label>
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1">
+			        		<option th:each="pll:${pipeLineList}" th:selected="${e.pl_id == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1">
+			        		<option th:each="sec:${sectionList}" th:selected="${e.pl_section_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1">
+			        		<option th:each="sec:${specList}" th:selected="${e.pl_spec_id ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		         <div class="clr"></div>
+		     </li>
+		    <li>
+		    	<label class="labelModi">时间:</label>
+		    	<input type="text" placeholder="请选择时间" th:value="${beans.dateFormatter.formatDateToStr(e.discover_date)}" readonly="readonly" name="discover_date" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">地段（点）:</label>
+		    	<div class="usercity">
+			    	<div class="cityleft">
+					    <input type="text" name="position_start" th:value="${e.position_start}" class="new_input" placeholder="请输入开始位置" />
+				    </div>
+				    <!-- <span class="fl lh32 mr10">到 </span>	
+				    <div class="cityright">
+				    	<input type="text" name="position_end" th:value="${e.position_end}" class="new_input" placeholder="请输入结束位置" />
+				    </div> -->
+			    </div>
+			    <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">经度:</label>
+		    	<div class="usercity">
+			    	<div class="cityleft">
+					    <input type="text" name="longitude" th:value="${e.longitude}" class="new_input" placeholder="请输入GPS开始坐标" />
+				    </div>
+				    <span class="fl lh32 mr10">纬度： </span>	
+				    <div class="cityright">
+				    	<input type="text" name="latitude" th:value="${e.latitude}" class="new_input" placeholder="请输入GPS结束坐标" />
+				    </div>
+			    </div>
+			    <div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+			<legend>管道问题备注</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi">关键字:</label>
+		    	<input type="text" placeholder="请输入关键字" name="keyword" class="new_input" th:value="${e.keyword}" />
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi"><span class="red">&nbsp;</span>问题类型:</label>
+		    	<div class="vocation">
+				    <select name="type_id" class="select2">
+				    	<option th:each="type:${types}" th:selected="${e.type_id==type.id}" th:value="${type.id}" th:text="${type.name}"></option>
+				    </select>
+				 </div>
+				 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">内容:</label>
+		    	<textarea class="textinput" rows="" cols="" name="content" th:text="${e.content}" placeholder="请输入内容"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">备注:</label>
+		    	<textarea class="textinput" rows="" cols="" name="remark" th:text="${e.remark}" placeholder="请输入备注"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    		    <li>
+		    	<label class="labelModi">影响管线长度:</label>
+		    	<input type="text" placeholder="请输入影响管线长度" name="ef_length" th:value="${e.ef_length}" class="new_input"/>
+		    	 <div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">管线桩号:</label>
+		    	<input type="text" placeholder="请输入管线桩号" name="pl_no" th:value="${e.pl_no}" class="new_input"/>
+		    	 <div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">主要存在风险:</label>
+		    	<textarea class="textinput" rows="" cols="" name="risk" th:text="${e.risk}"></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>第三方通讯录</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi">第三方通讯录:</label>
+		    	<!-- <input type="text"  name="link_name" class="new_input" th:value="${e.link_name}"/> -->
+		    	<textarea class="textinput" rows="" cols="" name="link_name" th:text="${e.link_name}" ></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    <!-- <li>
+		    	<label class="labelModi">第三方通讯录职务:</label>
+		    	<input type="text"  name="link_duty" class="new_input" th:value="${e.link_duty}"/>
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">第三方通讯录联系方式:</label>
+		    	<input type="text"  name="link_method" class="new_input" th:value="${e.link_method}"/>
+		    	 <div class="clr"></div>
+		    </li> -->
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>单位</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi">业主单位信息:</label>
+		    	<!-- <input type="text"  name="unit_name" class="new_input" th:value="${e.unit_name}"/> -->
+		    	<textarea class="textinput" rows="" cols="" name="unit_name" th:text="${e.unit_name}" ></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    <!-- <li>
+		    	<label class="labelModi">单位地址:</label>
+		    	<textarea class="textinput" rows="" cols="" name="unit_address" th:text="${e.unit_address}"></textarea>
+		    	 <div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi">单位邮编:</label>
+		    	<input type="text"  name="unit_post" class="new_input" th:value="${e.unit_post}"/>
+		    	 <div class="clr"></div>
+		    </li> -->
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>情况说明</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li>
+		    	<label class="labelModi" style="width:170px;">是否发放安全隐患告知书:</label>
+		    	<cite>
+			    	<input name="send_notice" type="radio" value="1" th:checked="${e.send_notice}" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="send_notice" type="radio" value="0" th:checked="${!e.send_notice}" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li id="notice_file" >
+		    	<label class="labelModi" style="width:170px;">附件:</label>
+		    	<input type="file" name="notice_file" class="fileModi" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${e.send_notice}">
+		    	<label class="labelModi" style="width:170px;">已上传附件:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(e.notice_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.notice_file),'.jpeg')}" th:src="${application.baseThumbUrl + e.notice_file}" width="100px"/>
+		    	<a class="disib lh32" th:href="${application.baseFileUrl + e.notice_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi" style="width:170px;">是否现场加密警示标志:</label>
+		    	<cite>
+			    	<input name="is_warn" type="radio" value="1" th:checked="${e.is_warn}" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="is_warn" type="radio" value="0"  th:checked="${!e.is_warn}" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li id="warn_file" >
+		    	<label class="labelModi" style="width:170px;"><span class="red">&nbsp;</span>附件:</label>
+		    	<input type="file" name="warn_file" class="fileModi" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${e.is_warn}" class="clr">
+		    	<label class="labelModi" style="width:170px;">已上传:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(e.warn_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.warn_file),'.jpeg')}" th:src="${application.baseThumbUrl + e.warn_file}" width="100px"/>
+		    	<a class="disib lh32" th:href="${application.baseFileUrl + e.warn_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="labelModi" style="width:170px;">是否有探管记录:</label>
+		    	<cite>
+			    	<input name="is_ma_remark" type="radio" value="1" th:checked="${e.is_ma_remark}" />是
+			    	&nbsp;&nbsp;&nbsp;&nbsp;
+			    	<input name="is_ma_remark" type="radio" value="0"  th:checked="${!e.is_ma_remark}" />否
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li id="ma_remark" >
+		    	<label class="labelModi" style="width:170px;"><span class="red">&nbsp;</span>附件:</label>
+		    	<input type="file" name="ma_remark" class="fileModi" />
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${e.is_ma_remark}" class="clr">
+		    	<label class="labelModi" style="width:170px;">已上传:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(e.ma_remark),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.ma_remark),'.jpeg')}" th:src="${application.baseThumbUrl + e.ma_remark}" width="100px"/>
+		    	<a class="disib lh32" th:href="${application.baseFileUrl + e.ma_remark}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>示意图</legend>
+		    <ul class="forminfo mauto" style="width:500px;">
+		    <li >
+		    	<label class="labelModi" style="width:130px;"><span class="red">&nbsp;</span>现场示意图:</label>
+		    	<input type="file" name="scene_file" class="fileModi" />
+		    	<div class="clr"></div>
+		    </li>
+		     <li  class="clr">
+		    	<label class="labelModi" style="width:130px;">已上传现场示意图:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${e.scene_file!=null and (#strings.endsWith(#strings.toLowerCase(e.scene_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.scene_file),'.jpeg'))}" th:src="${application.baseThumbUrl + e.scene_file}" width="100px"/>
+		    	<a class="disib lh32" th:if="${e.scene_file!=null}" th:href="${application.baseFileUrl + e.scene_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		     <li th:if="${sec.principal.level!=5}">
+		    	<label class="labelModi" style="width:130px;"><span class="red">&nbsp;</span>卫星示意图:</label>
+		    	<input type="file" name="moon_file" class="fileModi" />
+		    	<div class="clr"></div>
+		    </li>
+		     <li  class="clr">
+		    	<label class="labelModi" style="width:130px;">已上传卫星示意图:</label>
+		    	<img class="imgClick" alt="缩略图" th:if="${e.moon_file!=null and (#strings.endsWith(#strings.toLowerCase(e.moon_file),'.jpg') or #strings.endsWith(#strings.toLowerCase(e.moon_file),'.jpeg'))}" th:src="${application.baseThumbUrl + e.moon_file}" width="100px"/>
+		    	<a class="disib lh32" th:if="${e.moon_file!=null}" th:href="${application.baseFileUrl + e.moon_file}">点击下载附件</a>
+		    	<div class="clr"></div>
+		    </li>
+		    <li style="clear:both;">
+		    	<label class="labelModi" style="width:130px;">附件上传:</label>
+		    	<div style="float:left;">
+		    		<div id="container">
+					    <input class="fileChooseModi lh30" type="button" id="pickfiles" value="[选择文件]" />
+					    <input class="fileChooseModi lh30 ml10" type="button" id="uploadfiles" value="[开始上传]" />
+					    <input class="fileChooseModi lh30 ml10" type="button" id="clearfiles" value="[清除]" />
+					</div>
+			    	<div id="filelist">您的浏览器不支持Flash, Silverlight或者HTML5，不能够上传.</div>
+				</div>
+				<div class="clr"></div>
+		    </li>
+		    <li th:if="${ealist != null and !#lists.isEmpty(ealist)}" style="clear:both;">
+		    	<label class="labelModi" style="width:130px;">已上传附件:</label>
+		    	<table>
+		    		<tr th:each="ea:${ealist}">
+		    			<td>
+		    			<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(ea.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(ea.path),'.jpeg')}" th:src="${application.baseThumbUrl + ea.path}" width="100px"/>
+		    			<!-- <a class="disib lh32" th:href="@{/admin/event/del_ea(ea.id)}">删除附件</a> -->
+		    			<a class="disib lh32 mr20" th:href="${application.baseFileUrl + ea.path}">点击下载附件</a>
+		    			<a href="javascript:void(0);" id="99" th:onclick="'delImage(' + ${ea.id} + ', this)'">删除附件</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+		    	<div class="clr"></div>
+		    </li>
+		   <!--  <li>
+		    	<label class="labelModi">汇报人:</label>
+		    	<input type="text"  disabled="disabled" name="reporter" class="new_input" th:value="${e.reporter}" />
+		    	 <div class="clr"></div>
+		    </li>
+		     <li>
+		    	<label class="labelModi">审核人:</label>
+		    	<input type="text"  disabled="disabled" name="verifier" class="new_input" th:value="${e.verify}" />
+		    	 <div class="clr"></div>
+		    </li>
+		    <li th:if="${e.status > 0}" class="clr">
+		    	<label class="labelModi">当前审核状态:</label>
+		    	<div class="vocation">
+				    <select name="status" class="select2" disabled="disabled">
+				    	<option th:selected="${e.status == 1}" th:value="1">通过</option>
+				    	<option th:selected="${e.status == 2}" th:value="2">不通过</option>
+				    </select>
+				 </div>
+				 <div class="clr"></div>
+		    </li>
+		    <li th:if="${e.status > 0}">
+		    	<label class="labelModi">处理意见:</label>
+		    	<textarea class="textinput" disabled="disabled" rows="" cols="" name="message" th:text="${e.message}" placeholder="请输入处理方案"></textarea>
+		    	<div class="clr"></div>
+		    </li> -->
+		    </ul>
+		    </fieldset>
+		    <fieldset class="ulFieldset">
+		    <legend>领导批复意见</legend>
+		    <ul class="forminfo mauto" style="width:850px;">
+		    <li class="clr" style="width:700px;" th:if="${!#lists.isEmpty(leaderPHReplies)}">
+				<label class="labelModi">领导批复意见:</label>
+		    	<table class="backTxtTable backTxtTableModi">
+		    		<tr>
+		    			<th width="112">批复人</th>
+		    			<th width="200">批复意见</th>
+		    			<th width="150">批复时间</th>
+		    			<th width="100">操作</th>
+		    		</tr>
+		    		<tr th:each="r : ${leaderPHReplies}">
+		    			<td th:text="${r.replier}"></td>
+		    			<td th:text="${r.content}" th:attr="name=${'td_content_' + r.id}"></td>
+		    			<td th:text="${beans.dateFormatter.formatDateToStr(r.create_time)}"></td>
+		    			<td>
+		    				<a href="javascript:void(0);" th:attr="rid=${r.id}" class="editReplyTr">修改</a>
+		    				<a href="javascript:void(0);" th:attr="rid=${r.id}" class="delReplyTr">删除</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+			</li>
+		    <li class="clr" style="width:800px;" th:if="${!#lists.isEmpty(replies)}">
+				<label class="labelModi">回复内容:</label>
+		    	<table class="backTxtTable backTxtTableModi">
+		    		<tr>
+		    			<th width="80">回复人</th>
+		    			<th width="200">消息内容</th>
+		    			<th width="150">回复时间</th>
+		    			<th width="110">附件</th>
+		    			<th width="80">操作</th>
+		    		</tr>
+		    		<tr th:each="r : ${replies}">
+		    			<td th:text="${r.replier}"></td>
+		    			<td th:text="${r.content}" th:attr="name=${'td_content_' + r.id}"></td>
+		    			<td th:text="${beans.dateFormatter.formatDateToStr(r.create_time)}"></td>
+		    			<td>
+		    				<div th:id="'era_'+${f.id}" th:each="f : ${r.eras}" class="mt10">
+		    					<img class="imgClick" alt="缩略图" th:if="${!#strings.isEmpty(f.path) and (#strings.endsWith(#strings.toLowerCase(f.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(f.path),'.jpeg'))}" th:src="${application.baseThumbUrl + f.path}" width="100px"/>
+		    					<div class="clr"></div>
+		    					<a th:href="${application.baseFileUrl + f.path}" th:if="${!#strings.isEmpty(f.path)}">点击下载</a>
+		    				</div>
+		    			</td>
+		    			<td>
+		    				<a href="javascript:void(0);" th:attr="rid=${r.id}" class="editReplyTr">修改</a>
+		    				<a href="javascript:void(0);" th:attr="rid=${r.id}" class="delReplyTr">删除</a>
+		    			</td>
+		    		</tr>
+		    	</table>
+			</li>
+			</ul>
+			</fieldset>
+			<ul class="forminfo mauto" style="width:500px;">
+		    <li class="ml130 clr tc" style="width:350px;">
+		    	<input type="hidden" name="id" th:value="${e.id}" />
+		    	<input type="hidden" name="admin" th:if="${sec.principal.id==1}" th:value="${sec.principal.id}" />
+		    	<input type="hidden" name="edit" th:value="1" />
+		    	<input type="hidden" name="filename" id="filename" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn mt20" value="保存"/>
+		    </li>
+	    	</ul>
+	    </form>
+    </div>
+    <div class="largePic0">
+		<div class="largeClose fr mr20 mt20" id="largeClose">X</div>
+		<div class="clr"></div>
+	</div>
+	<div class="largepicture">
+		<img id="lapic" alt="缩略图"  />
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+        if(![[${e.send_notice}]]) {
+			$("#notice_file").css("display","none")
+		}
+        if(![[${e.is_warn}]]) {
+   			$("#warn_file").css("display","none")
+   		}
+        if(![[${e.is_ma_remark}]]) {
+   			$("#ma_remark").css("display","none")
+   		}
+     function delImage(imageId,this_t) {
+    	 //alert(this_t.id)
+        	if (confirm("确认删除该附件？")) {
+        		$.ajax({
+           			url : [[@{/admin/event/del_ea}]],
+           			data : {
+           				id : imageId
+           			},
+           			dataType: 'json',
+           			type: 'get',
+           			async: false,
+           			success : function(data, textStatus, jqXHR) {
+           				//alert(this_t)
+           				$(this_t).parent().remove();
+           			}
+           		});
+        	}
+        }
+     function updateContent(id, content) {
+    		$("td[name=td_content_" + id + "]").html(content);
+    	}
+     
+   /*   function del_attachement(id) {
+ 		$("#era_" + id).remove();
+ 	} */
+$(document).ready(function() {
+	$(".editReplyTr").click(function() {
+		var baseurl = [[@{/admin/event/edit_reply}]];
+		var rid = $(this).attr("rid");
+		window.location.href=baseurl + '/' + rid;
+		//TB_show('修改回复', baseurl + '/' + rid + '?KeepThis=true&TB_iframe=true&height=500&width=600&modal=true',false);
+	});
+	
+	$(".delReplyTr").click(function() {
+		if (confirm("是否确认删除？")) {
+			var rid = $(this).attr("rid");
+			var obj = $(this);
+			$.ajax({
+	   			url : [[@{/admin/event/del_reply}]],
+	   			data : {
+	   				'id': rid
+	   			},
+	   			dataType: 'json',
+	   			type: 'get',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				obj.parent().parent().remove();
+	   			}
+	   		});
+		}
+	});
+	
+	$(".imgClick").each(function(index){
+		$(this).click(function(){
+			$("#lapic").attr("src",$(this).attr('src'));
+			var formboduWidth=$(".formbody").css("width");
+			var divWidth=$(".largepicture").css("width");
+			var picWidthNum=parseInt(formboduWidth)/2-parseInt(divWidth)/2;
+			$(".largepicture").css("left",picWidthNum + 'px');
+			$(".largePic0").css("display","block");
+			$(".largepicture").css("display","block");
+		})
+	})
+	$("#largeClose").click(function(){
+		$(".largePic0").css("display","none");
+		$(".largepicture").css("display","none");
+	})
+	var sent_notice = $("input[name='send_notice']");
+	
+	$("#saveButton").click(function() {
+		var pl = $("select[name=pl]").val();
+		var section = $("select[name=section]").val();
+		var spec = $("select[name=spec]").val();
+		if (pl == '0') {
+			alert("请选择管线");
+			return ;
+		}
+		if (section == '0') {
+			alert("请选择起止段落");
+			return ;
+		}
+		if (spec == '0') {
+			alert("请选择规格");
+			return ;
+		}
+		var discover_date = $("input[name=discover_date]").val();
+		if (discover_date == '') {
+			alertM("请选择时间",{time:3000});
+			return ;
+		}
+		
+		var position_start = $('input[name=position_start]').val();
+		if(position_start.length>20||position_start.length==0){
+			alertM('地段不能为空且字数不能超过20',{time:3000});
+			return;
+		}
+		
+		var numFloat = /^\d+(\.\d+)?$/;
+		var longitude = $('input[name=longitude]').val();
+		if(!numFloat.test(longitude)){
+			alertM('经度不能为空且必须为数字',{time:3000});
+			return;
+		}
+		
+		if(longitude.length>20){
+			alertM('经度不能超过20个字',{time:3000});
+			return;
+		}
+		
+		var latitude = $('input[name=latitude]').val();
+		if(!numFloat.test(latitude)){
+			alertM('纬度不能为空且必须为数字',{time:3000});
+			return;
+		}
+		if(latitude.length>20){
+			alertM('纬度不能超过20个字',{time:3000});
+			return;
+		}
+		
+		var content = $('textarea[name=content]').val();
+		if(content.length>500||content.length==0){
+			alertM('事件内容不能为空且字数不能超过500',{time:3000});
+			return;
+		}
+		var remark = $('textarea[name=remark]').val();
+		if(remark.length>500||remark.length==0){
+			alertM('备注不能为空且字数不能超过500',{time:3000});
+			return;
+		}
+		var message = $('textarea[name=message]').val();
+		if(remark.length>500){
+			alertM('审核意见字数不能超过500',{time:3000});
+			return;
+		}
+		var ef_length = $('input[name=ef_length]').val();
+		if(ef_length.length>200){
+			alertM('影响管线长度不可超过200字',{time:3000});
+			return;
+		}
+		/* var pl_no = $('input[name=pl_no]').val();
+		var num = /^[0-9]*$/;
+		if(!num.test(pl_no)){
+			alertM('管线桩号只能为数字',{time:3000});
+			return;
+		} */
+		var risk = $('textarea[name=risk]').val();
+		if(risk.length>200){
+			alertM('主要风险不可超过200字',{time:3000});
+			return;
+		}
+		var link_name = $('textarea[name=link_name]').val();
+		if(link_name.length>300){
+			alertM('第三方联系人信息不可超过300字',{time:3000});
+			return;
+		}
+		/* var link_duty = $('input[name=link_duty]').val();
+		if(link_duty.length>20){
+			alertM('第三方联系人职务不可超过20字',{time:3000});
+			return;
+		}
+		var link_method = $('input[name=link_method]').val();
+		if(link_method.length>100){
+			alertM('第三方联系人联系方式不可超过100字',{time:3000});
+			return;
+		} */
+		var unit_name = $('textarea[name=unit_name]').val();
+		if(unit_name.length>300){
+			alertM('业主单位信息不可超过300字',{time:3000});
+			return;
+		}
+		/* var unit_address = $('textarea[name=unit_address]').val();
+		if(unit_address.length>200){
+			alertM('单位地址不可超过200字',{time:3000});
+			return;
+		}
+		var unit_post = $('input[name=unit_post]').val();
+		if(unit_post.length>10){
+			alertM('单位邮编不可超过10字',{time:3000});
+			return;
+		} */
+		var discover_date = $("input[name=discover_date]").val();
+		if (discover_date == '') {
+			alert("请选择时间");
+			return ;
+		}
+	
+		if(($("input[name='send_notice']:checked").val() == 1) && ($("#notice_file").value=='')) {
+			alert("请选择安全隐患告知书的附件");
+			$("input[name='send_notice']").removeAttr("checked");
+			document.getElementById("notice_check").checked=true; 
+			$("#notice_file").css("display","none");
+			return;
+		}
+		
+		if(($("input[name='is_warn']:checked").val() == 1) && ($("#warn_file").value=='')) {
+			alert("请选择密警示标志的附件");
+			$("input[name='is_warn']").removeAttr("checked");
+			//$("input[name='send_notice']:eq(1)").checked==true; 
+			document.getElementById("warn_check").checked=true; 
+			$("#warn_file").css("display","none");
+			return;
+		}
+		
+		if(($("input[name='is_ma_remark']:checked").val() == 1) && ($("#ma_remark").value=='')) {
+			alert("请选择探管记录的附件");
+			$("input[name='is_ma_remark']").removeAttr("checked");
+			//$("input[name='send_notice']:eq(1)").checked==true; 
+			document.getElementById("ma_check").checked=true; 
+			$("#ma_remark").css("display","none");
+			return;
+		}
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	$(".select2").uedSelect({
+		width : 168
+	});
+	
+	$("input[name='send_notice']").click(function() {
+		if($(this).val() == 1) {
+			$("#notice_file").css("display","")
+		} else {
+			$("#notice_file").css("display","none")
+		}
+	});
+	
+	$("input[name='is_warn']").click(function() {
+		if($(this).val() == 1) {
+			$("#warn_file").css("display","")
+		} else {
+			$("#warn_file").css("display","none")
+		}
+	});
+	
+	$("input[name='is_ma_remark']").click(function() {
+		if($(this).val() == 1) {
+			$("#ma_remark").css("display","")
+		} else {
+			$("#ma_remark").css("display","none")
+		}
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+});
+
+var upload_finished = false;
+
+var uploader = new plupload.Uploader({
+	runtimes : 'html5,flash,silverlight,html4',
+	browse_button : 'pickfiles',
+	container: document.getElementById('container'), 
+	url : [[@{/upload/uploadFile}]],
+	flash_swf_url : [[@{/assets/js/Moxie.swf}]],
+	silverlight_xap_url : [[@{/assets/js/Moxie.xap}]],
+	chunk_size: '10mb',
+	max_retries: 5,
+	prevent_duplicates: true,
+	unique_names: true,
+	filters : {
+		max_file_size : '1000MB'
+	},
+
+	init: {
+		PostInit: function() {
+			document.getElementById('filelist').innerHTML = '';
+
+			document.getElementById('uploadfiles').onclick = function() {
+				$("a.class_fileupload").each(function() {
+					$(this).hide();
+				});
+				$("#filename").val('');
+				uploader.start();
+				$("#pickfiles").prop("disabled", true);
+				$("#uploadfiles").prop("disabled", true);
+				upload_finished = false;
+				return false;
+			};
+			
+			$("#clearfiles").click(function() {
+				uploader.splice();
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				$("#filename").val("");
+				upload_finished = false;
+			});
+		},
+
+		FilesAdded: function(up, files) {
+			plupload.each(files, function(file) {
+				var fi = file.id;
+				document.getElementById('filelist').innerHTML += '<div id="' + fi + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <a href="#" class="class_fileupload" onclick="removeFile(' + fi + ')">删除</a>&nbsp;&nbsp;&nbsp;&nbsp;<b></b></div>';
+			});
+		},
+		
+		FileUploaded: function(up, file, response) {
+			var name = $("#filename").val();
+			if (name != '') {
+				name += ";";
+			}
+			$("#filename").val(name + response.response);
+		},
+		
+		UploadComplete: function(up, file) {
+			upload_finished = true;
+		},
+
+		UploadProgress: function(up, file) {
+			document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span style="display:inline;">' + file.percent + "%</span>";
+		},
+
+		Error: function(up, err) {
+			var alt = false;
+			switch(err.code) {
+			case -601:
+				alert("仅支持zip格式的压缩文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -602:
+				alert("不能选择重复的文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -200:
+				alert("网络异常上传失败，请重新上传!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			}
+			if (!alt) {
+				alert("\nError #" + err.code + ": " + err.message);
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);				
+			}
+		},
+		FilesRemoved: function(up, files) {
+			plupload.each(files, function(file) {
+				$("div#" + file.id).remove();
+			});
+		}
+	}
+});
+
+uploader.init();
+
+function removeFile(id) {
+	if (confirm("确认删除？")) {
+		uploader.removeFile(id);
+	}
+}
+/*]]>*/
+</script>
+</html>

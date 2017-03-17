@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePotentialCurveDao_2016">
+	<resultMap type="cn.hm.oil.domain.PotentialCurve_2016" id="queryPotentialCurveByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="name" property="name" />
+		<result column="unit" property="unit" />
+		<result column="c_month" property="c_month" />
+		<result column="create_time" property="create_time" />
+
+		<collection property="detailList" select="queryPotentialCurveDetailByPmId" column="id" javaType="List" ofType="cn.hm.oil.domain.PotentialCurveDetail"/>
+	</resultMap>
+	
+	<select id="queryPotentialCurveByMeasureId" resultMap="queryPotentialCurveByIdRusult">
+		SELECT * FROM potential_curve_2016 WHERE pl_measure_id=#{id}
+	</select>
+	
+	<select id="queryPotentialCurveDetailByPmId" resultType="cn.hm.oil.domain.PotentialCurveDetail">
+		SELECT * FROM potential_curve_detail_2016 WHERE pc_id=#{id}
+	</select>
+	
+	<select id="queryPotentialCurveById" resultMap="queryPotentialCurveByIdRusult">
+		SELECT * FROM potential_curve_2016 WHERE id=#{id}
+	</select>
+	
+	<update id="updatePotentialCurve">
+		UPDATE potential_curve_2016 SET
+		<if test="pl_id!=null">
+			pl_id=#{pl_id},
+		</if>
+		<if test="unit !=null">
+			unit=#{unit},
+		</if>
+		<if test="c_month !=null">
+			c_month=#{c_month},
+		</if>
+		<if test="chartPath !=null">
+			 chartPath = #{chartPath},
+		</if>
+		<if test="status !=null">
+			 `status`=#{status},
+		</if>
+		<if test="up_id !=null">
+			up_id=#{up_id},
+		</if>
+		<if test="chartPath !=null">
+			analysis=#{analysis},
+		</if>
+		<if test="pl_measure_id !=null">
+			pl_measure_id=#{pl_measure_id},
+		</if>
+		<if test="name !=null">
+			name=#{name},
+		</if>
+		id=id
+		WHERE id=#{id}
+	</update>
+
+	
+	<delete id="deletePotentialCurveDetailByPCid">
+		DELETE FROM potential_curve_detail_2016 WHERE pc_id=#{pc_id}
+	</delete>
+	
+	<insert id="insertPotentialCurve" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO potential_curve_2016(pl_id,name,unit,c_month,create_time,`creater`,chartPath,up_id,analysis,pl_measure_id) 
+		VALUES(#{pl_id},#{name},#{unit},#{c_month},now(),#{creater},#{chartPath},#{up_id},#{analysis},#{pl_measure_id})
+	</insert>
+	
+	<insert id="insertPotentialCurveDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO potential_curve_detail_2016(pc_id,no,p_early,p_end,measurer,remark) 
+		VALUES(#{pc_id},#{no},#{p_early},#{p_end},#{measurer},#{remark})
+	</insert>	
+	
+	<select id="queryPotentialCurve" resultMap="queryPotentialCurveByIdRusult">
+		SELECT pp.*,p.`name` AS pl_name
+		FROM potential_curve_2016 pp, base_pipeline p, sys_users us
+		WHERE pp.`pl_id` = p.`id` AND us.id = pp.creater
+		<if test="s_pp_id!=null">
+			AND pp.`id`=#{s_pp_id}
+		</if>
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+		AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status}) 
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+		order by pp.create_time
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPotentialCurve_count" resultType="int">
+		SELECT COUNT(pp.id)
+		FROM potential_curve_2016 pp, base_pipeline p, sys_users us
+		WHERE pp.`pl_id` = p.`id` AND us.id = pp.creater
+		<if test="s_pp_id!=null">
+			AND pp.`id`=#{s_pp_id}
+		</if>
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+		AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status}) 
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<select id="queryPipeLine" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM potential_curve_2016 pp, base_pipeline p, sys_users us
+		WHERE pp.`pl_id` = p.`id` AND us.id = pp.creater
+		<if test="s_pp_id!=null">
+			AND pp.`id`=#{s_pp_id}
+		</if>
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+		AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status}) 
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<select id="queryUsers" resultType="cn.hm.oil.domain.SysUsers">
+		SELECT DISTINCT us.name,us.id
+		FROM potential_curve_2016 pp, sys_users us
+		WHERE us.id = pp.creater
+		<if test="pl_id!=null">
+		AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="c_month">
+		AND pp.`c_month`=#{c_month}
+		</if>
+		<if test="status!=null">
+			AND find_in_set(pp.`status`,#{status}) 
+		</if>
+		<if test="verify!=null and verify == 1">
+			AND pp.`status` = 0 
+		</if>
+		<if test="up_id!=null">
+			AND find_in_set(#{up_id}, pp.up_id) 
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater = #{whCreater}
+		</if> 
+		<if test="creater!=null">
+			AND pp.creater = #{creater}
+		</if>
+		<if test="user_id!=null">
+			AND pp.creater = #{user_id}
+		</if>
+		<if test="name!=null">
+			AND pp.name LIKE CONCAT("%", #{name}, "%")
+		</if>
+		<if test="user_name!=null">
+			AND us.name LIKE CONCAT("%", #{user_name}, "%")
+		</if>
+	</select>
+	
+	<select id="queryPotentialCurveDetailByPcid" resultType="cn.hm.oil.domain.PotentialCurveDetail">
+		SELECT * FROM potential_curve_detail_2016 WHERE pc_id=#{pc_id}
+	</select>
+	
+	<update id="updatePotentialCurveVerifyStatus">
+		UPDATE potential_curve_2016 SET
+		status=#{status},verify_desc=#{verify_desc},verify_time=now(),verifier=#{verifier}
+		WHERE id=#{id}
+	</update>
+
+	<update id="updateAutoSignRed">
+		UPDATE potential_curve_2016 SET red=#{red}
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="status != null">
+				AND status=#{status}
+			</if>
+			<if test="old_red != null">
+				AND red=#{old_red}
+			</if>
+		</where>
+	</update>
+</mapper>

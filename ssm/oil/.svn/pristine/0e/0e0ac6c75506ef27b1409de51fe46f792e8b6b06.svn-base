@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{'/admin/base/pl_measure/' + ${verify==1?'verify':'list'}}">管道保护电位测量记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a></li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+        <ul class="forminfo">
+			<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft mr30">
+			        	<select name="pl" class="select1" disabled="disabled">
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft mr30">
+			            <select name="section" class="select1" disabled="disabled">
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1" disabled="disabled">
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+		     <li style="clear:both;" class="mauto">
+		     	<div class="recordBox"></div>
+		     	<table class="mauto">
+		        	<tr class="recordTitle0 lh40">
+		            	<td>
+		            		<div class="fl ml20">
+		                		<span>井（站）</span>
+		                    	<input type="text" name="jinzhan" placeholder="请输入井(站)" style="width:120px;" th:value="${pm.jinzhan}" readonly="readonly" />
+		                    </div>
+		                    <div class="fl">
+		                    	<span class="ml30">管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div class="fr mr20">
+		                    	<span class="ml30">时间：</span>
+		                    	<input type="text" th:value="${#strings.substring(pm.c_month,0,4) + '-' + #strings.substring(pm.c_month,4,6)}" disabled="disabled" name="c_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+		                	</div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td class="tableLeft">
+		                	<table>
+		                    	<tr class="bg">
+		                        	<td width="120">测试桩编号</td>
+		                            <td width="150">测量日期</td>
+		                            <td width="120">电位（-V）</td>
+		                            <td>
+		                            	<table>
+		                                	<tr>
+		                                    	<td colspan="3">阴极保护站输出</td>
+		                                    </tr>
+		                                	<tr>
+		                                    	<td width="70">A</td>
+		                                        <td width="70">V</td>
+		                                        <td width="120">通电点（-V）</td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td width="170">测量人</td>
+		                            <td width="170">备注</td>
+		                        </tr>
+		                        <tr th:each="d:${pm.detailList}">
+		                        	<td th:text="${d.no}" name="no"></td>
+		                            <td th:text="${beans.dateFormatter.formatDateToStr(d.m_date,'yyyy-MM-dd')}" name="m_date"></td>
+		                            <td th:text="${d.potential}" name="potential"></td>
+		                            <td>
+		                            	<table class="tabelCed">
+		                                	<tr>
+		                                    	<td width="70" th:text="${d.a}" name="a"></td>
+		                                        <td width="70" th:text="${d.v}" name="v"></td>
+		                                        <td width="120" th:text="${d.tongdian}" name="tongdian"></td>
+		                                    </tr>
+		                                </table>
+		                            </td>
+		                            <td th:text="${d.measurer}" name="measurer"></td>
+		                            <td><div class="tl" style="width:100%; word-break:break-all;" th:text="${d.remark}" name="remark"></div></td>
+		                        </tr>		                        
+		                        <tr>
+		                        	<td class="tableFooter0" colspan="8" style="text-align:left;">
+		                            <div class="fl ml20">保存单位：<input th:value="${pm.unit}" readonly="readonly" type="text" name="unit" style="width:150px;" /></div>
+		                            <div class="fr mr20">保存期限：<input th:value="${pm.save_date}" readonly="readonly" type="text" name="save_date" placeholder="请输入保存期限" style="width:150px;" />年</div>
+		                            <div class="clr"></div>
+		                            </td>
+		                        </tr>
+		                    </table>
+		                </td>
+            		</tr>
+       		 </table>
+		     </li>
+		     <li class="mauto20">
+		    	<label class="labelModi tl" style="width:86px;"><span class="red">*</span>审核状态:</label>
+		    	<div class="vocation">
+		    	<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == pm.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == pm.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == pm.status}" th:value="-1">不通过</option>
+		            </select>
+		            <label th:if="${verify != 1}" th:text="${pm.status == 0?'待审核':pm.status == 1?'通过':'不通过'}"></label>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li class="mauto">
+		    	<label class="labelModi tl" style="width:86px;"><span class="red">*</span>说明:</label>
+		    	<textarea class="textinputM" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" th:text="${pm.verify_desc}" style="line-height:35px; width:890px;"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="tc mt20" th:if="${verify == 1}" style="width:990px;">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		</ul>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var pmid = [[${pm.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/pl_measure/verify_save}]],
+	   			data : {
+	   				'id' : pmid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();
+	   			}
+	   		});
+		}
+	}
+	
+	);
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + specname);
+});
+
+
+/*]]>*/
+</script>
+</html>

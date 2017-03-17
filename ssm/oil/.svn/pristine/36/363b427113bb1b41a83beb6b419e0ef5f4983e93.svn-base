@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<style>
+	body {background:#fdf6fd;}
+	.formbody {background:#fff;position:relative;width:860px;padding-bottom:100px;}
+	.mauto1 {position: absolute;top: -45px;width:860px;left:10px;}
+	.mauto2,.mauto3,.mauto4,.mauto5 {position:absolute;}
+	.mauto2 {bottom:-50px;left:0px;}
+	.mauto3 {bottom:-200px;left:0px;padding-bottom:20px;}
+	.mauto5 {bottom:-350px;padding-bottom:60px;margin-left:350px;}
+	.forminfo {margin-left:95px;width:710px;}
+	.recordTitle0 {font-size:13px;font-weight:normal;color:#000;}
+	.record2+table td {border-color:#000;}
+	.formtext2 {margin-top:60px;height:auto;}
+	.new-table-title {font-size:25px;margin-bottom:20px;line-height:auto;}
+	.table100 input[type=text] {border-color:#000;font-family:'微软雅黑';font-size:13px;}
+	.table100 tr {height:25px;}
+	.recordTitle0 #pl_name{border-bottom:1px solid #000;color:#666}
+	.record2+table td {height:auto;}
+	.forminfo li .vocation label{line-height:40px;}
+	.bgn input{background: none;}
+	.no-shuju {padding:8px!important;}
+</style>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{'/admin/base/new/rc/' + ${verify==1?'verify':'list'}}">阴极保护站运行记录<th:block th:text="${verify==1?'审核':'查看'}"></th:block></a></li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div th:if="${rc==null}" class="formbody no-shuju">
+    	暂无数据！
+    </div>
+    <div th:if="${rc!=null}" class="formbody">
+    	<div class="formtext2">
+			<h3 class="new-table-title">阴极保护站运行记录</h3>
+		</div>
+   	 	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+        <ul class="forminfo">
+			<li class="mauto mauto1">
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1" disabled="disabled" >
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1" disabled="disabled">
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1" disabled="disabled">
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright" style="padding-left: 10px">
+		            	<ul class="seachform mauto">
+				            <li class="mr20">
+								<span>时间：</span>
+								<input type="text" readonly="readonly" id="r_month" th:value="${r_month==null? '' : r_month}" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+							</li>
+					    	<li class="fr mr0" th:if="${role!=null and role==2}">
+					    		<input id="exportButton" name="exportButton" type="button" class="scbtn" value="导出"/>
+					    	</li>
+					    	<li class="fr mr20">
+					    		<input id="searchButton" type="button" class="scbtnModi" value="查询"/>
+					    	</li>
+		            	</ul>
+	            	</div>
+		        </div>
+		     </li>
+		     <li class="mauto clr">
+		     	<form id="searchForm" method="post">
+		     	<input type="hidden" name="id" th:value="${id}"/>
+		     	<input type="hidden" name="tips_id" th:value="${tips_id}"/>
+		     	<input type="hidden" name="verify" th:value="${verify}"/>
+		     	<div class="record2"></div>
+		        <table class="table100 mauto">
+		        	<tr class="recordTitle0 lh32" style="height:30px;">
+		            	<td colspan="9" style="border:none;">
+		            		<div class="fl">
+		                		<span>井（站）</span>
+		                    	<input type="text" th:value="${rc.jinzhan}" readonly="readonly" name="jinzhan" style="width:120px;" />
+		                    </div>
+		                   <!--  <div  class="fl">
+		                    	<span>管线名称</span>
+		                    	<a id="pl_name"></a>
+		                    </div> -->
+		                     <div  class="fr bgn">
+				            	<input style="width:20px;" th:value="${#strings.substring(rc.r_month,4,6)}" disabled="disabled" type="text" name="r_month" class="new_input Wdate" />
+				           		<span>月</span>
+				            </div>
+		                    <div  class="fr bgn">
+				            	<input style="width:35px;" th:value="${#strings.substring(rc.r_month,0,4)}" disabled="disabled" type="text" name="r_month" class="new_input Wdate"/>
+				          		<span>年</span>
+				            </div>
+		                </td>
+		            </tr>
+		            <tr style="height:22px;">
+		            	<td colspan="2">时间</td>
+		            	<td width="73px" rowspan="2">交流电压（-V）</td>
+		            	<td colspan="2">直流输出</td>
+		            	<td width="73px" rowspan="2">通电点<br/>电位<br/>（-V）</td>
+		            	<td width="65px" rowspan="2">记录人</td>
+		                <td width="" rowspan="2">大事记要</td>
+		            </tr>
+		            <tr style="height:40px;">
+		            	<td width="48px">日</td>
+		                <td width="48px">时</td>
+		                <td width="48px">A</td>
+		                <td width="48px">V</td>
+		            </tr>
+		            <tr th:each="d,status:${rcd}">
+		            	<td>
+		            	    <input
+		            	    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		            	    th:readonly="${d.canEdit==false}" th:value="${d.day}" type="text" name="day"  /></td>
+		                <td>
+		                    <input
+		                    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                    th:readonly="${d.canEdit==false}" th:value="${d.time}" type="text" name="time"  /></td>
+		                <td>
+		                    <input 
+		                    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                    th:readonly="${d.canEdit==false}" th:value="${d.jldy}" type="text" name="jldy" /></td>
+		                <td>
+		                    <input 
+		                    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                    th:readonly="${d.canEdit==false}" th:value="${d.zlsc_a}" type="text" name="zlsc_a" /></td>
+		                <td>
+		                    <input
+		                    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                    th:readonly="${d.canEdit==false}" th:value="${d.zlsc_v}" type="text" name="zlsc_v" /></td>
+		                <td>
+		                    <input
+		                    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                    th:readonly="${d.canEdit==false}" th:value="${d.tdddw}" type="text" name="tdddw" /></td>
+		                <td>
+		                    <input
+		                    th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                    th:readonly="${d.canEdit==false}" th:value="${d.recorder}" type="text" name="recorder" /></td>
+		                <td>
+		                	<input type="hidden" name="rcd_id" th:value="${d.id}"/>
+		                	<input 
+		                	th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		                	th:readonly="${d.status!=-1 and d.status!=-2}" th:value="${d.comment}" type="text" name="comment" />
+		                </td>
+		            </tr>		             
+		        </table>
+		        <div class="mt20" th:if="${rcd!=null and not #lists.isEmpty(rcd)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        		</form>
+			</li>
+			<li class="mauto20 mauto2" th:if="${verify == 1}">
+		    	<label class="labelModi tl"><span class="red">*</span>当前审核状态:</label>
+		    	<div class="vocation">
+			    	<select name="status" class="select1" th:if="${verify == 1}">
+		        		<option th:selected="${0 == rc.status}" th:value="0">待审核</option>
+		        		<option th:selected="${1 == rc.status}" th:value="1">通过</option>
+		        		<option th:selected="${-1 == rc.status}" th:value="-1">不通过</option>
+		            </select>
+		            <label th:if="${verify != 1}" th:text="${rc.status == 0?'待审核':rc.status == 1?'通过':'不通过'}"></label>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li class="mauto mauto3" th:if="${verify == 1}">
+		    	<label class="labelModi tl"><span class="red">*</span>审核说明:</label>
+		    	<textarea style="width:705px;" class="textinput" rows="" cols="" name="verify_desc" th:readonly="${verify != 1}" placeholder="审核说明" th:text="${rc.verify_desc}"></textarea>
+		    </li>
+		    <li class="mauto20 tc" th:if="${verify == 1}">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		    <li th:if="${role!=null and role==3}">
+				<input type="button" value="保存" class="btn" id="saveButton_modify" /> 
+				<input type="button" value="提交审核" class="btn" id="auditingButton" />
+				<input type="hidden" name="up_id" />
+			 </li>
+		</ul>
+	</div>								
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	//分页
+	$(".pagingBT").on("click",function(){
+		var id = [[${id}]];//规格ID
+		var r_month = [[${r_month!=null?r_month:''}]]; //月份
+		var offset = parseInt($("#offset").text())-1; //分页偏移
+		var direction = $(this).attr("id"); //上一页 OR 下一页
+		
+		if(direction == "prev"){
+			offset--;
+		}else{
+			offset++;
+		}
+		
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/new/rc/show}]] + "?verify=1&id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/new/rc/show}]] + "?id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}
+	});
+	
+	//查询
+	$("#searchButton").click(function(){
+		var id = [[${id}]];//规格ID
+		var r_month = $("#r_month").val(); //月份
+		var offset = 0; //分页偏移
+		var direction = $(this).attr("id"); //上一页 OR 下一页
+		
+		if([[${verify==1}]]){
+			window.location.href = [[@{/admin/base/new/rc/show}]] + "?verify=1&id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}else{
+			window.location.href = [[@{/admin/base/new/rc/show}]] + "?id=" + id + "&offset=" + offset + "&r_month=" + r_month;
+		}
+	});
+	
+	//导出
+	$("#exportButton").click(function() {
+		var pl=$("select[name=pl]").val();
+		var section=$("select[name=section]").val();
+		var spec=$("select[name=spec]").val();
+		var r_month=$("input[name=r_month]").val();
+		window.location.href="exp?pl="+pl+"&section="+section+"&spec="+spec+"&r_month="+r_month;
+	});
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		if(verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		var status = $("select[name=status]").val();
+		if (status != 0 && confirm("是否确认保存？")) {
+			var rcid = [[${rc.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/new/rc/verify_save}]],
+	   			data : {
+	   				'id' : rcid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				/*$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();*/
+	   				alert("审核成功！");
+	   				window.location.href = [[@{/admin/base/new/rc/verify}]];
+	   			}
+	   		});
+		}
+	});
+	
+	//保存修改
+	$("#saveButton_modify").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/rc/modify}]]+"");
+		formNode.submit();
+	});
+	
+	//提交审核
+	$("#auditingButton").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/rc/batch_changestatus}]]+"?oldStatus=-1&oldStatus=-2&newStatus=0");
+		formNode.submit();		
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	var plname = $("select[name=pl] option:selected").text();
+	var specname = $("select[name=spec] option:selected").text();
+	
+	$("#pl_name").html(plname + '/' + specname);
+});
+
+
+/*]]>*/
+</script>
+</html>

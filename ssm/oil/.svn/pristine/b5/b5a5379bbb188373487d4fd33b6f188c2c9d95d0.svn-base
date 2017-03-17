@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePipelinePatrolNewDAO">
+	<!-- 新的审核机制 -->
+	<select id="queryPipelinePatrolDetailMerge" resultType="cn.hm.oil.domain.PipelinePatrolDetail">
+		SELECT * FROM pipeline_patrol_detail_new ppd join pipeline_patrol_new
+		pp on ppd.pp_id=pp.id
+		WHERE (ppd.`p_date` IS NOT NULL OR ppd.`remark`
+		!= '')
+		AND pp.`pl_id`=#{pl_id} and pp.`pl_section_id`=#{pl_section_id}
+		and pp.`pl_spec_id`=#{pl_spec_id}
+		AND (FIND_IN_SET(#{user_id},
+		pp.up_id) OR pp.up_id IS NULL OR pp.creater = #{user_id})
+		<if test="status!= null">
+			AND pp.`status` = #{status}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="order!=null">
+			ORDER BY ppd.id DESC
+		</if>
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+
+	<select id="queryPipelinePatrolDetailMerge_count" resultType="int">
+		SELECT count(1) FROM pipeline_patrol_detail_new ppd join
+		pipeline_patrol_new pp on ppd.pp_id=pp.id
+		WHERE (ppd.`p_date` IS NOT
+		NULL OR ppd.`remark` != '')
+		AND pp.`pl_id`=#{pl_id} and
+		pp.`pl_section_id`=#{pl_section_id} and pp.`pl_spec_id`=#{pl_spec_id}
+		AND (FIND_IN_SET(#{user_id}, pp.up_id) OR pp.up_id IS NULL OR
+		pp.creater = #{user_id})
+		<if test="status!= null">
+			AND pp.`status` = #{status}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+	</select>
+	
+	<select id="queryPipelinePatrolDetail" resultType="cn.hm.oil.domain.PipelinePatrolDetail">
+		SELECT * FROM pipeline_patrol_detail_new ppd join pipeline_patrol_new
+		pp on ppd.pp_id=pp.id
+		WHERE (ppd.`p_date` IS NOT NULL OR ppd.`remark`
+		!= '')
+		<if test="id!= null">
+			AND pp.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND (pp.`status` = #{status} OR ppd.`status` = #{status})
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(pp.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND pp.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND pp.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND pp.`pl_section_id`=#{section}
+		</if>	
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPipelinePatrolDetail_count" resultType="int">
+		SELECT count(1) FROM pipeline_patrol_detail_new ppd join pipeline_patrol_new
+		pp on ppd.pp_id=pp.id
+		WHERE (ppd.`p_date` IS NOT NULL OR ppd.`remark`
+		!= '')
+		<if test="id!= null">
+			AND pp.pl_spec_id=#{id}
+		</if>
+		<if test="status!= null">
+			AND (pp.`status` = #{status} OR ppd.`status` = #{status})
+		</if>
+		<if test="r_month!=null">
+			AND DATE_FORMAT(pp.`create_time`,'%Y-%m-%d') = #{r_month}
+		</if>
+		<if test="whCreater!=null">
+			AND pp.creater=#{whCreater}
+		</if>
+		<if test="pl!=null">
+			AND pp.`pl_id`=#{pl}
+		</if>	
+		<if test="spec!=null">
+			AND pp.`pl_spec_id`=#{spec}
+		</if>
+		<if test="section!=null">
+			AND pp.`pl_section_id`=#{section}
+		</if>	
+	</select>
+	
+	<select id="queryPipelinePatrolMergeInfo" resultType="cn.hm.oil.domain.PipelinePatrol">
+		SELECT pp.`jinzhan`, pp.`p_month`, pp.`patroler`, pp.`patrol_no`,
+		pp.`status`, pp.`verify_desc`,
+		p.`name` AS pl_name, pse.`name` AS
+		pl_section_name, psp.`name` AS pl_spec_name
+		FROM pipeline_patrol_new
+		pp, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE pp.`pl_id` = p.`id` AND pp.`pl_section_id` = pse.`id` AND
+		pp.`pl_spec_id` = psp.`id`
+		<if test="status!= null">
+			AND pp.`status` = #{status}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+		AND pp.`pl_id`=#{pl_id} and pp.`pl_section_id`=#{pl_section_id} and
+		pp.`pl_spec_id`=#{pl_spec_id}
+		AND FIND_IN_SET(#{user_id}, pp.up_id) OR
+		pp.up_id IS NULL OR pp.creater = #{user_id}
+		LIMIT 1
+	</select>
+	<select id="queryPipelinePatrolMerge" resultType="cn.hm.oil.domain.PipelinePatrol">
+		SELECT DISTINCT psp.`id` AS pl_spec_id, p.`id` AS pl_id, p.`name` AS
+		pl_name, pse.`id` AS pl_section_id, pse.`name` AS pl_section_name,
+		psp.`name` AS pl_spec_name
+		FROM pipeline_patrol_new pp, base_pipeline
+		p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE pp.`pl_id` =
+		p.`id` AND pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` =
+		psp.`id`
+		<if test="pl_id!=null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+			AND pp.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+			AND pp.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="status!=null">
+			AND pp.`status` = #{status}
+		</if>
+		AND FIND_IN_SET(#{user_id}, pp.up_id) OR pp.up_id IS NULL OR
+		pp.creater = #{user_id}
+	</select>
+	<!-- END -->
+	<select id="queryPipelinePatrolAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id,
+		CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM
+		pipeline_patrol_new vp
+		LEFT JOIN base_pipeline bp ON vp.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON vp.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON vp.pl_spec_id = bps.id
+		<where>
+			vp.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where>
+		GROUP BY vp.pl_spec_id
+	</select>
+
+	<select id="queryPipelinePatrolByList" resultMap="queryPipelinePatrolByIdRusult">
+		SELECT * FROM pipeline_patrol_new
+		WHERE 1=1
+		<if test="param.id!=null">
+			AND pl_spec_id=#{param.id}
+		</if>
+		<if test="param.r_month!=null">
+			AND DATE_FORMAT(create_time,'%Y-%m-%d') = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT 0,1
+	</select>
+	<select id="queryPipelinePatrolByListTotal" resultType="int">
+		SELECT COUNT(1) FROM pipeline_patrol_new
+		WHERE pl_spec_id=#{param.id}
+		<if test="param.r_month!=null">
+			AND DATE_FORMAT(create_time,'%Y-%m-%d') = #{param.r_month}
+		</if>
+		<if test="param.whCreater!=null">
+			AND creater=#{param.whCreater}
+		</if>
+	</select>
+
+	<select id="queryPipelinePatrolById" resultMap="queryPipelinePatrolByIdRusult">
+		SELECT * FROM
+		pipeline_patrol_new WHERE id=#{id}
+	</select>
+
+	<update id="updatePipelinePatro">
+		UPDATE pipeline_patrol_new SET
+		pl_id=#{pl_id},pl_section_id=#{pl_section_id},pl_spec_id=#{pl_spec_id},jinzhan=#{jinzhan},
+		p_month=#{p_month},save_jinzhan=#{save_jinzhan},`status`=0,up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+
+	<delete id="deletePipelinePatrolDetailById">
+		DELETE FROM pipeline_patrol_detail_new WHERE `pp_id`= #{pp_id}
+	</delete>
+
+	<update id="updatePipelinePatrolTime">
+		UPDATE pipeline_patrol_new SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+			,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+
+	<resultMap type="cn.hm.oil.domain.PipelinePatrol" id="queryPipelinePatrolByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="p_month" property="p_month" />
+		<result column="save_jinzhan" property="save_jinzhan" />
+
+		<collection property="detailList" select="queryPipelinePatrolDetailByPpId"
+			column="id" javaType="List" ofType="cn.hm.oil.domain.PipelinePatrolDetail" />
+	</resultMap>
+
+	<select id="queryPipelinePatrolDetailByPpId" resultType="cn.hm.oil.domain.PipelinePatrolDetail">
+		SELECT *
+		FROM pipeline_patrol_detail_new WHERE pp_id=#{id}
+	</select>
+
+	<delete id="deletePipelinePatrolById">
+		DELETE FROM pipeline_patrol_new WHERE id=#{id}
+	</delete>
+	
+	<select id="queryBasePipelineByAdminPatrol" resultType="cn.hm.oil.domain.BasePipeline">
+		SELECT DISTINCT p.*
+		FROM pipeline_patrol_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, pipeline_patrol_detail_new ppd
+		WHERE ppd.`pp_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+		ORDER BY pp.create_time DESC
+	</select>
+	
+	<select id="querySpecListNewByAdminPatrol" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT DISTINCT bpsc.id,bpsc.pl_section_id, bpsc.pl_id,CONCAT(bp.name,'/',
+		bps.name,'/', bpsc.name) AS NAME
+		FROM base_pipeline bp			
+			JOIN base_pipeline_section bps ON bp.`id` = bps.`pl_id`
+		    JOIN base_pipeline_spec bpsc ON bps.`id` = bpsc.`pl_section_id`
+		    JOIN pipeline_patrol_new pp ON pp.`pl_spec_id`=bpsc.id
+		    JOIN pipeline_patrol_detail_new ppd ON ppd.`pp_id`=pp.id
+		<where>
+			<if test="pl_section_id!=null">
+				bpsc.pl_section_id=#{pl_section_id}
+			</if>
+			<if test="pl_id!=null">
+				AND bpsc.pl_id = #{pl_id}
+			</if>
+			<if test="pl_spec_id!=null">
+				AND bpsc.id = #{pl_spec_id}
+			</if>
+			<if test="status != null">
+				AND find_in_set(pp.`status`,#{status})
+			</if>
+			<if test="user_id != null">
+				AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+			</if>
+			<if test="up_id != null">
+				AND find_in_set(#{up_id}, pp.up_id)
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBasePipelineSectionByAdminPatrol" resultType="cn.hm.oil.domain.BasePipelineSection">
+		SELECT DISTINCT pse.*
+		FROM pipeline_patrol_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp, pipeline_patrol_detail_new ppd
+		WHERE ppd.`pp_id`=pp.id AND pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="user_id != null">
+			AND (pp.creater = #{user_id} OR pp.up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, pp.up_id)
+		</if>
+		<if test="status !=null">
+			AND find_in_set(pp.`status`,#{status})
+		</if>
+	</select>
+	
+	<select id="queryPipelinePatrol" resultType="cn.hm.oil.domain.PipelinePatrol">
+		SELECT pp.`id`, pp.`jinzhan`, pp.`p_month`, pp.`save_jinzhan`,
+		pp.`status`, pp.`create_time`, pp.`creater`, p.`name`
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM pipeline_patrol_new pp, base_pipeline p, base_pipeline_section
+		pse, base_pipeline_spec psp
+		WHERE pp.`pl_id` = p.`id` AND
+		pp.`pl_section_id` = pse.`id` AND pp.`pl_spec_id` = psp.`id`
+		<if test="pl_id != null">
+			AND pp.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id != null">
+			AND pp.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id != null">
+			AND pp.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="p_month">
+			AND pp.`p_month`=#{p_month}
+		</if>
+		<if test="status != null">
+			AND pp.`status` = #{status}
+		</if>
+		<if test="verify!=null or user_id != null">
+			AND (creater = #{user_id}) OR up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, up_id)
+		</if>
+		ORDER BY pp.create_time DESC
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+
+	<select id="queryPipelinePatrol_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM pipeline_patrol_new
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+			AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+			AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+			AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="p_month">
+			AND `p_month`=#{p_month}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status}
+		</if>
+		<if test="verify!=null or user_id != null">
+			AND (creater = #{user_id}) OR up_id is NULL)
+		</if>
+		<if test="up_id != null">
+			AND find_in_set(#{up_id}, up_id)
+		</if>
+	</select>
+
+	<insert id="insertPipelinePatrol" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO
+		pipeline_patrol_new(pl_id,pl_spec_id,pl_section_id,jinzhan,p_month,save_jinzhan,create_time,creater,
+		patroler, patrol_no,up_id,status)
+		VALUES(#{pl_id},#{pl_spec_id},#{pl_section_id},#{jinzhan},#{p_month},#{save_jinzhan},now(),#{creater},
+		#{patroler}, #{patrol_no},#{up_id},#{status})
+	</insert>
+
+	<insert id="insertPipelinePatrolDetail" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO
+		pipeline_patrol_detail_new(pp_id,p_date,work_place,content,question,voice_record,worker,auditor,annex,content_1,content_2,content_3,content_4
+		,content_5,content_6,content_7,content_8,content_9,content_10,content_11,content_12,content_13,content_14,content_15,content_16,remark,status)
+		VALUES(#{pp_id},#{p_date},#{work_place},#{content},#{question},#{voice_record},#{worker},#{auditor},#{annex},#{content_1},#{content_2},#{content_3},#{content_4}
+		,#{content_5},#{content_6},#{content_7},#{content_8},#{content_9},#{content_10},#{content_11},#{content_12},#{content_13},#{content_14},#{content_15},#{content_16},#{remark},#{status})
+	</insert>
+	
+	<update id="updatePipelinePatrolDetail">
+		UPDATE pipeline_patrol_detail_new ppd JOIN pipeline_patrol_new pp ON ppd.`pp_id`=pp.id
+		SET content_1=#{content_1},content_2=#{content_2},content_3=#{content_3},content_4=#{content_4},content_5=#{content_5},content_6=#{content_6},content_7=#{content_7},content_8=#{content_8},
+		content_9=#{content_9},content_10=#{content_10},content_11=#{content_11},content_12=#{content_12},content_13=#{content_13},content_14=#{content_14},content_15=#{content_15},content_16=#{content_16},
+		remark=#{remark}
+		<if test="status!=null">
+		,ppd.status=#{status}
+		,pp.status=#{status}
+		</if>
+		WHERE ppd.id=#{id}
+	</update>
+	
+	<!-- 需要修改另外一个状态值 -->
+	<update id="updatePipelinePatrolVerifyStatus">
+		UPDATE pipeline_patrol_new pp LEFT JOIN pipeline_patrol_detail_new pd ON pp.`id` = pd.`pp_id` SET
+		pp.status=#{status},pp.verify_desc=#{verify_desc},pp.verify_time=now(),pp.verifier=#{verifier},pd.status=#{status}
+		WHERE pp.id=#{id} AND pp.status=0
+	</update>
+	
+	<update id="updateResetDetailStatus">
+		UPDATE pipeline_patrol_detail_new ppd JOIN pipeline_patrol_new pp ON ppd.`pp_id`=pp.`id`
+		SET ppd.status = pp.status
+		WHERE ppd.`id`=#{id}
+	</update>
+	
+	<select id="queryDetailStatus" resultType="int">
+		SELECT status FROM pipeline_patrol_detail_new
+		WHERE id=#{id}
+	</select>
+	
+	<update id="updateChangeDetailStatus">
+		UPDATE pipeline_patrol_detail_new ppd JOIN pipeline_patrol_new pp ON ppd.`pp_id`=pp.`id`
+		SET ppd.status = #{status},pp.status=#{status}
+		WHERE ppd.`id`=#{id}
+	</update>
+	
+	<update id="updateAutoSubmitEveryWeek">
+		UPDATE pipeline_patrol_detail_new pmd JOIN pipeline_patrol_new pm ON pmd.`pp_id`=pm.`id`
+		SET pmd.status = 0,pm.status=0
+		WHERE pmd.status = -2 OR pm.status = -2
+	</update>
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BasePerformanceMeasureDao">
+	
+	<update id="updatePerformanceMeasureVerifyStatus">
+		UPDATE performance_measure SET
+		status=#{status},verify_desc=#{verify_desc},verify_time=now(),verifier=#{verifier}
+		WHERE id=#{id}
+	</update>
+	
+	<select id="queryPerformanceMeasureById" resultMap="queryPerformanceMeasureByIdRusult">
+		SELECT * FROM performance_measure WHERE id=#{id}
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.PerformanceMeasure" id="queryPerformanceMeasureByIdRusult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		<result column="jinzhan" property="jinzhan" />
+		<result column="m_year" property="m_year" />
+		<result column="created_by" property="created_by" />
+		<result column="auditor" property="auditor" />
+
+		<collection property="detailList" select="queryPerformanceMeasureDetailByPmId" column="id" javaType="List" ofType="cn.hm.oil.domain.PerformanceMeasureDetail"/>
+	</resultMap>
+	
+	<select id="queryPerformanceMeasureDetailByPmId" resultType="cn.hm.oil.domain.PerformanceMeasureDetail">
+		SELECT * FROM performance_measure_detail WHERE pm_id=#{id}
+	</select>
+	
+	<select id="queryPerformanceMeasure" resultType="cn.hm.oil.domain.PerformanceMeasure">
+		SELECT rc.`id`, rc.`jinzhan`, rc.`m_year`, rc.`created_by`, rc.`auditor`,rc.`create_time`, rc.`creater`,rc.`status` ,p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM performance_measure rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id`
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="m_year">
+		AND rc.`m_year`=#{m_year}
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, rc.up_id) OR rc.up_id is NULL OR rc.creater = #{user_id}) 
+		</if>
+		 ORDER BY rc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryPerformanceMeasure_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM performance_measure
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="m_year">
+		AND `m_year`=#{m_year}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+	</select>
+	
+	<update id="updatePerformanceMeasure">
+		UPDATE performance_measure SET pl_id=#{pl_id},pl_spec_id=#{pl_spec_id},pl_section_id=#{pl_section_id},
+		jinzhan=#{jinzhan},created_by=#{created_by},m_year=#{m_year},auditor=#{auditor},status=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="insertPerformanceMeasure" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO performance_measure(pl_id,pl_spec_id,pl_section_id,jinzhan,m_year,created_by,auditor,create_time,creater,up_id) 
+		VALUES(#{pl_id},#{pl_spec_id},#{pl_section_id},#{jinzhan},#{m_year},#{created_by},#{auditor},now(),#{creater},#{up_id})
+	</insert>
+	
+	<delete id="deletePerformanceMeasureDetailByPMid">
+		DELETE FROM performance_measure_detail WHERE pm_id=#{pm_id}
+	</delete>
+	
+	<delete id="deletePerformanceMeasureById">
+		DELETE FROM performance_measure WHERE id=#{id}
+	</delete>
+	
+	<insert id="insertPerformanceMeasureDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO performance_measure_detail(pm_id,position,type,month_1,month_2,month_3,month_4,month_5,month_6,month_7,month_8,month_9,month_10,month_11,month_12) 
+		VALUES(#{pm_id},#{position},#{type},#{month_1},#{month_2},#{month_3},#{month_4},#{month_5},#{month_6},#{month_7},#{month_8},#{month_9},#{month_10},#{month_11},#{month_12})
+	</insert>
+
+</mapper>

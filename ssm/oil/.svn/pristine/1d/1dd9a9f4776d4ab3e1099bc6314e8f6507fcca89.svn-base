@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header">
+</head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<style type="text/css">
+.newtable td {
+	border: 1px solid #000 !important;
+}
+
+.mauto1 {
+	position: absolute;
+	top: -136px;
+}
+
+.shenhe-div, .tc {
+	position: absolute;
+}
+
+.shenhe-div {
+	bottom: -110px;
+}
+
+.tc {
+	bottom: -170px;
+}
+
+.formtext2 {
+	line-height: 34px;
+	height: 34px;
+	padding: 0;
+	position: relative;
+	top: -40px;
+}
+
+#saveform {
+	width: 920px;
+}
+
+.new-table-title {
+	margin-top: 45px;
+	letter-spacing: 2px;
+}
+
+.recordTitle span {
+	font-weight: normal;
+	color: #000;
+	font-size: 13px;
+}
+
+.formbodynew1 {
+	width: 920px;
+	height: 620px;
+	padding: 50px 40px 70px 50px;
+}
+</style>
+<body style="background: #fdf6fd;">
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li>管道巡检工作记录创建：</li>
+		</ul>
+	</div>
+
+	
+	<div class="formbodynew1" style="margin-top: 140px;">
+		<div class="formtext2">
+			<h3 class="new-table-title">管道巡检工作记录</h3>
+		</div>
+		<!-- <div class="formtext2" th:if="${prompt!=null}">
+			<h3 th:text="${prompt.describe==null?'':prompt.describe}"></h3>
+		</div> -->
+
+
+		<form method="post" id="saveform" enctype="multipart/form-data"
+			style="top: -45px;">
+			<div>
+				<input type="hidden" id="id" name="pp_id" th:value="${id}"
+					th:if="${pp != null}" />
+			</div>
+			<ul class="forminfo">
+				<li class="mauto mauto1" style="top: -141px; left: -50px;">
+					<div class="usercity">
+						<div class="cityleft">
+							<select name="pl_id" class="select1">
+								<option value="0">请选择管线</option>
+								<option th:each="pll:${pipeLineList}"
+									th:selected="${pl == pll.id }" th:value="${pll.id}"
+									th:text="${pll.name}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="clr"></div>
+				</li>
+				<li class="clr mauto">
+					<div class="record3"></div>
+					<table class="addTr table100 mauto table newtable"
+						style="width: 920px;">
+						<tr class="recordTitle lh25" style="height: 22px;">
+							<td colspan="18" style="border: 0 !important; height: 22px">
+								<div class="fl">
+									<span>单位</span> <input style="width: 150px; border: none;"
+										type="text" name="jinzhan" class="new_input"
+										th:value="${pp!=null?pp.jinzhan:''}" />
+								</div>
+								<div class="fl ml70">
+									<span>巡检人：</span> <input style="width: 140px; border: none;"
+										type="text" name="patroler" class="new_input"
+										th:value="${pp!=null?pp.patroler:''}" />
+								</div>
+								<div class="fl">
+									<span>巡检管线名称规格：</span> <input
+										style="width: 130px; border: none;" type="text" id="name"
+										name="name" class="new_input"
+										th:value="${pp!=null?pp.name:''}" />
+								</div>
+								<div class="fr">
+									<span>巡检管线(段)：</span> <input
+										style="width: 150px; border: none;" type="text"
+										name="patrol_no" class="new_input"
+										th:value="${pp!=null?pp.patrol_no:''}" />
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+						<tr>
+							<td width="70" rowspan="2">日期</td>
+							<td colspan="16" style="height: 22px;">巡检内容</td>
+							<td rowspan="2" width="340">备注</td>
+						</tr>
+						<tr style="height: 115px; vertical-align: top;">
+							<td width="48px">管&nbsp;&nbsp;线<br />“三<br />桩”、<br />警&nbsp;&nbsp;示<br />牌
+							</td>
+							<td width="38px">管<br />道<br />护<br />&nbsp;&nbsp;坡、<br />堡<br />坎
+							</td>
+							<td width="28px">埋<br />地<br />管<br />道
+							</td>
+							<td width="38px">明<br />管<br />跨<br />越<br />管<br />段
+							</td>
+							<td width="48px">铁<br />路、<br />公路<br />穿越<br />段
+							</td>
+							<td width="38px">隧<br />道<br />穿<br />越<br />段
+							</td>
+							<td width="48px">穿&nbsp;&nbsp;越<br />河&nbsp;&nbsp;<br />流&nbsp;&nbsp;、<br />沟&nbsp;&nbsp;渠<br />管&nbsp;&nbsp;段
+							</td>
+							<td width="38px">管<br />道<br />两<br />侧<br />环<br />境
+							</td>
+							<td width="48px">管&nbsp;&nbsp;道<br />沿&nbsp;&nbsp;途<br />地&nbsp;&nbsp;质<br />灾害
+							</td>
+							<td width="48px">管&nbsp;&nbsp;道<br />高&nbsp;&nbsp;后<br />果&nbsp;&nbsp;区<br />及&nbsp;&nbsp;高<br />风&nbsp;&nbsp;险<br />段
+							</td>
+							<td width="38px">管<br />道<br />泄<br />漏<br />情<br />况
+							</td>
+							<td width="38px">站<br />场<br />阴<br />保<br />装<br />置
+							</td>
+							<td width="48px">阴&nbsp;&nbsp;极<br />保&nbsp;&nbsp;护<br />测&nbsp;&nbsp;试<br />桩
+							</td>
+							<td width="38px">阳<br />极<br />线<br />路
+							</td>
+							<td width="38px">线<br />路<br />阀<br />室<br />（<br />井）
+							</td>
+							<td width="38px">管<br />道<br />保<br />护<br />宣<br />传
+							</td>
+						</tr>
+						<tr th:if="${pp!=null}" style="height: 41px;"
+							th:each="d : ${pp!=null?pp.detailList:''}">
+							<td><input type="text" placeholder="请选择日期"
+								readonly="readonly" name="p_date"
+								onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})"
+								th:value="${beans.dateFormatter.formatDateToStr(d.p_date,'yyyy-MM-dd')}"
+								th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_1"
+								th:value="${d.content_1}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_2"
+								th:value="${d.content_2}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_3"
+								th:value="${d.content_3}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_4"
+								th:value="${d.content_4}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_5"
+								th:value="${d.content_5}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_6"
+								th:value="${d.content_6}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_7"
+								th:value="${d.content_7}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_8"
+								th:value="${d.content_8}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_9"
+								th:value="${d.content_9}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_10"
+								th:value="${d.content_10}" th:disabled="${d.p_date==null}" /></td>
+							<td><select name="content_11" class="select-yesno"
+								th:disabled="${d.p_date==null}">
+									<option value="-1" />
+									<option value="1" th:text="有"
+										th:selected="${d.content_11=='1'}" />
+									<option value="0" th:text="无"
+										th:selected="${d.content_11=='0'}" />
+							</select></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_12"
+								th:value="${d.content_12}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_13"
+								th:value="${d.content_13}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_14"
+								th:value="${d.content_14}" th:disabled="${d.p_date==null}" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_15"
+								th:value="${d.content_15}" th:disabled="${d.p_date==null}" /></td>
+							<td><select name="content_16" class="select-yesno"
+								th:disabled="${d.p_date==null}">
+									<option value="-1" />
+									<option value="1" th:text="是"
+										th:selected="${d.content_16=='1'}" />
+									<option value="0" th:text="否"
+										th:selected="${d.content_16=='0'}" />
+							</select></td>
+							<td><input type="text" class="remark" name="remark"
+								th:value="${d.remark}" /></td>
+							<td width="38px" hidden="true"><input type="text"
+								onclick="#" name="sign" th:value="${d.p_date==null?0:1}" /></td>
+						</tr>
+						<tr th:if="${ppLength lt 12}" style="height: 38px;"
+							th:each="i : ${#numbers.sequence(ppLength+1,12)}">
+							<td><input type="text" placeholder="请选择日期"
+								readonly="readonly" name="p_date"
+								onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_1" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_2" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_3" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_4" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_5" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_6" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_7" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_8" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_9" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_10" /></td>
+							<td><select name="content_11" class="select-yesno">
+									<option value="-1" />
+									<option value="1" th:text="有" />
+									<option value="0" th:text="无" />
+							</select></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_12" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_13" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_14" /></td>
+							<td><input type="text" readonly="readonly"
+								onclick="check_f(this)" name="content_15" /></td>
+							<td><select name="content_16" class="select-yesno">
+									<option value="-1" />
+									<option value="1" th:text="是" />
+									<option value="0" th:text="否" />
+							</select></td>
+							<td><input type="text" class="remark" name="remark" /></td>
+							<td width="38px" hidden="true"><input type="text"
+								onclick="#" name="sign" value="1" /></td>
+						</tr>
+					</table>
+				</li>
+				<li>
+					<div class="shenhe-div" style="margin-left: -50px; bottom: -100px">
+						<label style="width: 70px">上报上级：</label>
+						<ul class="input-box" style="width: 900px;">
+							<li th:each="b:${br}"><input th:value="${b.leader_id}"
+								th:checked="${b.leader_id==up_id}" type="checkbox" /> <span
+								th:text="${b.leader_name}">姓名1</span></li>
+						</ul>
+					</div>
+				</li>
+				<li class="tc mauto20" style="width: 962px;">
+					<!-- <input type="button" value="保存" class="btn" id="saveButton" /> 
+					<input type="button" value="提交审核" class="btn" id="auditingButton" /> -->
+					<input type="button" value="保存并审核" class="btn" id="auditingButton" />
+					<input type="button" value="新增一页" class="btn" id="newPageButton" />
+					<input type="hidden" name="up_id" />
+				</li>
+			</ul>
+			<!-- <div id="addLine" class="addLine"></div> -->
+		</form>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+           function check_f(this_t){
+        			if($(this_t).val()!=""){
+        				$(this_t).val("");
+        			} else {
+        				$(this_t).val("√");
+       				}
+			}
+$(document).ready(function() {
+	if($("input[name=name]").val().length==0)
+	{
+		var plname = $("select[name=pl_id] option:selected").text()+'/';
+		$("input[name=name]").val(plname);
+	}
+	
+	var remarkWidth = [[${remarkWidth}]];
+	$('tr .remark').bind('keyup',function(){
+		//$('tr .remark').attr({'maxlength':remarkWidth});
+		var length = $(this).val().length;
+		if (length>=remarkWidth) {
+			var v = $(this).val();			
+			var lastStr = v.substr(length-1,1);
+			if(lastStr.match("[a-z]"))
+				return;
+			var useStr = v.substr(0,remarkWidth);
+			$(this).val(useStr);
+			var leftStr = v.substr(remarkWidth,length-remarkWidth);
+			var nextIndex = $('tr .remark').index(this)+1;
+			$('tr .remark').eq(nextIndex).val(leftStr);
+			$('tr .remark').eq(nextIndex).focus();
+			$('tr .remark').eq(nextIndex).parent().siblings().children('input[onClick!="#"]').attr('disabled',true);
+			$('tr .remark').eq(nextIndex).parent().siblings().children('select').attr('disabled',true);
+			$('tr .remark').eq(nextIndex).parent().siblings().children('input[onClick="#"]').val(0);
+		}
+	});
+	
+	$('tr .remark').bind('keydown',function(event){
+		if ($(this).val().length == 0 && (event.which == 46 || event.which == 8)) {
+			var thisIndex = $('tr .remark').index(this);
+			$('tr .remark').eq(thisIndex).parent().siblings().children('input[onClick!="#"]').attr('disabled',false);
+			$('tr .remark').eq(nextIndex).parent().siblings().children('select').attr('disabled',false);
+			$('tr .remark').eq(thisIndex).parent().siblings().children('input[onClick="#"]').val(1);
+		}
+	});
+	
+	$("select[name=pl_id]").change(function() {
+		var cid = $(this).val();		
+		if (cid == '0') {
+			$(this).val([[${pl}]]);
+			return;
+		}
+		if(!confirm("即将切换管线，请确认当前的页面信息已保存以免数据丢失，是否继续？")){
+			$(this).val([[${pl}]]);
+			return;
+		}
+		var plname = $("select[name=pl_id] option:selected").text()+'/';
+		window.location.href = [[@{/admin/base/pl_patrol/2016/create}]] + "?pl_name="+plname+"&pl="+cid;
+	});
+
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+
+	var buttons = $("input[type=button]");
+	buttons.click(
+		function (){
+		if(	!saveButtonCheck ()){
+			return;
+		}
+			var buttonNode = $(this);
+			var buttonName = buttonNode.attr("id");
+			var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+			var formNode = $("#saveform");
+			
+			if(buttonNamePrex === null ){
+				return;
+			}
+			if(buttonNamePrex === "save"){
+				//保存到草稿箱
+				formNode.attr("action",[[@{/admin/base/pl_patrol/2016/save}]]+"?status=-2");
+			}
+			
+			if(buttonNamePrex === "auditing"){
+				//待审核
+				formNode.attr("action",[[@{/admin/base/pl_patrol/2016/save}]]+"?status=0");
+			
+			}
+
+			if(buttonNamePrex === "newPage"){
+				formNode.attr("action",[[@{/admin/base/pl_patrol/2016/save}]]+"?newPage=1&status=0&pl="+[[${pl}]]);
+			}
+			
+				formNode.submit();
+		}
+	);
+	});
+
+function saveButtonCheck()  {
+	var plId = $("select[name=pl_id]").val();
+	if(plId <= 0){
+		alertM("请选择管线",{time:3000});
+		return false;
+	}
+	
+	var jinzhanTxt=$("input[name=jinzhan]").val();
+	if(jinzhanTxt.length==0||jinzhanTxt.length>50){
+		alertM("单位不能为空且不能大于50个字",{time:3000});
+		return;
+	}
+
+	var pl_nameTxt=$("input[name=name]").val();
+	if(pl_nameTxt.length==0){
+		alertM("请选择管线名称及规格",{time:3000});
+		return;
+	}	
+	
+	
+	var up_id="";
+	$(".input-box input[type=checkbox]").each(function(){
+		if($(this).is(":checked")){
+			up_id += "," + $(this).val();
+		}
+	});
+	if(up_id.length==0){
+		alertM("请选择上报人!",{time:3000});
+		return false;
+	}
+	up_id = up_id.substring(1);
+	$("input[name=up_id]").val(up_id);
+	
+	if(confirm("是否确认保存？")){
+		return true;
+	}
+	return false;
+}
+
+/*]]>*/
+</script>
+</html>

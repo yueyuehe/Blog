@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseExcelDao">
+	<insert id="saveExcel"  useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO excel (title,filesoure,createtime,filetype,filesize,filepath,creater,parent,isdir) 
+		VALUES(#{title},0,now(),#{filetype},#{filesize},#{filepath},#{creater},#{parent},#{isdir})
+	</insert>
+	
+	<select id="queryExcel" resultType="cn.hm.oil.domain.Sexcel">
+		SELECT e.*,su.name AS creatername,(SELECT `name` FROM sys_users WHERE id = e.deleter) AS deletername,et.name AS typename 
+		FROM excel e,sys_users su, excel_type et
+		WHERE e.creater = su.id AND et.id = e.filesoure
+		<if test="title!=null">
+		AND  title like CONCAT('%', #{title},'%')
+		</if>
+		<if test="start_time!=null">
+		AND  createtime between #{start_time} and #{end_time}
+		</if>
+		<if test="removeDelete!=null">
+		AND deleter IS NULL 
+		</if>
+		<if test="parent!=null">
+		AND e.parent = #{parent} 
+		</if>
+		ORDER BY isdir DESC,id DESC
+	</select>
+	
+	<select id="queryExcel_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM excel WHERE 1=1
+		<if test="title!=null">
+		AND  title like CONCAT('%', #{title},'%')
+		</if>
+		<if test="start_time!=null">
+		AND  createtime between #{start_time} and #{end_time}
+		</if>
+		<if test="removeDelete!=null">
+		AND deleter IS NULL 
+		</if>
+		<if test="parent!=null">
+		AND parent = #{parent} 
+		</if>
+	</select>
+	
+	<select id="queryExcelByid" resultType="cn.hm.oil.domain.Sexcel">
+		SELECT * FROM excel WHERE id=#{id}
+	</select>
+	
+	<select id="queryExcelCheck" resultType="cn.hm.oil.domain.Sexcel">
+		SELECT * FROM excel WHERE parent=#{parent} AND title=#{filetitle}
+	</select>
+	
+	<delete id="deleteExcelByid">
+		<!-- DELETE FROM excel WHERE id=#{id}; -->
+		UPDATE excel SET deletetime = now(), deleter = #{deleter} WHERE id = #{id}
+	</delete>
+</mapper>

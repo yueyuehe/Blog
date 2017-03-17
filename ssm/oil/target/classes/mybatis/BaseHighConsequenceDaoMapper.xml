@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseHighConsequenceDao">
+	<insert id="insertHighConsequence" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO high_consequence (pl_id,pl_section_id,pl_spec_id,create_time,creater,`status`) 
+		VALUES(#{pl_id},#{pl_section_id},#{pl_spec_id},now(),#{creater},0)
+	</insert>
+	
+	<insert id="insertHighConsequenceDetail">
+		INSERT INTO high_consequence_detail (hc_id,`num`,start_lat,start_lon,end_lat,end_lon,s_start,s_end,s_length,s_soure,place_name,description,u_date,recogner,pic1,pic2,pic3,pic4,pic5) 
+		VALUES(#{hc_id},#{num},#{start_lat},#{start_lon},#{end_lat},#{end_lon},#{s_start},#{s_end},#{s_length},#{s_soure},#{place_name},#{description},#{u_date},#{recogner},#{pic1},#{pic2},#{pic3},#{pic4},#{pic5})
+	</insert>
+	
+	<select id="queryHighConsequence" resultType="cn.hm.oil.domain.HighConsequence">
+		SELECT hc.id,hc.create_time,hc.creater,hc.status,hc.verifier,hc.verify_time,hc.verify_desc,
+		p.name AS pl_name,ps.name AS pl_section_name, pps.name AS pl_spec_name 
+		FROM high_consequence hc, base_pipeline p,base_pipeline_section ps,base_pipeline_spec pps 
+		WHERE p.id = hc.pl_id AND ps.id = hc.pl_section_id AND pps.id = hc.pl_spec_id
+		<if test="pl_id!=null">
+		AND hc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND hc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND hc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="create_time">
+		AND DATE_FORMAT(hc.create_time,'%Y-%m-%d')=#{create_time}
+		</if>
+		<if test="status!=null">
+			AND hc.`status` = #{status} 
+		</if>
+		ORDER BY hc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryHighConsequence_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM high_consequence
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="create_time!=null">
+		AND DATE_FORMAT(create_time,'%Y-%m-%d')=#{create_time}
+		</if>
+		<if test="status!=null">
+			AND `status` = #{status} 
+		</if>
+	</select>
+	
+	<select id="queryHighConsequenceById" resultMap="queryHighConsequenceByIdResult">
+		SELECT hc.*,p.name AS pl_name,ps.name AS pl_section_name,pps.name AS pl_spec_name FROM high_consequence hc,base_pipeline p,base_pipeline_section ps,base_pipeline_spec pps WHERE hc.id = #{id} AND p.id = hc.pl_id AND ps.id = hc.pl_section_id AND pps.id = hc.pl_spec_id
+	</select>
+	
+	<resultMap type="cn.hm.oil.domain.HighConsequence" id="queryHighConsequenceByIdResult">
+		<id column="id" property="id" />
+		<result column="pl_id" property="pl_id" />
+		<result column="pl_spec_id" property="pl_spec_id" />
+		<result column="pl_section_id" property="pl_section_id" />
+		<result column="create_time" property="create_time" />
+		<result column="creater" property="creater" />
+		<result column="status" property="status" />
+		
+		<collection property="detailList" select="queryHighConsequenceDetailByPmId" column="id" javaType="List" ofType="cn.hm.oil.domain.HighConsequenceDetail"/>
+	</resultMap>
+	
+	<select id="queryHighConsequenceDetailByPmId" resultType="cn.hm.oil.domain.HighConsequenceDetail">
+		SELECT * FROM high_consequence_detail WHERE hc_id=#{id}
+	</select>
+	
+	<update id="updateHighConsequenceVerifyStatus">
+		UPDATE high_consequence SET `status`=#{status},verifier=#{verifier},verify_time=NOW(),
+		verify_desc=#{verify_desc} WHERE id=#{id}
+	</update>
+	
+	<update id="updateHighConsequence">
+		UPDATE high_consequence SET pl_id=#{pl_id},pl_section_id=#{pl_section_id},pl_spec_id=#{pl_spec_id},status=0 WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteHighConsequenceDetailByHcId">
+		DELETE FROM high_consequence_detail WHERE hc_id = #{hc_id}
+	</delete>
+</mapper>

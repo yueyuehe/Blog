@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置:</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>集输气管线附属设施维护记录创建：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg!=null}">
+			<b th:text="${msg==null?'':msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+        <form method="post" id="saveform" th:action="@{/admin/base/f_maint/save}" style="margin:0 auto;">
+        <ul class="forminfo">
+			<li class="mauto">
+		    	<div class="usercity">
+		    		<div class="cityleft">
+			        	<select name="pl" class="select1">
+			            	<option value="0">请选择管线</option>
+			        		<option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityleft">
+			            <select name="section" class="select1">
+			            	<option value="0">请选择起止段落</option>
+			        		<option th:each="sec:${sectionList}" th:selected="${section ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		            <div class="cityright">
+			            <select name="spec" class="select1">
+			            	<option value="0">请选择规格</option>
+			        		<option th:each="sec:${specList}" th:selected="${spec ==sec.id}" th:value="${sec.id}" th:text="${sec.name}"></option>
+			            </select>
+		            </div>
+		        </div>
+		        <div class="clr"></div>
+		     </li>
+		     <li class="mauto clr">
+		     	<div class="record3"></div>
+		     	<table class="addTr table100">
+		        	<tr class="recordTitle lh32">
+		            	<td colspan="11">
+		            		<div class="fl">
+		                		<span>井（站）</span>
+		                    	<input type="text" name="jinzhan" placeholder="请输入井(站)" class="new_input" style="width:150px;" />
+		                    </div>
+		                    <div class="fl">
+		                    	<span>管线名称及规格：</span>
+		                    	<a id="pl_name"></a>
+		                    </div>
+		                    <div class="fr">
+		                    	<span class="ml30">时间：</span>
+		                    	<input type="text" placeholder="请选择时间" readonly="readonly" name="create_date" style="width:150px;" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />		                   
+		                	</div>
+		                </td>
+		            </tr>
+		            <tr>
+		            	<td width="70">编号</td>
+		                <td width="170">类别</td>
+		                <td width="100">检查头里程桩号</td>
+		                <td width="100">所处地址</td>
+		                <td width="60">经度</td>
+		                <td width="60">纬度</td>
+		                <td width="80">结构型式</td>
+		                <td width="100">设施现状描述</td>
+		                <td width="90">维修时间</td>
+		                <td width="90">维修状况</td>
+		                <td>填报人</td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select  class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                </select>
+			                <select  class="selectLei" name="category">
+			                	<option>请选择</option>
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select  class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select  class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select  class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select  class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description"  /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select  class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select  class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude"  /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select  class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select  class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description"  /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                </select>
+			                <select class="selectLei" name="category">
+			                	<option>请选择</option>
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs" /></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+		            <tr>
+		            	<td><input type="text" name="no" /></td>
+		                <td>
+			                <select class="selectLei" name="categoryT">
+			                	<option>请选择</option>
+			                	
+			                </select>
+			                <select class="selectLei" name="category">
+			                	<option>请选择</option>
+			                	
+			                </select>
+		                </td>
+		                <td><input type="text" name="lcz_no" /></td>
+		                <td><input type="text" name="address" /></td>
+		                <td><input type="text" name="longitude" /></td>
+		                <td><input type="text" name="latitude" /></td>
+		                <td><input type="text" name="jgxs"/></td>
+		                <td><input type="text" name="ssxz_desc" /></td>
+		                <td><input type="text" name="m_time" /></td>
+		                <td><input type="text" name="description" /></td>
+		                <td><input type="text" name="recorder" /></td>
+		            </tr>
+        	 	</table>
+		     </li>
+		     <li class="shenhe-box">
+					<div class="shenhe-div">
+						<label>审核人：</label>
+						<ul class="input-box" style="width:900px;">
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+							<li>
+								<input type="checkbox" />
+								<span>姓名1</span>
+							</li>
+						</ul>
+					</div>
+				</li>
+		     <li class="tc mauto20 w780">
+		     	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		     </li>
+		</ul>
+		<div id="addLine" class="addLine"></div>
+        </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	//类别选择
+	window.onload=leibie();
+	function leibie(){
+		var categoryL = new Array("明管","跨越","公路穿越","河流穿越","护坡堡坎","里程桩","测试桩","牺牲阳极","警告牌","呼吸管");
+		var category1 = new Array("一字型");
+		var category2 = new Array("八字型","一字型");
+		var category3 = new Array("直埋","涵洞","套管");
+		var category4 = new Array("大开挖","定向钻","顶管","隧道");
+		var category5 = new Array("条石","卵石");
+		var category6 = new Array("水泥方桩","塑料三角桩","水泥三角桩");
+		var category7 = new Array("电缆","钢芯");
+		var category8 = new Array("电缆");
+		var category9 = new Array("水泥双脚","塑钢单脚","钢板双脚");
+		var category10 = new Array("钢板","水泥沉降井");
+		var categoryBox = new Array(category1,category2,category3,category4,category5,category6,category7,category8,category9,category10);
+		var categoryT = document.getElementsByName("categoryT");
+		var category = document.getElementsByName("category");
+		for(var j=0;j<categoryT.length;j++){
+			//第一个select框动态添加option
+			for(var i=0;i<categoryL.length;i++){
+				var option1 = document.createElement("option");
+				var nodes = document.createTextNode(categoryL[i]);
+				option1.appendChild(nodes);
+				categoryT[j].appendChild(option1);
+			}
+			
+			
+		}
+		//第二个select框动态添加option
+		$("select[name=categoryT]").each(function(index){
+			$(this).change(function(){
+				category[index].options.length=1;
+				var categoryTOpt = this.options;
+				for(var k=1;k<categoryTOpt.length;k++){
+					if(categoryTOpt[k].selected){
+						for(var t=0;t<categoryBox[k-1].length;t++){
+							var categoryOpt = document.createElement("option");
+							var categoryNodes = document.createTextNode(categoryBox[k-1][t]);
+							categoryOpt.appendChild(categoryNodes);
+							category[index].appendChild(categoryOpt);
+							
+						}
+						
+					} 
+				}
+				
+			})
+		})
+	}
+	
+	
+	
+	//添加按钮
+	var addLineLeft=parseInt($(".addTr").css("width"));
+	//alert(addLineLeft);
+	var assLineTop=parseInt($(".recordTitle").css("height"))+67+26*9;
+	//alert(assLineTop);
+	$("#addLine").css({"left":addLineLeft+'px',"top":assLineTop+'px'});
+	var times=1																												
+	$("#addLine").click(function(){
+		$(".addTr").append("<tr><td><input type='text' name='no' /></td><td><select class='selectLei' name='categoryT'><option>请选择</option></select><select class='selectLei' name='category'><option>请选择</option></select></td><td><input type='text' name='lcz_no' /></td><td><input type='text' name='address' /></td><td><input type='text' name='longitude' /></td><td><input type='text' name='latitude' /></td><td><input type='text' name='jgxs' /></td><td><input type='text' name='ssxz_desc' /></td><td><input type='text' name='m_time' /></td><td><input type='text' name='description' /></td><td><input type='text' name='recorder' /></td></tr><tr><td><input type='text' name='no' /></td><td><select class='selectLei' name='categoryT'><option>请选择</option></select><select class='selectLei' name='category'><option>请选择</option></select></td><td><input type='text' name='lcz_no' /></td><td><input type='text' name='address' /></td><td><input type='text' name='longitude' /></td><td><input type='text' name='latitude' /></td><td><input type='text' name='jgxs' /></td><td><input type='text' name='ssxz_desc' /></td><td><input type='text' name='m_time' /></td><td><input type='text' name='description' /></td><td><input type='text' name='recorder' /></td></tr><tr><td><input type='text' name='no' /></td><td><select class='selectLei' name='categoryT'><option>请选择</option></select><select class='selectLei' name='category'><option>请选择</option></select></td><td><input type='text' name='lcz_no' /></td><td><input type='text' name='address'  /></td><td><input type='text' name='longitude' /></td><td><input type='text' name='latitude' /></td><td><input type='text' name='jgxs' /></td><td><input type='text' name='ssxz_desc' /></td><td><input type='text' name='m_time' /></td><td><input type='text' name='description' /></td><td><input type='text' name='recorder' /></td></tr>");		
+		$(this).css("top",(assLineTop+(times+2)*26)+'px');
+		var categoryT = document.getElementsByName("categoryT");
+		var category = document.getElementsByName("category");
+		$("select[name=categoryT]").each(function(index){
+			//$(this).change(function(){
+			//	category[index].options.length=1;
+			//})
+			this.options.length=1;
+		})
+		leibie();
+		times=times+3;
+	})
+	
+	$("#saveButton").click(function() {
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0||jinzhanTxt.length>50){
+			alertM("井站名称不能为空且不能超过50个字",{time:3000});
+			return;
+		}
+		var p_monthTxt=$("input[name=create_date]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return;
+		}
+		var pl_nameTxt=$("#pl_name").text();
+		if(pl_nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return;
+		}
+		var bool = true;
+		var intNum = /^\d*$/
+		$('input[name=no]').each(function(){
+			var no = $(this).val();
+			if(!intNum.test(no)){
+				alertM("编号必须为数字！",{time:3000});
+				bool = false;
+				return;
+			}
+		})
+		//var lcz_noExp = /^\w[0,5]$/;
+		$('input[name=lcz_no]').each(function(){
+			var lcz_no = $(this).val();
+			if(lcz_no.length>0){
+			if(lcz_no.length>5){
+				alertM("检查头里程桩号字数不能超过5！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		$('input[name=address]').each(function(){
+			var address = $(this).val();
+			if(address.length>0){
+			if(address.length>20){
+				alertM("所处地址字数不能超过20！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		$('input[name=jgxs]').each(function(){
+			var jgxs = $(this).val();
+			if(jgxs.length>0){
+			if(jgxs.length>10){
+				alertM("结构形式字数不能超过10！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		$('input[name=ssxz_desc]').each(function(){
+			var ssxz_desc = $(this).val();
+			if(ssxz_desc.length>0){
+			if(ssxz_desc.length>200){
+				alertM("设施现状描述字数不能超过200！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		$('input[name=m_time]').each(function(){
+			var m_time = $(this).val();
+			if(m_time.length>0){
+			if(m_time.length>10){
+				alertM("维修时间字数不能超过10！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		$('input[name=description]').each(function(){
+			var description = $(this).val();
+			if(description.length>0){
+			if(description.length>200){
+				alertM("维修状况字数不能超过200！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		$('input[name=recorder]').each(function(){
+			var recorder = $(this).val();
+			if(recorder.length>0){
+			if(recorder.length>10){
+				alertM("填报人字数不能超过10！",{time:3000});
+				bool = false;
+				return;
+			}
+			}
+		})
+		var num = /^\d+(\.\d+)?$/;
+		$('input[name=latitude]').each(function(){
+			var latitude = $(this).val();
+			if(latitude.length>0){
+				if(!num.test(latitude)){
+					alertM("纬度必须为数字！",{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		$('input[name=longitude]').each(function(){
+			var longitude = $(this).val();
+			if(longitude.length>0){
+				if(!num.test(longitude)){
+					alertM("经度必须为数字！",{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		})
+		if(!bool){
+			return false;
+		}
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/section/get_by_user}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=section]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		$.ajax({
+   			url : [[@{/admin/base/spec/get_by_user}]],
+   			data : {
+   				pl_section_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=spec]").empty();
+ 				$("select[name=spec]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择规格</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=spec]").append(options);
+   				}
+   				$("select[name=spec]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=spec]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0' || cid == null) {
+			return;
+		}
+		
+		var plname = $("select[name=pl] option:selected").text();
+		var sectionname = $("select[name=section] option:selected").text();
+		var specname = $("select[name=spec] option:selected").text();
+		
+		$("#pl_name").html(plname + '/' + sectionname + '/' + specname);
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>

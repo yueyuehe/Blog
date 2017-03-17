@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>闭环及临时性工作 </li>
+	    	<li>回复修改：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+		<form th:action="@{/admin/notice_reply_save}" id="saveform" method="post" enctype="multipart/form-data" >
+		<ul class="forminfo">		
+			<li class="w700 mauto">
+				<label class="labelModi" style="width:70px;">回复:</label>
+		    	<textarea class="textinput" rows="" cols="" name="msg_content" th:text="${nr.content}" placeholder="请输入回复内容" style="width:542px;"></textarea>
+			</li>
+			<li class="w700 mauto20" th:if="${!#strings.isEmpty(nr.path)}">
+		    	<label class="labelModi" style="width:70px;" >已上传:</label>
+		    	<a th:href="${application.baseFileUrl + nr.path}" th:if="${!#strings.isEmpty(nr.path)}">点击下载</a>
+		    </li>
+			<li class="w700 mauto20">
+		    	<label class="labelModi" style="width:70px;">替换附件:</label>
+		    	<input type="file" name="file" id="file" class="mt10" />
+		    </li>
+			<li>
+		    	<input type="hidden" name="r_id"  th:value="${nr.id}" />	
+		    	<input type="hidden" name="type"  th:value="${type}" />	    	
+		    </li>
+		    <li class="w700 mauto tc">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="回复"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("#saveButton").click(function() {
+		var content = $.trim($("textarea[name=msg_content]").val());
+		if (content.length == 0 || content.length > 500) {
+			alert("回复内容不能为空且长度不能大于500!");
+			return;
+		}
+		if(confirm("是否确认回复？")){
+			$("#saveform").submit();
+		}
+	});
+});
+/*]]>*/
+</script>
+</html>

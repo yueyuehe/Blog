@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<style>
+	body {background:#fdf6fd;}
+	.mt50 {margin-top:50px;}
+	.ml30 {margin-left:30px;}
+	.formbody {margin-top:0px;background:#fff;padding:50px 20px 55px 15px;}
+	.new-table-title {line-height:50px;}
+	.recordBox+table .bd0 td{border:0;}
+	.recordBox+table .bd0 {margin:10px;}
+	.mr14 {margin-right:14px;}
+	.quxianRight-left {height:418px;}
+	.quxianRight:hover {border:1px solid #000;}
+	.quxianRightDiv {border-color:#000;}
+	.recordTitle span{font-weight: 500;color:#000;}
+	.bottomBody {width: 1000px;margin-left:30px;margin-bottom:30px;}
+	.recordBox+table [type="text"] {border:0px;border-bottom:1px solid #000;text-align:left;}
+	.recordBox+table [type="text"]:focus {outline:0px;outline-offset:0px;background:#fff}
+	.quxianRight-right {height:414px}
+</style>
+<body class="curvebody">
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li>管道保护电位曲线图创建：</li>
+		</ul>
+	</div>
+	<form method="post" id="saveform">
+		<ul class="forminfo mt50 ml30">
+			<li class="mauto">
+				<div class="usercity">
+					<div class="cityleft">
+						<select name="pl_id" class="select1" id="pl_id">
+							<option value="0">请选择管线</option>
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${pl == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}"></option>
+						</select>
+					</div>
+				</div>
+				<div class="clr"></div>
+			</li>
+		</ul>
+		<div class="formbody">
+			<h3 class="new-table-title">管道保护电位曲线图</h3>
+			<ul class="forminfo">
+				<li class="mauto">
+					<div class="recordBox"></div>
+					<table width="100%">
+						<tr class="recordTitle lh32 bd0">
+							<td colspan="6" width="700">
+								<div class="fl">
+									<span>单位：</span> <input type="text" name="unit"
+										class="new_input" />
+								</div>
+
+								<div class="fl">
+									<span>管线名称：</span> <input type="text" name="name" id="name"
+										class="new_input" />
+								</div>
+								<div class="fr mr14">
+									<span>时间：</span> <input type="text" placeholder=""
+										readonly="readonly" name="c_month" class="new_input Wdate"
+										onClick="WdatePicker({dateFmt:'yyyy-MM'})" />
+
+								</div>
+								<div class="clr"></div>
+							</td>
+						</tr>
+					</table>
+					<table class="quxianRight quxianRight-left fl">
+						<tr>
+							<td width="120">测试桩编号</td>
+							<td width="110">上旬电位（-V）</td>
+							<td width="110">下旬电位（-V）</td>
+							<td width="150">测量人</td>
+							<td width="150">备注</td>
+						</tr>
+						<tr th:each="i : ${#numbers.sequence(1,12)}">
+							<td><input type="text" name="no" style="width: 120px;" /></td>
+							<td><input type="text" name="p_early" style="width: 110px;" /></td>
+							<td><input type="text" name="p_end" style="width: 110px;" /></td>
+							<td><input type="text" name="measurer" style="width:150px;" /></td>
+							<td><input type="text" name="remark" style="width: 150px;" /></td>
+						</tr>
+					</table>
+					<div class="quxianRight quxianRight-right fl">
+						<div class="quxianRightDiv"></div>
+						<label style="float: left; margin: 5px; width: 50px">分析：</label>
+						<textarea name="analysis"
+							style="float: left; margin: 10px; width: 220px; border: 1px solid #eee"></textarea>
+
+					</div>
+					<div class="clr"></div>
+				</li>
+			</ul>
+		</div>
+		<div class="bottomBody">
+			<ul class="forminfo">
+				<li class="shenhe-box">
+					<div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width: 900px;">
+							<li th:each="b:${br}"><input th:value="${b.leader_id}"
+								th:checked="${b.leader_id==up_id}" type="checkbox" /> <span
+								th:text="${b.leader_name}">姓名1</span></li>
+						</ul>
+					</div>
+				</li>
+				<li class="tc mauto20">
+					<!-- <input type="button" value="保存" class="btn" id="saveButton" /> 
+					<input type="button" value="提交审核" class="btn" id="auditingButton" />  -->
+					<input type="button" value="保存并审核" class="btn" id="auditingButton" />
+					<input type="hidden" name="up_id" />
+				</li>
+			</ul>
+		</div>
+	</form>
+	<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$(".select1").uedSelect({
+		width : 168
+	});
+	
+	$("select[name=pl_id]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		var plname = $("select[name=pl_id] option:selected").text();
+
+		$("#name").val(plname+'/');
+	});
+	
+	
+	//为保存按钮添加事件
+	$(document).ready(function (){
+		var buttons = $("input[type=button]");
+		buttons.click(
+			function (){
+			if(	!saveButtonCheck ()){
+				return;
+			}
+				var buttonNode = $(this);
+				var buttonName = buttonNode.attr("id");
+				var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+				var formNode = $("#saveform") 
+				
+				if(buttonNamePrex === null ){
+					return;
+				}
+				if(buttonNamePrex === "save"){
+					//保存到草稿箱
+					formNode.attr("action",[[@{/admin/base/pl_curve/2016/save}]]+"?status=-2");
+				}
+				
+				if(buttonNamePrex === "auditing"){
+					//待审核
+					formNode.attr("action",[[@{/admin/base/pl_curve/2016/save}]]+"?status=0");
+				
+				}
+				
+					formNode.submit();
+			}
+		);
+		});
+	
+	function saveButtonCheck () {
+		
+		//测试桩编号校验
+		var a = new Array();
+		var b = new Array();
+		var c = new Array();
+		var j = true;
+		$("input[name=no]").each(function(){
+			a.push($(this).val());
+		})
+		$("input[name=p_early]").each(function(){
+			b.push($(this).val());
+		})
+		$("input[name=p_end]").each(function(){
+			c.push($(this).val());
+		})
+		var lastIndex = a.length-1;
+		for (; lastIndex > -1; lastIndex--) {
+			if(a[lastIndex]!=""){
+				break;
+			}
+		}
+		
+		var isError=false;
+		for (; lastIndex > -1; lastIndex--) {
+			if(a[lastIndex]==""||b[lastIndex]==""||c[lastIndex]==""){
+				alert("填入测试桩编号后则上旬电位和下旬电位必须填写且测试桩编号必须连续，中间不能为空!");
+				j=false;
+				isError=true;
+				return false;
+			}
+		}
+		
+		if($("#pl_id").val()==0)
+		{
+			alertM("请选择管线",{time:3000});
+			return false;	
+		}
+		
+		var jinzhanTxt=$("input[name=unit]").val();
+		if(jinzhanTxt.length==0){
+			alertM("请输入单位名称",{time:3000});
+			return false;
+		}
+		
+		var nameTxt=$("input[name=name]").val();//#name").text();
+		if(nameTxt.length==0){
+			alertM("请填写管线名称",{time:3000});
+			return false;
+		}
+		
+		var p_monthTxt=$("input[name=c_month]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return false;
+		}
+
+		var bool = true;
+		/* $('input[name=no]').each(function(){
+			var no = $(this).val();
+			if(no.length>10){
+				alertM("测试桩编号字数不能大于10",{time:3000});
+				bool = false;
+				return;
+			}
+		}) */
+		var num = /^\d+(\.\d+)?$/;
+		/* $('input[name=p_early]').each(function(){
+			var p_early = $(this).val();
+			if(p_early.length>0){
+				if(!num.test(p_early)){
+					alertM("上旬电位必须位数字",{time:3000});
+					bool = false;
+					return;
+				}
+			}
+		}) */
+		if(!bool){
+			return false;
+		}
+		
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(!confirm("是否确认保存？")){
+			j=false;
+		}
+		if(!j){
+			return false;
+		}
+		return true;
+	}
+	
+});
+
+
+/*]]>*/
+</script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+ <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script th:src="@{/assets/js/plupload.full.min.js}"></script>
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>闭环及临时性工作</li>
+	    	<li>内容创建：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg==null ? '' : msg}"></b>
+		</div>
+		<div class="formtext" th:if="${prompt!=null}">
+			<b th:text="${prompt.describe==null?'':prompt.describe}"></b>
+		</div>
+		<form th:action="@{/admin/ask_notice_save}" id="saveform" method="post" enctype="multipart/form-data">
+	    <ul class="forminfoModi mt25 pt10 mauto" style="width:780px;">
+		    <li>
+		    	<label class="tr w100 "><span class="red">*</span>标题:</label>
+		    	<input type="text" name="title" th:value="${notice.title}" class="dfinput" placeholder="请输入标题"/>
+		    </li>
+		    <li>
+		    	<label class="w100 fl"><span class="red">*</span>内容:</label>
+		    	<textarea style="width:620px;" class="textinput fl" th:text="${notice.content}" rows="10" cols="100" name="content" placeholder="请输入内容"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li th:if="${nas != null and !#lists.isEmpty(nas)}">
+		    	<label>已上传附件:</label>
+		    	<cite style="float:left;width:590px;">
+		    		<a style="display:block" th:each="na:${nas}" th:href="${application.baseFileUrl + na.path}" th:text="${na.path}"></a>
+		    	</cite>
+		    	<!-- <table>
+		    		<tr >
+		    			<td>
+		    			<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(ea.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(ea.path),'.jpeg')}" th:src="${application.baseThumbUrl + ea.path}" width="100px"/>
+		    			<a class="disib lh32" th:href="${application.baseFileUrl + ea.path}">点击下载附件</a>
+		    			</td>
+		    		</tr>
+		    	</table> -->
+		    	<div class="clr"></div>
+		    </li>
+		    
+		     <!-- <li th:if="${!#strings.isEmpty(notice.path)}" style="margin-top:50px;">
+		    	<label class="fl tr">已上传附件:</label>
+		    	<cite class="pr fl">
+		    		<a class="downA op0" th:href="${application.baseFileUrl + notice.path}" ></a>
+		    		<input class="downB" type="button" value="点击下载" /> 
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li> -->
+		    <!-- <li >
+		    	<label class="w100 fl">替换附件:</label>
+		    	<input class="fl mt5" type="file" name="file" id="file" />
+		    	<div class="clr"></div>
+		    </li> -->
+		    <li  style="clear:both;">
+				    	<label class="labelModi">附件上传:</label>
+				    	<div style="float:left;">
+				    		<div id="container">
+							    <input class="fileChooseModi lh30" type="button" id="pickfiles" value="[选择文件]" />
+							    <input class="fileChooseModi lh30 ml10" type="button" id="uploadfiles" value="[开始上传]" />
+							    <input class="fileChooseModi lh30 ml10" type="button" id="clearfiles" value="[清除]" />
+							</div>
+					    	<div id="filelist">您的浏览器不支持Flash, Silverlight或者HTML5，不能够上传.</div>
+							
+						</div>
+						<input type="hidden" name="filename" id="filename" />
+			</li>
+		    
+		    
+		    <div class="clr"></div>
+		    <li style="display:none">
+		    	<label class="w100 fl">请示类型:</label>
+		    	<div class="cityright fl mt10">
+			    	<select name="ask_type" class="select1" style="opacity:1;filter:alpha(opacity=100);">
+			    		<option th:selected="${notice.ask_type=='学习培训'}" value="学习培训">学习培训</option>
+			    		<option th:selected="${notice.ask_type=='临时信息申请'}" value="临时信息申请">临时信息申请</option>
+			    		<option th:selected="${notice.ask_type=='工程配合'}" value="工程配合">工程配合</option>
+			    		<option th:selected="${notice.ask_type=='请、消假申请'}" value="请、消假申请">请、消假申请</option>
+			    		<option th:selected="${notice.ask_type=='其他'}" value="其他">其他</option>
+			    	</select>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="w110"><span class="red">*</span>是否短信提醒:</label>
+		    	<cite>
+		    		<input class="radioModi" type="radio" name="send" value="0" checked="checked" />否
+		    		<input class="radioModi" type="radio" name="send" value="1" />是
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="w110">请示分类:</label>
+		    	<cite>
+		    		<input class="radioModi" type="radio" name="ask_ca" value="1" th:checked="${notice.ask_ca==1}" />申请信息员
+		    		<input class="radioModi" type="radio" name="ask_ca" value="2" th:checked="${notice.ask_ca==2}"/>附属设施维修
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label class="w100 fl">已汇报对象:</label>
+		    	<div class="fl" style="width:650px;">
+			    	<div th:each="r:${receivers}" class="fl p_5 mt8" >
+			    		<input class="inputModi0" type="text" name="box" th:value="${r.receiver}" />
+			    	</div>
+		    	</div>
+		    	<label class="w100 fl">选择汇报对象:</label>
+		    	<div class="fl" style="width:650px;">
+			    	<div th:each="l:${leaders}" class="fl p_5 mt8" >
+			    		<input class="inputModi0" type="checkbox" name="box" th:value="${l.user_id}" th:text="${l.receiver}"/>
+			    	</div>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="tc">
+		    	<input type="hidden" name="users" id="users" />
+		    	<input type="hidden" name="id" th:value="${notice.id}" />
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+	    </ul>
+	    </form>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+var upload_finished = false;
+
+var uploader = new plupload.Uploader({
+	runtimes : 'html5,flash,silverlight,html4',
+	browse_button : 'pickfiles',
+	container: document.getElementById('container'), 
+	url : [[@{/upload/uploadFile}]],
+	flash_swf_url : [[@{/assets/js/Moxie.swf}]],
+	silverlight_xap_url : [[@{/assets/js/Moxie.xap}]],
+	chunk_size: '10mb',
+	max_retries: 5,
+	prevent_duplicates: true,
+	unique_names: true,
+	filters : {
+		max_file_size : '1000MB'
+	},
+
+	init: {
+		PostInit: function() {
+			document.getElementById('filelist').innerHTML = '';
+
+			document.getElementById('uploadfiles').onclick = function() {
+				$("a.class_fileupload").each(function() {
+					$(this).hide();
+				});
+				$("#filename").val('');
+				uploader.start();
+				$("#pickfiles").prop("disabled", true);
+				$("#uploadfiles").prop("disabled", true);
+				upload_finished = false;
+				return false;
+			};
+			
+			$("#clearfiles").click(function() {
+				uploader.splice();
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				$("#filename").val("");
+				upload_finished = false;
+			});
+		},
+
+		FilesAdded: function(up, files) {
+			plupload.each(files, function(file) {
+				var fi = file.id;
+				document.getElementById('filelist').innerHTML += '<div id="' + fi + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <a href="#" class="class_fileupload" onclick="removeFile(' + fi + ')">删除</a>&nbsp;&nbsp;&nbsp;&nbsp;<b></b></div>';
+			});
+		},
+		
+		FileUploaded: function(up, file, response) {
+			var name = $("#filename").val();
+			if (name != '') {
+				name += ";";
+			}
+			$("#filename").val(name + response.response);
+		},
+		
+		UploadComplete: function(up, file) {
+			upload_finished = true;
+		},
+
+		UploadProgress: function(up, file) {
+			document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = '<span style="display:inline;">' + file.percent + "%</span>";
+		},
+
+		Error: function(up, err) {
+			var alt = false;
+			switch(err.code) {
+			case -601:
+				alert("仅支持zip格式的压缩文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -602:
+				alert("不能选择重复的文件!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			case -200:
+				alert("网络异常上传失败，请重新上传!");
+				alt = true;
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);
+				break;
+			}
+			if (!alt) {
+				alert("\nError #" + err.code + ": " + err.message);
+				$("#pickfiles").prop("disabled", false);
+				$("#uploadfiles").prop("disabled", false);				
+			}
+		},
+		FilesRemoved: function(up, files) {
+			plupload.each(files, function(file) {
+				$("div#" + file.id).remove();
+			});
+		}
+	}
+});
+
+uploader.init();
+
+function removeFile(id) {
+	if (confirm("确认删除？")) {
+		uploader.removeFile(id);
+	}
+}                      
+           
+           
+$(document).ready(function() {
+	$('#editor1').ckeditor();
+	
+	$("#saveButton").click(function() {
+		var title = $.trim($("input[name=title]").val());
+		if (title.length == 0 || title.length > 50) {
+			alert("标题不能为空且长度不能大于50!");
+			return;
+		}
+		
+		var content = $.trim($("textarea[name=content]").val());
+		if (content.length == 0 || content.length > 2000) {
+			alert("内容不能为空且长度不能大于于2000!");
+			return;
+		}
+		
+		var checkUser = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUser.push($(this).val());
+		});
+		/* 获取技术干部 */
+		var str = document.getElementsByName("box");
+		var objarray = str.length;
+		var chestr = "";
+		for (i = 0; i < objarray; i++) {
+			if (str[i].checked == true) {
+				checkUser.push(str[i].value);
+			}
+		}
+		
+		if (checkUser.length > 0) {
+				$("#users").val(checkUser.join(",") + chestr);
+		} else {
+			alert("请指派接收对象！");
+			return;
+		} 
+		//alert($("#users").val());
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+		}
+	});
+	
+	
+	$("#removeUser").click(function() {
+		var ua = $("select[name=checkedUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				$(this).remove();
+			});
+		}
+	});
+	$("#removeAllUser").click(function(){
+		var checkedOption=$("select[name=checkedUser]").find("option");
+		if(checkedOption.size()>0){
+			$("select[name=checkedUser]").empty();
+		}		
+	})
+	
+	
+	
+	$("#addUser").click(function() {
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option:selected");
+		if (ua.size() > 0) {
+			var options='';
+			
+			ua.each(function() {
+				var exists = false;
+				for (var i = 0; i < checkUserArr.length; i++) {
+					if (checkUserArr[i] == $(this).val()) {
+						exists = true;
+					}
+				}
+				if (!exists) {
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";
+				}
+				$(this).prop("selected", false);
+			});
+			$("select[name=checkedUser]").append(options);
+		}
+	});
+	$("#addAllUser").click(function(){
+		var checkUserArr = new Array();
+		$("select[name=checkedUser] option").each(function() {
+			checkUserArr.push($(this).val());
+		});
+		var ua = $("select[name=allUser]").find("option");
+		var options='';
+		ua.each(function(){
+			var exists = false;
+			for (var i=0; i <checkUserArr.length; i++){
+				if(checkUserArr[i]==$(this).val()){
+					exists = true;
+				}
+			}
+			if(!exists){
+				options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+			}			
+		});
+		$("select[name=checkedUser]").append(options);
+	})
+	
+	
+	var addDbl=$("select[name=allUser] option");	
+	addDbl.each(function(){		
+		$(this).dblclick(function(){
+			
+			var checkUserArrDbl = new Array();
+			$("select[name=checkedUser] option").each(function() {
+				checkUserArrDbl.push($(this).val());
+			});
+			
+			var ua = $("select[name=allUser]").find("option:selected");
+			var options='';
+			ua.each(function(){
+				var exists = false;
+				for (var i=0; i <checkUserArrDbl.length; i++){
+					if(checkUserArrDbl[i]==$(this).val()){
+						exists = true;
+					}
+				}
+				if(!exists){
+					options += "<option value='" + $(this).val() + "'>" + $(this).text() + "</option>";	
+				}
+			});
+			$("select[name=checkedUser]").append(options);
+		});
+	});
+	
+	var removeDbl=$("select[name=checkedUser]");
+	removeDbl.dblclick(function(){
+			//alert(11);
+			var rem=$("select[name=checkedUser]").find("option:selected");
+			rem.remove();
+	});
+
+	$("#searchButton").click(function() {
+		var pl_id = $("select[name=pl]").val();
+		var section_id = $("select[name=section]").val();
+		
+		$.ajax({
+   			url : [[@{/admin/findWorker}]],
+   			data : {
+   				'pl_id': pl_id,
+   				'section_id': section_id
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=allUser]").empty();
+ 				$("select[name=allUser]").trigger("change");
+   				if (data.length > 0) {
+   					var options='';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + data[i].user_id + "'>" + data[i].receiver + "</option>";
+   	   				}
+   					$("select[name=allUser]").append(options);
+   				}
+   				$("select[name=allUser]").trigger("change");
+   			}
+   		});
+	});
+	
+	$("select[name=pl]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		
+		$.ajax({
+   			url : [[@{/admin/base/section/get}]],
+   			data : {
+   				pl_id: cid
+   			},
+   			dataType: 'json',
+   			type: 'get',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+ 				$("select[name=section]").empty();
+ 				$("select[name=section]").trigger("change");
+   				if (data.length > 0) {
+   					var options='<option value="0">请选择起止段落</option>';
+   					
+   					for (var i = 0; data.length > i; i++) {
+   						options += "<option value='" + d
+   						
+   						ata[i].id + "'>" + data[i].name + "</option>";
+   	   				}
+   					$("select[name=section]").append(options);
+   				}
+   				$("select[name=section]").trigger("change");
+   			}
+   		});
+	});
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+});
+/*]]>*/
+</script>
+</html>

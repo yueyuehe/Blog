@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>闭环及临时性工作 </li>
+	    	<li>内容审核：</li>
+	    </ul>
+    </div>
+    <div class="formbody">
+    	<div class="formtext" th:if="${msg != null}">
+			<b th:text="${msg == null ? '' : msg}"></b>
+		</div>
+	    <ul class="forminfoModick" style="padding-left:0;">
+		    <li>	    	
+		    	<input type="text" name="title" th:value="${notice.title}" class="titleBox" readonly="readonly" />
+		    	<div class="ckTime"><td th:text="${beans.dateFormatter.formatDateToStr(notice.create_time)}"></td></div>
+		    </li>
+		    <li>		    	
+		    	<div class="textinputBox content" name="content" th:text="${notice.content}"></div>
+		    </li>
+		    <li th:if="${nas != null and !#lists.isEmpty(nas)}">
+		    	<label>附件:</label>
+		    	<cite style="float:left;width:590px;">
+		    		<a style="display:block" th:each="na:${nas}" th:href="${application.baseFileUrl + na.path}" th:text="${na.path}"></a>
+		    	</cite>
+		    	<!-- <table>
+		    		<tr >
+		    			<td>
+		    			<img class="imgClick" alt="缩略图" th:if="${#strings.endsWith(#strings.toLowerCase(ea.path),'.jpg') or #strings.endsWith(#strings.toLowerCase(ea.path),'.jpeg')}" th:src="${application.baseThumbUrl + ea.path}" width="100px"/>
+		    			<a class="disib lh32" th:href="${application.baseFileUrl + ea.path}">点击下载附件</a>
+		    			</td>
+		    		</tr>
+		    	</table> -->
+		    	<div class="clr"></div>
+		    </li>
+		    
+		    
+		    <!-- <li th:if="${!#strings.isEmpty(notice.path)}">
+		    	<label class="labelModi">附件:</label>
+		    	<cite>
+		    		<a th:href="${application.baseFileUrl + notice.path}" th:text="${notice.path}"></a>
+		    	</cite>
+		    	<div class="clr"></div>
+		    </li> -->
+		    <li style="display:none">
+		    	<label>请示类型:</label>
+		    	<div class="cityright">
+		    	<select name="ask_type" class="select1" disabled="disabled">
+		    		<option value="学习培训" th:selected="${notice.ask_type=='学习培训'}">学习培训</option>
+		    		<option value="临时信息申请" th:selected="${notice.ask_type=='临时信息申请'}">临时信息申请</option>
+		    		<option value="工程配合" th:selected="${notice.ask_type=='工程配合'}">工程配合</option>
+		    		<option value="请、消假申请" th:selected="${notice.ask_type=='请、消假申请'}">请、消假申请</option>
+		    		<option value="其他" th:selected="${notice.ask_type=='其他'}">其他</option>
+		    	</select>
+		    	</div>
+		    	<div class="clr"></div>
+		    </li>
+		    <li>
+		    	<label>请示分类:</label>
+		    	<label th:text="${notice.ask_ca==2 ? '附属设施维修' : '申请信息员'}"></label>
+		    	<div class="clr"></div>
+			</li>
+		    <li>
+		    	<label>审核内容:</label>
+		    	<textarea class="textinput mt10" th:readonly="${notice.verify_status != 0}" name="verify_desc" th:text="${notice.verify_desc!=null?notice.verify_desc:''}" placeholder="请输入审核内容"></textarea>
+			</li>
+		    <li class="tc" th:if="${verify==1 AND notice.verify_status == 0}" id="btList">
+		    	<input type="hidden" name="users" id="users" />
+		    	<input name="saveButton" id="bt_agree" type="button" class="btn" value="同意"/>
+		    	<input name="saveButton" id="bt_unagree" type="button" class="btn" value="不同意"/>
+		    </li>
+		    <li class="tc" th:if="${verify!=1 and notice.verify_status != 0}" >
+		    	<label>审核结果:</label>
+		    	<label th:text="${notice.verify_status==1?'审核通过':'审核不通过'}"></label>
+		    	<div class="clr"></div>
+		    </li>
+	    </ul>
+    </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+
+	$(".select1").uedSelect({
+		width : 168
+	});
+	var id=[[${notice.id}]];
+	$("#bt_agree").click(function() {
+		var verify_descTxt = $("textarea[name=verify_desc]").val();
+		$.ajax({
+   			url : [[@{/admin/ask_save_verify}]],
+   			data : {
+   				id: id,
+   				verify_desc : verify_descTxt,
+   				verify_status : 1
+   			},
+   			dataType: 'json',
+   			type: 'post',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+   				$("#btList").hide();
+   				alert("保存成功");
+   			},
+   			error : function() {    
+   	          // view("异常！");    
+   	          alert("服务器发生异常！");    
+   	     	}    
+   		});
+	});
+	
+	$("#bt_unagree").click(function() {
+		var verify_descTxt = $("textarea[name=verify_desc]").val();
+		$.ajax({
+   			url : [[@{/admin/ask_save_verify}]],
+   			data : {
+   				id: id,
+   				verify_desc : verify_descTxt,
+   				verify_status : -1
+   			},
+   			dataType: 'json',
+   			type: 'post',
+   			async: false,
+   			success : function(data, textStatus, jqXHR) {
+   				$("#btList").hide();
+   				alert("保存成功");
+   			},
+   			error : function() {    
+   	          // view("异常！");    
+   	          alert("服务器发生异常！");    
+   	     	}    
+   		});
+	});
+	
+	
+});
+/*]]>*/
+</script>
+</html>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hm.oil.dao.BaseRunRecordcomprehensiveDao">
+
+	<update id="updateRunRecordcomprehensiveVerifyStatus">
+		UPDATE run_record_comprehensive SET
+		status=#{status},verify_desc=#{verify_desc},verify_time=now(),verifier=#{verifier}
+		WHERE id=#{id}
+	</update>
+
+	<select id="queryRunRecordcomprehensiveByParam" resultType="cn.hm.oil.domain.RunRecordcomprehensive">
+		SELECT * FROM run_record_comprehensive 
+		WHERE pl_spec_id=#{param.id} 
+		<if test="param.r_month!=null">
+			AND r_month = #{param.r_month}
+		</if>
+		ORDER BY create_time DESC
+		LIMIT #{param.offset},#{param.pageSize} 
+	</select>
+
+	<select id="queryRunRecordcomprehensiveByParamTotal" resultType="int">
+		SELECT COUNT(1) FROM run_record_comprehensive 
+		WHERE pl_spec_id=#{param.id} 
+		<if test="param.r_month!=null">
+			AND r_month = #{param.r_month}
+		</if>
+	</select>
+
+	<select id="queryRunRecordcomprehensiveDetailById" resultType="cn.hm.oil.domain.RunRecordcomprehensiveDetail">
+		SELECT * FROM run_record_comprehensive_detail WHERE c_id=#{id}
+	</select>
+	
+	<select id="queryRunRecordcomprehensiveById" resultType="cn.hm.oil.domain.RunRecordcomprehensive">
+		SELECT * FROM run_record_comprehensive WHERE id=#{id}
+	</select>
+	
+	<update id="updateRunRecordcomprehensiveTime">
+		UPDATE run_record_comprehensive SET
+		create_time=#{create_t}
+		<if test="verify_t!=null and verify_t!=''">
+		,verify_time=#{verify_t}
+		</if>
+		WHERE id=#{id}
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 阴极保护站运行月综合记录审核ssssssssssss -->
+	
+	<!-- hansen -->
+	<!-- 查询有要审核的规格 -->
+	<select id="queryRunRecordcomprehensiveAuditSpecList" resultType="cn.hm.oil.domain.BasePipelineSpec">
+		SELECT bps.id, bps.pl_section_id, bps.pl_id, CONCAT(bp.name,'/',bpse.name,'/',bps.name) AS name
+		FROM run_record_comprehensive rc
+		LEFT JOIN base_pipeline bp ON rc.pl_id = bp.id
+		LEFT JOIN base_pipeline_section bpse ON rc.pl_section_id = bpse.id
+		LEFT JOIN base_pipeline_spec bps ON rc.pl_spec_id = bps.id
+		<where>
+			rc.status = 0
+			<if test="param.pl_section_id!=null">
+				AND bps.pl_section_id=#{param.pl_section_id}
+			</if>
+			<if test="param.pl_id!=null">
+				AND bps.pl_id = #{param.pl_id}
+			</if>
+			<if test="param.pl_spec_id!=null">
+				AND bps.id = #{param.pl_spec_id}
+			</if>
+		</where> 
+		GROUP BY rc.pl_spec_id
+	</select>	
+	<!-- /hansen -->
+	
+	
+	<select id="queryRunRecordcomprehensive" resultType="cn.hm.oil.domain.RunRecordcomprehensive">
+		SELECT rc.`id`, rc.`jinzhan`, rc.`r_month`, rc.`created_by`, rc.`auditor`, rc.`create_time`, rc.creater, rc.status,p.`name` 
+		AS pl_name, pse.`name` AS pl_section_name, psp.`name` AS pl_spec_name
+		FROM run_record_comprehensive rc, base_pipeline p, base_pipeline_section pse, base_pipeline_spec psp
+		WHERE rc.`pl_id` = p.`id` AND rc.`pl_section_id` = pse.`id` AND rc.`pl_spec_id` = psp.`id` 
+		<if test="pl_id!=null">
+		AND rc.`pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND rc.`pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND rc.`pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="r_month">
+		AND rc.`r_month`=#{r_month}
+		</if>
+		<if test="status!=null">
+			AND rc.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, rc.up_id) OR rc.up_id is NULL OR rc.creater = #{user_id}) 
+		</if>
+		ORDER BY rc.create_time DESC 
+		<if test="limit != null">
+			LIMIT #{limit} OFFSET #{offset}
+		</if>
+	</select>
+	
+	<select id="queryRunRecordcomprehensive_count" resultType="java.lang.Integer">
+		SELECT count(1) FROM run_record_comprehensive
+		WHERE 1 = 1
+		<if test="pl_id!=null">
+		AND `pl_id`=#{pl_id}
+		</if>
+		<if test="pl_section_id!=null">
+		AND `pl_section_id`=#{pl_section_id}
+		</if>
+		<if test="pl_spec_id!=null">
+		AND `pl_spec_id`=#{pl_spec_id}
+		</if>
+		<if test="r_month">
+		AND `r_month`=#{r_month}
+		</if>
+		<if test="status!=null">
+		AND rc.`status` = #{status} 
+		</if>
+		<if test="verify!=null">
+			AND (find_in_set(#{user_id}, up_id) OR up_id is NULL OR creater = #{user_id}) 
+		</if>
+	</select>
+	
+	<!-- 阴极保护站运行月综合记录审核eeeeeeeeeeeeeee -->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<update id="updateRunRecordcomprehensive">
+		UPDATE run_record_comprehensive SET pl_id=#{pl_id},pl_spec_id=#{pl_spec_id},pl_section_id=#{pl_section_id},
+		jinzhan=#{jinzhan},created_by=#{created_by},r_month=#{r_month},auditor=#{auditor},status=#{status},up_id=#{up_id}
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="insertRunRecordcomprehensive" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO run_record_comprehensive(pl_id,pl_spec_id,pl_section_id,jinzhan,r_month,created_by,auditor,create_time,creater,up_id) 
+		VALUES(#{pl_id},#{pl_spec_id},#{pl_section_id},#{jinzhan},#{r_month},#{created_by},#{auditor},now(),#{creater},#{up_id})
+	</insert>
+	
+	<delete id="deleteRunRecordcomprehensiveDetailByCid">
+		DELETE FROM run_record_comprehensive_detail WHERE c_id=#{c_id}
+	</delete>
+	
+	<delete id="deleteRunRecordcomprehensiveById">
+		DELETE FROM run_record_comprehensive WHERE id=#{id}
+	</delete>
+	
+	<insert id="insertRunRecordcomprehensiveDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO run_record_comprehensive_detail(c_id,estimated,actual,wdtd,jztd,ljtd,jcgxtd,fljctd,qttd,o_max_a,o_min_a,o_avg_a,o_max_v,o_min_v,o_avg_v,tdd_v_max,tdd_v_min,sdl,bhl,sbwhl,comment)
+		VALUES(#{c_id},#{estimated},#{actual},#{wdtd},#{jztd},#{ljtd},#{jcgxtd},#{fljctd},#{qttd},#{o_max_a},#{o_min_a},#{o_avg_a},#{o_max_v},
+		#{o_min_v},#{o_avg_v},#{tdd_v_max},#{tdd_v_min},#{sdl},#{bhl},#{sbwhl},#{comment})
+	</insert>
+</mapper>

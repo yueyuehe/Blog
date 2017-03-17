@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<script type="text/javascript" th:src="@{/assets/js/alertM.js}"></script>
+<style>
+.table100 {
+    12px/1.5 arial,"\5b8b\4f53",sans-serif;}
+.formbodynew2{margin-top:100px;width:645px;height:900px;padding:50px 45px 60px 50px;}
+.forminfo textarea:focus {border:0px;outline-offset: 0px;outline: 0px;}
+.mauto {position:absolute;top:-152px;left:-50px;}
+.shenhe-div ,.tc {position:absolute;}
+.shenhe-div {width:740px;left:-52px;bottom:-120px;}
+.tc {width:640px;bottom:-160px;}
+.webForm,.record1+table {width:645px;}
+.recordTitle {height:auto;}
+.new-table-title {margin-bottom:35px;}
+.recordTitle span {font-weight:normal;text-indent:0px;color:#000;}
+.record1+table td {border-color:#000;height:62px;}
+.analyzeFooter input {border:none;}
+tr.analyzeTr td{height:30px;}
+tr.analyzeTr td input{height:30px;}
+</style>
+<body style="background:#fdf6fd;">
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li>阴极保护站运行月综合记录创建：</li>
+	    </ul>
+    </div>
+    <div class="formbodynew2">
+    	<div class="formtext2">
+			<h3 class="new-table-title">阴极保护站运行月综合记录</h3>
+		</div>
+        <form method="post" th:action="@{/admin/base/rc_comp/2016/save}" id="saveform" class="webForm">
+	        <ul class="forminfo">
+	    		<li class="mauto mauto1">
+	    			<div class="usercity">
+						<div class="cityleft">
+							<select name="pl_id" class="select1" id="pl_id">
+						    	<option value="0">请选择管线</option>
+						        <option th:each="pll:${pipeLineList}" th:selected="${pl == pll.id}" th:value="${pll.id}" th:text="${pll.name}"></option>
+						    </select>
+				        </div>
+				    </div>
+				    <div class="clr"></div>
+				</li> 
+				<li style="clear:both;">   
+					<div class="record1"></div>	
+					
+			        <table class="table100">
+			        	 <tr class="recordTitle lh32"> 
+			            	<td colspan="14" style="border:0px;height:auto;">
+			                	<div class="fl">
+		                			<span>井(站)</span>
+		                    		<input style="width:150px;border:0px;" type="text" name="jinzhan" class="new_input" />
+		                    	</div>
+			                   <div class="fl ml70" style="margin-left:-5px">
+			                    	<span>管线名称及规格：</span>
+			                    	<input style="width:150px;border:none;" type="text" name="name" id="name" class="new_input"/>
+			                    </div> 
+			                    <div class="fr">
+			                    	<span style="float:right;">年</span>
+			                    	<input style="width:50px;border:0px;" type="text" readonly="readonly" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'yyyy'})" />
+			                    </div>
+			                    <div class="fr">
+			                    	<span style="float:right;">月</span>
+			                    	<input style="width:30px;border:0px;" type="text" readonly="readonly" name="r_month" class="new_input Wdate" onClick="WdatePicker({dateFmt:'MM'})" />
+			                    </div>
+			                     <div class="clr"></div>
+			                </td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td width="115">应送电时间(h)</td>
+			                <td width="60"><input type="text" name="estimated"/></td>
+			                <td colspan="2" width="225"></td>
+			                <td width="115">实送电(h)</td>
+			                <td width="125"><input type="text" name="actual"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>外电停电(h)</td>
+			                <td><input type="text" name="wdtd"/></td>
+			                <td width="115px">雷击停电(h)</td>
+			                <td><input type="text" name="ljtd"/></td>
+			                <td>机障停电(h)</td>
+			                <td><input type="text" name="jztd"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>防雷检查停电(h)</td>
+			                <td><input type="text" name="fljctd"/></td>
+			                <td>检测管线停电(h)</td>
+			                <td><input type="text" name="jcgxtd"/></td>
+			                <td>其他停电(h)</td>
+			                <td><input type="text" name="qttd"/></td>
+			            </tr>
+			            <tr>
+			            	<td colspan="6" style="height:20px;"></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>输出最高(A)</td>
+			                <td><input type="text" name="o_max_a"/></td>
+			                <td>输出最低(A)</td>
+			                <td><input type="text" name="o_min_a"/></td>
+			                <td>月平均(A)</td>
+			                <td><input type="text" name="o_avg_a"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>输出最高(V)</td>
+			                <td><input type="text" name="o_max_v"/></td>
+			                <td>输出最低(V)</td>
+			                <td><input type="text" name="o_min_v"/></td>
+			                <td>月平均(V)</td>
+			                <td><input type="text" name="o_avg_v"/></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>通电点最高(V)</td>
+			                <td><input type="text" name="tdd_v_max"/></td>
+			                <td colspan="2"></td>
+			                <td>通电点最低(V)</td>
+			                <td><input type="text" name="tdd_v_min"/></td>
+			            </tr>
+			            <tr>
+			            	<td colspan="6" style="height:20px;"></td>
+			            </tr>
+			            <tr class="numExp">
+			            	<td>送电率(％)</td>
+			                <td><input type="text" name="sdl"/></td>
+			                <td>保护率(％)</td>
+			                <td><input type="text" name="bhl"/></td>
+			                <td>设备完好率(％)</td>
+			                <td><input type="text" name="sbwhl"/></td>
+			            </tr>
+			            <tr>
+			            	<td colspan="6" >
+					        	<p  style="margin-top:0px;text-align:left;padding-left:10px">运行分析：</p>
+					            <textarea name="comment" style="border:0px;width:623px;height:275px;"></textarea>
+					            <div class="clr"></div>
+			            	</td>
+			            </tr>
+			            <tr class="analyzeTr">
+			            	<td>填报人：</td>
+			            	<td colspan="3"><input type="text" name="created_by"/></td>
+			            	<td>审核人：</td>
+			            	<td><input type="text" name="auditor"/></td>
+			            </tr>
+			        </table>  
+			        <div class="shenhe-div">
+						<label>上报上级：</label>
+						<ul class="input-box" style="width:900px;">
+							<li th:each="b:${br}">
+								<input th:value="${b.leader_id}" th:checked="${b.leader_id==up_id}" type="checkbox" />
+								<span th:text="${b.leader_name}">姓名1</span>
+							</li>
+						</ul>
+					</div>   		
+	        	</li>	        	
+	        	<li class="tc">
+	        		<!-- <input type="button" value="保存" class="btn" id="saveButton" /> 
+					<input type="button" value="提交审核" class="btn" id="auditingButton" /> -->
+					<input type="button" value="保存并审核" class="btn" id="auditingButton" />
+	        		<input type="hidden" name="up_id"/>
+	        	</li>
+	        </ul>
+        </form>	
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	$("select[name=pl_id]").change(function() {
+		var cid = $(this).val();
+		if (cid == '0') {
+			return;
+		}
+		var plname = $("select[name=pl_id] option:selected").text();
+
+		$("#name").val(plname+'/');
+	});
+	
+	var buttons = $("input[type=button]");
+	buttons.click(
+		function (){
+		if(	!saveButtonCheck ()){
+			return;
+		}
+			var buttonNode = $(this);
+			var buttonName = buttonNode.attr("id");
+			var buttonNamePrex = (buttonName.indexOf("Button")!=-1)?buttonName.substring(0,buttonName.indexOf("Button")):null;
+			var formNode = $("#saveform") 
+			
+			if(buttonNamePrex === null ){
+				return;
+			}
+			if(buttonNamePrex === "save"){
+				//保存到草稿箱
+			formNode.attr("action",[[@{/admin/base/rc_comp/2016/save}]]+"?status=-2");
+			}
+			
+			if(buttonNamePrex === "auditing"){
+				//待审核
+				formNode.attr("action",[[@{/admin/base/rc_comp/2016/save}]]+"?status=0");
+			
+			}
+			
+				formNode.submit();
+	});
+	
+	function saveButtonCheck()  {
+		var plId = $("select[name=pl_id]").val();
+		if(plId <= 0){
+			alertM("请选择管线",{time:3000});
+			return false;
+		}
+		
+		var jinzhanTxt=$("input[name=jinzhan]").val();
+		if(jinzhanTxt.length==0||jinzhanTxt.length>50){
+			alertM("井站名称不能为空且不能超过50个字",{time:3000});
+			return false;
+		}
+		var p_monthTxt=$("input[name=r_month]").val();
+		if(p_monthTxt.length==0){
+			alertM("请选择时间",{time:3000});
+			return false;
+		}
+		var nameTxt=$("input[name=name]").val();
+		if(nameTxt.length==0){
+			alertM("请选择管线名称及规格",{time:3000});
+			return false;
+		}
+		var personName=$("input[name=created_by]").val();
+		if(personName.length==0){
+			alertM("请填写填报人姓名",{time:3000});
+			return false;
+		}
+		var auditorName=$("input[name=auditor]").val();
+		if(auditorName.length==0){
+			alertM("请填写审核人姓名",{time:3000});
+			return false;
+		}
+		var comment = $("textarea[name=comment]").val();
+		if(comment.length>200){
+			alertM("运行分析不能大于200个字",{time:3000});
+			return false;
+		}
+		var bool = true;
+		var num = /^\d+(\.\d+)?$/;
+		$('.numExp').each(function(){
+			$(this).find('input[type=text]').each(function(){
+				var numExp = $(this).val();
+				if(numExp.length>0){
+					if(numExp!="/" && !num.test(numExp)){
+						var text = $(this).parent().prev().text();
+						alertM(text+'必须位数字',{time:3000});
+						bool=false;
+						return;
+					}
+				}
+			})
+		})
+		if(!bool){
+			return false;
+		}
+		var up_id="";
+		$(".input-box input[type=checkbox]").each(function(){
+			if($(this).is(":checked")){
+				up_id += "," + $(this).val();
+			}
+		});
+		if(up_id.length==0){
+			alertM("请选择上报人!",{time:3000});
+			return false;
+		}
+		up_id = up_id.substring(1);
+		$("input[name=up_id]").val(up_id);
+		
+		if(confirm("是否确认保存？")){
+			$("#saveform").submit();
+			return true;
+		}
+		return false;
+	}
+	$(".select1").uedSelect({
+		width : 168
+	});
+});
+/*]]>*/
+</script>
+</html>

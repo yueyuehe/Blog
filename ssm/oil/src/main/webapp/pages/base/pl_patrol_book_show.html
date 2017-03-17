@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<body>
+	<div class="place">
+    	<span>位置：</span>
+	    <ul class="placeul">
+	    	<li><a th:href="@{/welcome}">首页</a></li>
+	    	<li>基础资料</li>
+	    	<li><a th:href="@{/admin/base/new/pl_patrol/list}">管道巡检工作记录(新)审核</a>:</li>
+	    	<li>详情：</li>
+	    </ul>
+    </div>
+    <div th:if="${pp==null}" class="formbody">
+    	暂无数据
+    </div>
+    <div th:if="${pp!=null}" class="formbody">
+        <ul class="forminfo">
+		     <li class="mauto clr">
+		     <form id="searchForm" method="post">
+		     	<input type="hidden" name="pl_id" th:value="${pl_id}" />
+		     	<input type="hidden" name="pl_section_id" th:value="${pl_section_id}" />
+		     	<input type="hidden" name="pl_spec_id" th:value="${pl_spec_id}" />
+		     	<input type="hidden" name="status" th:value="${status}" />
+		     	<input type="hidden" name="p_month" th:value="${p_month}" />
+		     	<div class="record3"></div>
+		     	<table class="table100">
+		        	<tr class="recordTitle0 lh32">
+		            	<td colspan="18">
+		            		<div class="fl ml20">
+		                		<span>单位：</span>
+		                    	<input style="width:100px;" type="text" name="jinzhan" th:value="${pp.jinzhan}" readonly="readonly" class="new_input" />
+		                    </div>
+		            		<div class="fl ml20">
+		                		<span>巡检人：</span>
+		                    	<input style="width:100px;" type="text" name="patroler" th:value="${pp.patroler}" readonly="readonly" class="new_input" />
+		                    </div>
+		                    <div  class="fl" style="margin-left:20px;">
+		                    	<span class="ml20">管线名称及规格：</span>
+		                    	<th:block th:text="${pp.pl_name + '/' + pp.pl_spec_name}"></th:block>
+		                    </div>
+		                    <div  class="fr mr20">
+		                    	<span>巡线管线(段)：</span>
+		                    	<input style="width:100px;" type="text" name="patroler" th:value="${pp.patrol_no}" readonly="readonly" class="new_input" />
+		                    </div>
+		                </td>
+		            </tr>
+		            <tr>		          
+			            	<td width="80" rowspan="2">日<br/>期</td>
+			            	<td colspan="16">巡检内容</td>
+			            	<td rowspan="2" width="600">备注</td>
+			            </tr>
+			            <tr>
+			                <td width="40">管线“三桩”、警示牌</td>
+			                <td width="80">管道护坡、堡坎</td>
+			                <td width="80">埋地管道</td>
+			                <td width="80">明管跨越管段</td>
+			                <td width="80">铁路、公路穿越段</td>
+			                <td width="80">隧道穿越段</td>
+			            <td width="80">穿越河流、沟渠管段</td>
+			            <td width="80">管道两侧环境</td>
+			            <td width="80">管道沿途地址灾害</td>
+			           <td width="80">管道高后果区及高风险段</td>
+			            <td width="80">管道泄漏情况</td>
+			            <td width="80">站场阴保装置</td>
+			            <td width="80">阴极保护测试桩</td>
+			            <td width="80">阳极线路</td>
+			            <td width="80">线路阀室（井）</td>
+			            <td width="80">管道保护宣传</td>
+			        </tr>
+		            <tr th:each="d:${pp.detailList}">
+		            	<td>
+								<input type="hidden" name="pld_id" th:value="${d.id}"/>
+								<input readonly="readonly" th:value="${beans.dateFormatter.formatDateToStr(d.p_date,'yyyy-MM-dd')}" type="text" style="width:100%;" name="p_date"/>
+						</td>
+							<td><input readonly="readonly" type="text" name="content_1" style="width:100%;" th:value="${d.content_1}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_2" style="width:100%;" th:value="${d.content_2}" /></td>
+			                <td><input readonly="readonly" type="text" name="content_3" style="width:100%;" th:value="${d.content_3}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_4" style="width:100%;" th:value="${d.content_4}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_5" style="width:100%;" th:value="${d.content_5}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_6" style="width:100%;" th:value="${d.content_6}"/></td>
+			            	<td><input readonly="readonly" type="text" name="content_7" style="width:100%;" th:value="${d.content_7}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_8" style="width:100%;" th:value="${d.content_8}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_9" style="width:100%;" th:value="${d.content_9}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_10" style="width:100%;" th:value="${d.content_10}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_11" style="width:100%;" th:value="${d.content_11}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_12" style="width:100%;" th:value="${d.content_12}"/></td>
+			            	<td><input readonly="readonly" type="text" name="content_13" style="width:100%;" th:value="${d.content_13}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_14"  style="width:100%;" th:value="${d.content_14}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_15" style="width:100%;" th:value="${d.content_15}"/></td>
+			                <td><input readonly="readonly" type="text" name="content_16" style="width:100%;" th:value="${d.content_16}"/></td>
+			                <td><input readonly="readonly" type="text" name="remark" style="width:100%;" th:value="${d.remark}"/></td>
+		            </tr>		            
+        		</table>
+        		<div class="mt20" th:if="${pp.detailList!=null and not #lists.isEmpty(pp.detailList)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        		</form>
+			</li>
+			<li  class="mauto">
+		    	<label class="labelModi tl">审核状态：</label>
+		    	<div class="vocation">
+			    	<label th:if="${1==1}" th:text="${pp.status == 0?'待审核':pp.status == 1?'通过':'不通过'}"></label>
+	            </div>
+	            <div class="clr"></div>
+		    </li>
+		    <li  class="mauto">
+		    	<label class="labelModi tl">说明：</label>
+		    	<textarea style="width:830px;" class="textinput" rows="" cols="" disabled="disabled" name="verify_desc" placeholder="审核说明" th:text="${pp.verify_desc}"></textarea>
+		    	<div class="clr"></div>
+		    </li>
+		    <li class="mauto20 tc">
+		    	<input name="saveButton" id="saveButton" type="button" class="btn" value="确认保存"/>
+		    </li>
+		</ul>
+	</div>								
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+
+/*]]>*/
+</script>
+</html>

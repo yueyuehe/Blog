@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragment/common :: header"></head>
+<script th:src="@{/assets/js/select-ui.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/select.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/modify.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/base_resource.css}" />
+<link rel="stylesheet" th:href="@{/assets/css/styleright.css}" />
+<style>
+body {
+	background: #fdf6fd;
+}
+
+.formbody {
+	background: #fff;
+	width: 1100px;
+	position: relative;
+	padding-bottom: 55px;
+}
+
+.mauto2, .mauto3, .mauto4, .mauto5 {
+	position: absolute;
+}
+
+.mauto2 {
+	bottom: -75px
+}
+
+.mauto3 {
+	bottom: -235px;
+	padding-bottom: 55px;
+}
+
+.mauto5 {
+	bottom: -350px;
+	padding-bottom: 60px;
+	margin-left: 350px;
+}
+
+.mauto1 {
+	position: absolute;
+	top: -45px;
+}
+
+.forminfo {
+	width: 965px;
+}
+.forminfo li{margin-bottom:0;}
+.new-table-title {
+	letter-spacing: 3px;
+}
+
+.record-top div label {
+	font-size: 13px;
+}
+
+.record-top div input {
+	font-size: 13px;
+	font-family: '微软雅黑';
+}
+
+.tl {
+	font-size: 13px;
+	color: #000;
+	width: auto;
+	margin: 5px;
+}
+
+.bg {
+	height: 65px;
+}
+
+.trbody {
+	height: 42px;
+}
+
+.forminfo li .vocation label {
+	line-height: 50px;
+}
+
+td.tableFooter0 {
+	padding-top: 5px;
+}
+
+.tableFooter0 input {
+	border: 0px;
+}
+
+.recordBox+table [type="text"] {
+	font-size: 13px;
+	font-family: '微软雅黑';
+}
+
+.record-top div.nian, .record-top div.yue {
+	float: right;
+}
+.mt20{position:relative;top:60px;}
+.formbodynew1{width:965px;height:600px;padding:85px 20px 55px 25px;margin-top:100px;}
+.new-table-title{margin-bottom:0;}
+.recordBox+table td{height:42px;border:0;}
+.recordBox+table td input,.recordBox+table td textarea{height:42px;text-align:center;line-height:42px;vertical-align: bottom;}
+/*.recordBox+table td{border:0;}
+.trbody td div table td{border-left:0!important;}
+.trbody td div table tr:first-child td{border-top:0!important;}
+.trbody td div table tr:last-child td{border-bottom:0!important;}*/
+.trbody td div table tr td:last-child{border-right:0!important;width:138px;}
+
+</style>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+           
+     $(function(){
+   // alert($(".hidden-table table").html())
+    	 $.each($(".hidden-table table tbody tr"), function(i,v) {
+				if(i<=9){
+					$('.fir').append(v);
+				}
+				if(i<=19&&i>9){
+					$('.sec').append(v);
+				}
+				if(i<=29&&i>19){
+					$('.trd').append(v);
+				}
+				
+			});	
+     });
+           
+/*]]>*/
+</script>
+<body>
+	<div class="place">
+		<span>位置：</span>
+		<ul class="placeul">
+			<li><a th:href="@{/welcome}">首页</a></li>
+			<li>基础资料</li>
+			<li><a
+				th:href="@{'/admin/base/pl_measure/2016/list?' + ${verify==1?'verify=1':''}}">管道保护电位测量记录<th:block
+						th:text="${verify==1?'审核':'查看'}"></th:block></a></li>
+			<li>详情：</li>
+		</ul>
+	</div>
+	<div th:if="${pm==null}" class="formbody"
+		style="padding-bottom: 0px; padding: 8px;">暂无数据！</div>
+	<div th:if="${pm!=null}" class="formbodynew1">
+		<h3 class="new-table-title">管道保护电位测量记录</h3>		
+		<ul class="forminfo">
+			<li class="mauto mauto1" style="left:31px;top:54px;">
+				<div class="usercity">
+					<div class="cityleft">
+						<select name="sh_pl_id" class="select1">
+							<option value="0" th:text="全部管线段" />
+							<option th:each="pll:${pipeLineList}"
+								th:selected="${s_pl_id != null and s_pl_id == pll.id}" th:value="${pll.id}"
+								th:text="${pll.name}" />
+						</select>
+					</div>
+					<div class="cityleft">
+						<span>管线名称：</span>
+						<input type="text" name="sh_pl_name" class="new_input" th:value="${s_pl_name==null?'':s_pl_name}"/>	
+					</div>
+					<div class="cityright" style="padding-left: 10px">
+						<ul class="seachform mauto">
+							<li class="mr20"><span>时间：</span> <input type="text"
+								readonly="readonly" id="s_c_month" name="sh_c_month"
+								th:value="${s_c_month==null? '' : s_c_month}"
+								class="new_input Wdate"/></li>
+								<!--onClick="WdatePicker({dateFmt:'yyyy-MM'})" -->
+							<li class="fr mr0" th:if="${role!=null and role==2 and (verify==null or verify != 1)}"><input
+								id="exportButton" name="exportButton" type="button"
+								class="scbtn" value="导出" /></li>
+							<li class="fr mr20"><input id="searchButton" type="button"
+								class="scbtnModi" value="查询" /></li>
+						</ul>
+					</div>
+				</div>
+				<div class="clr"></div>
+			</li>
+			<li class="record-top">
+				<div>
+					<label style="width: 70px;">管线名称：</label> 
+					<input type="text" th:value="${pm.pl_name}" readonly="readonly" />
+				</div>
+				<div>
+					<label style="width: 70px; margin-left: 150px">管线规格：</label> 
+					<input name="h_name" id="h_name" type="text" th:value="${pm.name}" th:readonly="${pm.canEdit==false}" />
+				</div>
+				<div class="nian" th:if="${pm.canEdit==true}">
+					<label style="width: 20px; float: right;">年</label> <input
+						style="width: 50px" onClick="WdatePicker({dateFmt:'yyyy'})"
+						th:value="${#strings.substring(pm.c_month,0,4)}" name="h1_c_month" type="text" />
+				</div>
+				<div class="nian" th:if="${pm.canEdit==false}">
+					<label style="width: 20px; float: right;">年</label> <input
+						style="width: 50px"
+						th:value="${#strings.substring(pm.c_month,0,4)}"
+						readonly="readonly" name="h1_c_month" type="text" />
+				</div>
+				<div class="yue" th:if="${pm.canEdit==true}">
+					<input style="width: 50px" onClick="WdatePicker({dateFmt:'MM'})"
+						th:value="${#strings.substring(pm.c_month,4,6)}" name="h2_c_month" type="text" /> <label
+						style="width: 20px; float: right;">月</label>
+				</div>
+				
+				<div class="yue" th:if="${pm.canEdit==false}">
+					<input style="width: 50px"
+						th:value="${#strings.substring(pm.c_month,4,6)}"
+						readonly="readonly" name="h2_c_month" type="text" /> <label
+						style="width: 20px; float: right;">月</label>
+				</div>
+			</li>
+			<li class="mauto">
+				<form id="searchForm" method="post">
+				<input type="hidden" name="pm_id" th:value="${pm.id}"/>
+				<input type="hidden" name="all" th:value="${all}"/>
+				<input type="hidden" name="pl_id" th:value="${pm.pl_id}"/>				
+				<input type="hidden" name="verify" th:value="${verify}"/>
+				<input type="hidden" name="up_id" th:value="${pm.up_id}"/>
+				<input type="hidden" name="s_pl_id" id="s_pl_id" th:value="${s_pl_id!=null?s_pl_id:0}"/>
+				<input type="hidden" name="s_pl_name" id="s_pl_name" th:value="${s_pl_name!=null?s_pl_name:''}"/>
+				<input type="hidden" name="s_c_month" id="s_c_month" th:value="${s_c_month!=null?s_c_month:''}"/>
+				<input type="hidden" name="s_id" id="s_id" th:value="${s_id!=null?s_id:0}"/>
+				<input type="hidden" name="name" id="name" th:value="${pm.name}"/>
+				<input type="hidden" name="c_month" id="c_month" th:value="${pm.c_month}"/>
+
+					
+				<div class="recordBox"></div>
+				<table class="mauto new-table">
+					<tr class="bg">
+						<td width="58">测量<br />日期
+						</td>
+						<td width="48">测试桩<br />编号
+						</td>
+						<td width="48">电位<br />（-V）
+						</td>
+						<td width="43">测量人</td>
+						<td width="143">备注</td>
+						<td width="13" rowspan="2"></td>
+						<td width="58">测量<br />日期
+						</td>
+						<td width="48">测试桩<br />编号
+						</td>
+						<td width="48">电位<br />（-V）
+						</td>
+						<td width="43">测量人</td>
+						<td width="143">备注</td>
+						<td width="13" rowspan="2"></td>
+						<td width="58">测量<br />日期
+						</td>
+						<td width="48">测试桩<br />编号
+						</td>
+						<td width="48">电位<br />（-V）
+						</td>
+						<td width="43">测量人</td>
+						<td width="143">备注</td>
+					</tr>
+					<tr class="trbody">
+						<td colspan="5">
+							<div>
+								<table style="border:0px" class="fir">
+								</table>
+							</div>
+						</td>
+						<td colspan="5">
+							<div>
+								<table style="border:0px" class="sec">
+								</table>
+							</div>
+						</td>
+						<td colspan="5">
+							<div>
+								<table style="border:0px" class="trd">
+								</table>
+							</div>
+						</td>					
+					</tr>
+					<tr>
+						<td class="tableFooter0" colspan="17"
+							style="text-align: left; border: 0 !important;">
+							<div class="fl ml20"  style="line-height:25px;">
+								<span>填报人：</span>
+								<input th:value="${pm.created_by}" th:readonly="${pm.canEdit==false}" type="text"
+									name="created_by" style="width: 50px;" />
+							</div>
+							<div class="fr mr20" style="line-height:25px;">
+								<span>审核人：</span>
+								<input th:value="${pm.auditor}" th:readonly="${pm.canEdit==false}"
+									type="text" name="auditor" style="width: 50px;" />
+							</div> <!-- <div class="clr"></div> -->
+						</td>
+					</tr>
+				</table>
+				<div class="mt20" th:if="${pms!=null and not #lists.isEmpty(pms)}" th:include="fragment/paginationbar :: paginationbar"></div>
+        		</form>
+			</li>
+			<li class="mauto20 mauto2" th:if="${verify == 1}"><label class="labelModi tl"
+				style="width: 86px;"><span class="red">*</span>审核状态:</label>
+				<div class="vocation">
+					<select name="status" class="select1" th:if="${verify == 1}">
+						<option th:selected="${0 == pm.status}" th:value="0">待审核</option>
+						<option th:selected="${1 == pm.status}" th:value="1">通过</option>
+						<option th:selected="${-1 == pm.status}" th:value="-1">不通过</option>
+					</select> <label th:if="${verify != 1}"
+						th:text="${pm.status == 0?'待审核':pm.status == 1?'通过':'不通过'}"></label>
+				</div>
+				<div class="clr"></div></li>
+			<li class="mauto mauto3" th:if="${verify == 1}"><label class="labelModi tl"
+				style="width: 86px;"><span class="red">*</span>说明:</label> <textarea
+					class="textinputM" rows="" cols="" name="verify_desc"
+					th:readonly="${verify != 1}" th:text="${pm.verify_desc}"
+					style="line-height: 35px; width: 890px;"></textarea>
+				<div class="clr"></div></li>
+			<li class="tc mt20" th:if="${verify == 1}" style="width: 990px;">
+				<input name="saveButton" id="saveButton" type="button" class="btn"
+				value="确认保存" />
+			</li>
+			<li th:if="${role!=null and role==3 and pm.canEdit==true}">
+				<!--  <input type="button" value="保存" class="btn" id="saveButton_modify" />
+				<input type="button" value="提交审核" class="btn" id="auditingButton" />  -->
+				<input type="button" value="保存并审核" class="btn" id="saveSubmitButton" />
+				<input type="hidden" name="up_id" />
+			 </li>
+		</ul>
+	</div>
+	<div th:if="${pm!=null}" class="hidden-table" style="height:1px;">
+		<table>
+			<tr th:each="d:${pm.detailList}" class="trbody">		
+						
+				<td width="58" th:if="${pm.canEdit==true}">
+				     <input name="m_date" 
+				      th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}" 
+				     onClick="WdatePicker({dateFmt:'yyyy-MM-dd'})" type="text" th:value="${beans.dateFormatter.formatDateToStr(d.m_date,'yyyy-MM-dd')}"/>
+				</td>
+				<td width="58" th:if="${pm.canEdit==false}">
+				     <input readonly="readonly" 
+				     th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+				     name="m_date" type="text" th:value="${beans.dateFormatter.formatDateToStr(d.m_date,'yyyy-MM-dd')}"/>
+				</td>
+		        <td width="48">
+		            <input th:readonly="${pm.canEdit==false}" 
+		            th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		            name="no" type="text" th:value="${d.no}"/>
+		        </td>
+		        <td width="48">
+		            <input th:readonly="${pm.canEdit==false}" 
+		            th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		            name="potential" type="text" th:value="${d.potential}"/>
+		        </td>
+		        <td width="43">
+		            <input th:readonly="${pm.canEdit==false}" 
+		            th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		            name="measurer" type="text" th:value="${d.measurer}"/>
+		        </td>
+		        <td width="143">
+		        	<input type="hidden" 
+		        	th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		        	name="pmd_id" th:value="${d.id}"/>
+		        	<textarea th:readonly="${pm.canEdit==false}" 
+		        	th:style="'width:100%;height:100%;background-color:'+ @{(${d.status}== 0?'orange' :(${d.status}== -1?'pink':(${d.status}== -2?'red':(${d.status}== 1?'yellow':''))))}"
+		        	name="remark" th:text="${d.remark}"></textarea>
+		        </td>
+			</tr>
+		</table>
+	</div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+$(document).ready(function() {
+	
+	function resetData()
+	{
+		$("#s_pl_id").val($("select[name=sh_pl_id]").val());
+		$("#s_pl_name").val($("input[name=sh_pl_name]").val());
+		$("#s_c_month").val($("input[name=sh_c_month]").val());
+		$("#name").val($("input[name=h_name]").val());
+		var month1 = $("input[name=h1_c_month]").val();
+		var month2 = $("input[name=h2_c_month]").val();
+		$("#c_month").val(month1+'-'+month2);
+	}
+	
+	//查询
+	$("#searchButton").click(function(){
+		resetData();
+		var params = "?";
+		var s_pl_id=$("#s_pl_id").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id=" + s_pl_id;
+		var s_pl_name = $("#s_pl_name").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_c_month = $("#s_c_month").val();
+		if(s_c_month !== null && s_c_month !== undefined && s_c_month.length > 0)
+			params += "&s_c_month="+s_c_month;
+		var s_user_name = [[${s_user_name}]];
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		var s_id = [[${s_id}]];
+		if(s_id > 0)
+			params += "&s_id="+s_id;
+		if([[${all!=null}]])
+			params += "&all="+[[${all}]];
+		window.location.href=[[@{/admin/base/pl_measure/2016/show}]]+params;
+	});
+	
+	
+	
+	//导出
+	$("#exportButton").click(function() {
+		resetData();
+		var params = "?";
+		var s_pl_id=$("#s_pl_id").val();
+		if(s_pl_id > 0)
+			params += "&s_pl_id=" + s_pl_id;
+		var s_pl_name = $("#s_pl_name").val();
+		if(s_pl_name !== null && s_pl_name !== undefined && s_pl_name.length > 0)
+			params += "&s_pl_name="+s_pl_name;
+		var s_c_month = $("#s_c_month").val();
+		if(s_c_month !== null && s_c_month !== undefined && s_c_month.length > 0)
+			params += "&s_c_month="+s_c_month;
+		var s_user_name = [[${s_user_name}]];
+		if(s_user_name !== null && s_user_name !== undefined && s_user_name.length > 0)
+			params += "&s_user_name="+s_user_name;
+		var s_id = [[${s_id}]];
+		if(s_id > 0)
+			params += "&s_id="+s_id;
+		if([[${all!=null}]])
+			params += "&all="+[[${all}]];
+		window.location.href=[[@{/admin/base/pl_measure/2016/exp}]]+params;
+		
+	});
+	
+	//提交审核
+	$("#saveSubmitButton").click(function(){
+		resetData();
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/pl_measure/2016/save}]]+"?status=0&modify=1");
+		formNode.submit();
+	});
+	
+	/*
+	//保存修改
+	$("#saveButton_modify").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/pl_measure/modify}]]+"");
+		formNode.submit();
+	});
+	
+	//提交审核
+	$("#auditingButton").click(function(){
+		var formNode = $("#searchForm");
+		formNode.attr("action",[[@{/admin/base/new/pl_measure/batch_changestatus}]]+"?oldStatus=-1&oldStatus=-2&newStatus=0");
+		formNode.submit();		
+	});
+	*/
+	
+	$("#saveButton").click(function() {
+		var verify_desc = $("textarea[name=verify_desc]").val();
+		var status = $("select[name=status]").val();
+		if(status==-1 && verify_desc.length==0){
+			alert("审核说明不能为空！");
+			return;
+		}
+		
+		if (status != 0 && confirm("是否确认保存？")) {
+			var pmid = [[${pm.id}]];
+			var verify_desc = $("textarea[name=verify_desc]").val();
+			var button = $(this);
+			$.ajax({
+	   			url : [[@{/admin/base/pl_measure/2016/verify_save}]],
+	   			data : {
+	   				'id' : pmid,
+	   				'verify_desc' : verify_desc,
+	   				'status' : status
+	   			},
+	   			dataType: 'json',
+	   			type: 'post',
+	   			async: false,
+	   			success : function(data, textStatus, jqXHR) {
+	   				/*$("ul.forminfo").before("<div class='formtext'><b>审核成功!</b></div>")
+	   				scrollTo(0,0);
+	   				$("select[name=status]").prop("disabled", true);
+	   				$("textarea[name=verify_desc]").prop("readonly", true);
+	   				button.parent().remove();*/
+	   				alert("审核成功！");
+	   				window.location.href = [[@{/admin/base/pl_measure/2016/list?verify=1&all=false}]];
+	   			}
+	   		});
+		}
+	}
+	
+	);
+	
+	$(".select1").uedSelect({
+		width : 168
+	});
+});
+
+
+/*]]>*/
+</script>
+</html>
